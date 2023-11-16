@@ -49,8 +49,16 @@ import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 
+/**
+ * The **OverviewScreen** class is useful to show the overview performance of the user
+ *
+ * @see Screen
+ */
 class OverviewScreen: Screen() {
 
+    /**
+     * **donutChartConfig** -> the config for the donut chart
+     */
     private lateinit var donutChartConfig: PieChartConfig
 
     /**
@@ -63,6 +71,11 @@ class OverviewScreen: Screen() {
      */
     private var bestGroupProject: Project? = null
 
+    /**
+     * Function to show the content screen
+     *
+     * No any params required
+     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun ShowScreen() {
@@ -247,6 +260,14 @@ class OverviewScreen: Screen() {
         }
     }
 
+    /**
+     * Function to create a card for a compare
+     *
+     * @param title: the title of the card
+     * @param total: the total value of the compare
+     * @param personalValue: the personal value of the compare
+     * @param onClick: the onclick action to execute when the card has been pressed
+     */
     @Composable
     private fun CreateCompareCard(
         title: String,
@@ -262,6 +283,14 @@ class OverviewScreen: Screen() {
         )
     }
 
+    /**
+     * Function to create a card for an update
+     *
+     * @param title: the title of the card
+     * @param projects: the list of the projects
+     * @param status: the status of the update
+     * @param onClick: the onclick action to execute when the card has been pressed
+     */
     @Composable
     private fun CreateUpdateCard(
         title: String,
@@ -297,6 +326,15 @@ class OverviewScreen: Screen() {
         )
     }
 
+    /**
+     * Function to create a card
+     *
+     * @param title: the title of the card
+     * @param total: the total value of the compare
+     * @param personalValue: the personal value of the compare
+     * @param fromMe: value where you are the author of the action
+     * @param onClick: the onclick action to execute when the card has been pressed
+     */
     @Composable
     private fun CreateCard(
         title: String,
@@ -609,6 +647,12 @@ class OverviewScreen: Screen() {
         return worstProject
     }
 
+    /**
+     * Function to create a card to show the performance of a project
+     *
+     * @param title: the title of the card
+     * @param project: the project to show its performance
+     */
     @Composable
     private fun CreatePerformanceCard(
         title: String,
@@ -683,6 +727,11 @@ class OverviewScreen: Screen() {
         }
     }
 
+    /**
+     * Function to round a real number value
+     *
+     * @param decimals: the decimals digits to show
+     */
     private fun Double.round(decimals: Int = 2): Double {
         return "%.${decimals}f".format(this).replace(",", ".").toDouble()
     }

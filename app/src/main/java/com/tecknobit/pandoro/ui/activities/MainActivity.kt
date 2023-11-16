@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
                                                 ImageRequest.Builder(LocalContext.current)
                                                     .data(user.profilePic)
                                                     // TODO: CHANGE WITH THE APP ICON
-                                                    .error(R.drawable.pillars)
+                                                    //.error(R.drawable.pillars)
                                                     .crossfade(500)
                                                     .build()
                                             ),

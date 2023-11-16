@@ -11,6 +11,15 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.res.stringResource
 import com.tecknobit.pandoro.R
 
+/**
+ * Function to create a Pandoro's custom alert dialog
+ *
+ * @param show: whether show the alert dialog
+ * @param title: the title of the alert dialog
+ * @param extraTitle: the extra content for the title of the alert dialog
+ * @param text: the text of the alert dialog
+ * @param requestLogic: the request to execute when the confirm text has been pressed
+ */
 @Composable
 fun PandoroAlertDialog(
     show: MutableState<Boolean>,

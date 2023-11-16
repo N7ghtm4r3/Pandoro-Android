@@ -1,4 +1,4 @@
-package layouts.components
+package com.tecknobit.pandoro.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -84,6 +84,14 @@ fun PandoroTextField(
     }
 }
 
+/**
+ * Function to create a custom [OutlinedTextField]
+ *
+ * @param modifier: modifier to be applied to the layout corresponding to the surface
+ * @param label: the label for the [OutlinedTextField]
+ * @param value: the value of the [OutlinedTextField],
+ * @param requiredTextArea: whether is required a text area or a simple text field
+ */
 @Composable
 fun PandoroOutlinedTextField(
     modifier: Modifier = Modifier,

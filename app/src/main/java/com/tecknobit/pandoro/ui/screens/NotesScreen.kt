@@ -46,14 +46,27 @@ import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
+/**
+ * The **NotesScreen** class is useful to show the notes of the user
+ *
+ * @see Screen
+ */
 class NotesScreen: Screen() {
 
     companion object {
 
+        /**
+         * **showAddNoteSheet** -> the flag to show the modal bottom sheet to add a new note
+         */
         lateinit var showAddNoteSheet: MutableState<Boolean>
 
     }
 
+    /**
+     * Function to show the content screen
+     *
+     * No any params required
+     */
     @Composable
     override fun ShowScreen() {
         showAddNoteSheet = remember { mutableStateOf(false) }

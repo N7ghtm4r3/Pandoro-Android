@@ -11,8 +11,16 @@ import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * **SnackbarLauncher** the interface useful to manage the launch of the snackbars
+ */
 interface SnackbarLauncher {
 
+    /**
+     * Function to create an host to manage the snackbars
+     *
+     * @param hostState: the host to manage the launch of the snackbars
+     */
     @Composable
     fun CreateSnackbarHost(hostState: SnackbarHostState) {
         SnackbarHost(hostState = hostState) {
@@ -27,10 +35,17 @@ interface SnackbarLauncher {
     /**
      * Function to show a message with the [SnackbarHostState]
      *
-     * @param message: the message to show
+     * @param message: the message resource identifier to show
      */
     fun showSnack(message: Int)
 
+    /**
+     * Function to show a message with the [SnackbarHostState]
+     *
+     * @param scope: the coroutine to launch the snackbars
+     * @param snackbarHostState: the host to launch the snackbars
+     * @param message: the message resource identifier to show
+     */
     fun showSnack(
         scope: CoroutineScope,
         snackbarHostState: SnackbarHostState,

@@ -94,7 +94,7 @@ import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 import com.tecknobit.pandoro.ui.theme.defTypeface
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import layouts.components.PandoroOutlinedTextField
+import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 

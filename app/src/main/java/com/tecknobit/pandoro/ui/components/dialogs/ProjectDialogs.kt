@@ -52,10 +52,20 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showEditProjectDialog
 import com.tecknobit.pandoro.ui.theme.ErrorLight
-import layouts.components.PandoroTextField
+import com.tecknobit.pandoro.ui.components.PandoroTextField
 
+/**
+ * The **ProjectDialogs** class is useful to create the projects dialogs
+ *
+ * @see PandoroDialog
+ */
 class ProjectDialogs : PandoroDialog() {
 
+    /**
+     * Function to create a Pandoro's custom dialog to add a new [Project]
+     *
+     * **No-any params required
+     */
     @Composable
     fun AddNewProject() {
         CreateProjectDialog(
@@ -65,6 +75,11 @@ class ProjectDialogs : PandoroDialog() {
         )
     }
 
+    /**
+     * Function to create a Pandoro's custom dialog to edit an existing [Project]
+     *
+     * @param project: the project to edit
+     */
     @Composable
     fun EditProject(project: Project) {
         CreateProjectDialog(
@@ -75,6 +90,14 @@ class ProjectDialogs : PandoroDialog() {
         )
     }
 
+    /**
+     * Function to create a Pandoro's custom dialog to manage a [Project]
+     *
+     * @param project: the project if is a dialog to edit an existing project
+     * @param show: whether show the dialog
+     * @param title: the title of the dialog
+     * @param confirmText: the text to confirm an action
+     */
     @SuppressLint("UnrememberedMutableState")
     @Composable
     private fun CreateProjectDialog(
@@ -233,6 +256,12 @@ class ProjectDialogs : PandoroDialog() {
         )
     }
 
+    /**
+     * Function to create a Pandoro's custom dialog to schedule a new update
+     *
+     * @param project: the project where schedule the update
+     * @param show: whether show the dialog
+     */
     @OptIn(ExperimentalFoundationApi::class)
     @SuppressLint("UnrememberedMutableState")
     @Composable

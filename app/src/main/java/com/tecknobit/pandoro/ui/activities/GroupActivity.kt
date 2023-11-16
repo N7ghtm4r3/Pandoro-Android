@@ -237,7 +237,7 @@ class GroupActivity : PandoroDataActivity() {
                                                 ImageRequest.Builder(LocalContext.current)
                                                     .data(member.profilePic)
                                                     // TODO: CHANGE WITH THE APP ICON
-                                                    .error(R.drawable.pillars)
+                                                    //.error(R.drawable.pillars)
                                                     .crossfade(500)
                                                     .build()
                                             ),

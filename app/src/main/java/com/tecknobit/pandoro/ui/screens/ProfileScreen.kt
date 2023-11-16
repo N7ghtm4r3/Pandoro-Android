@@ -79,20 +79,42 @@ import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 
+/**
+ * The **ProfileScreen** class is useful to show the profile of the user
+ *
+ * @see Screen
+ */
 class ProfileScreen: Screen() {
 
     companion object {
 
+        /**
+         * **HIDE_PASS_VALUE** -> the value to show an hidden password
+         */
         const val HIDE_PASS_VALUE = "****"
 
+        /**
+         * **titles** -> the titles list
+         */
         lateinit var titles: List<String>
 
+        /**
+         * **showAddGroupButton** -> whether show the add group button
+         */
         var showAddGroupButton = mutableStateOf(false)
 
+        /**
+         * **showCreateGroup** -> whether show the add group dialog
+         */
         lateinit var showCreateGroup: MutableState<Boolean>
 
     }
 
+    /**
+     * Function to show the content screen
+     *
+     * No any params required
+     */
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
     override fun ShowScreen() {
@@ -130,7 +152,7 @@ class ProfileScreen: Screen() {
                     Builder(LocalContext.current)
                         .data(profilePic)
                         // TODO: CHANGE WITH THE APP ICON
-                        .error(R.drawable.pillars)
+                        //.error(R.drawable.pillars)
                         .crossfade(500)
                         .build()
                 ),
@@ -201,6 +223,11 @@ class ProfileScreen: Screen() {
         }
     }
 
+    /**
+     * Function to show the details of the user
+     *
+     * No any params required
+     */
     @Composable
     private fun ShowProfileDetails() {
         val showEditEmail = remember { mutableStateOf(false) }
@@ -208,7 +235,6 @@ class ProfileScreen: Screen() {
         var passValue by remember { mutableStateOf(HIDE_PASS_VALUE) }
         ShowSubsection {
             CreateInputModalBottom(
-                containerColor = Color.White,
                 show = showEditEmail,
                 title = change_email,
                 label = new_email,
@@ -222,7 +248,6 @@ class ProfileScreen: Screen() {
                 }
             )
             CreateInputModalBottom(
-                containerColor = Color.White,
                 show = showEditPassword,
                 title = change_password,
                 label = new_password,
@@ -351,6 +376,12 @@ class ProfileScreen: Screen() {
         }
     }
 
+    /**
+     * Function to show the profile of the user
+     *
+     * @param profileData: profile data to show
+     * @param modifier: modifier for the text
+     */
     @Composable
     private fun ShowProfileData(
         profileData: String,
@@ -364,6 +395,11 @@ class ProfileScreen: Screen() {
         )
     }
 
+    /**
+     * Function to show the changelogs of the user
+     *
+     * No any params required
+     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun ShowChangelogs() {
@@ -449,6 +485,11 @@ class ProfileScreen: Screen() {
         }
     }
 
+    /**
+     * Function to show the groups of the user
+     *
+     * No any params required
+     */
     @Composable
     private fun ShowMyGroups() {
         ShowSubsection {
@@ -527,6 +568,11 @@ class ProfileScreen: Screen() {
         }
     }
 
+    /**
+     * Function to show the subsection of the screen
+     *
+     * @param content: content of the subsection to show
+     */
     @Composable
     private fun ShowSubsection(content: @Composable ColumnScope.() -> Unit) {
         Column(
@@ -536,6 +582,11 @@ class ProfileScreen: Screen() {
         )
     }
 
+    /**
+     * Function to make request to read a changelog
+     *
+     * @param changelog: the changelog to read
+     */
     private fun readChangelog(changelog: Changelog) {
         // TODO: MAKE REQUEST THEN
     }

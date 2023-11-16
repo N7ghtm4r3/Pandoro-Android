@@ -9,10 +9,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.tecknobit.pandoro.R
 
+/**
+ * **fontFamily** -> the Pandoro's font family
+ */
 val fontFamily = FontFamily(Font(R.font.rem))
 
+/**
+ * **defTypeface** -> the Pandoro's default typeface
+ */
 lateinit var defTypeface: Typeface
 
+/**
+ * **Typography** -> the Pandoro's Typography
+ */
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = fontFamily,

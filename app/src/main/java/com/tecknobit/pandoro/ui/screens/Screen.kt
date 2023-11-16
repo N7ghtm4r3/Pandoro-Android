@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,9 +25,6 @@ import androidx.core.content.ContextCompat.startActivity
 import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
-import com.tecknobit.pandoro.helpers.isContentNoteValid
-import com.tecknobit.pandoro.helpers.isEmailValid
-import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.toImportFromLibrary.Group
 import com.tecknobit.pandoro.toImportFromLibrary.Project
 import com.tecknobit.pandoro.ui.activities.GroupActivity
@@ -37,23 +33,47 @@ import com.tecknobit.pandoro.ui.activities.ProjectActivity
 import com.tecknobit.pandoro.ui.activities.ProjectActivity.Companion.PROJECT_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.theme.DwarfWhiteColor
-import layouts.components.PandoroOutlinedTextField
+import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
 import java.io.Serializable
 
+/**
+ * The **Screen** class is useful to give the base behaviour of the other screens of the
+ * Pandoro's application
+ */
 @Structure
 abstract class Screen {
 
+    /**
+     * **ScreenType** the list of available screen types
+     */
     enum class ScreenType {
 
+        /**
+         * **Projects** screen type
+         */
         Projects,
 
+        /**
+         * **Notes** screen type
+         */
         Notes,
 
+        /**
+         * **Overview** screen type
+         */
         Overview,
 
+        /**
+         * **Profile** screen type
+         */
         Profile;
 
+        /**
+         * Function to get the resource title to show in the UI
+         *
+         * @param screenType: screen type to select the resource title
+         */
         fun getStringResourceTitle(screenType: ScreenType): Int {
             return when (screenType) {
                 Projects -> R.string.projects
@@ -65,11 +85,23 @@ abstract class Screen {
 
     }
 
+    /**
+     * **sheetInputValue** the value fetched from the bottom modal sheet
+     */
     protected var sheetInputValue = mutableStateOf("")
 
+    /**
+     * Function to show the content screen
+     *
+     * No any params required
+     */
     @Composable
     abstract fun ShowScreen()
 
+    /**
+     * Function to set the content for the screen
+     * @param content: content to set
+     */
     @Composable
     protected fun SetScreen(content: @Composable ColumnScope.() -> Unit) {
         SetScreen(
@@ -78,6 +110,10 @@ abstract class Screen {
         )
     }
 
+    /**
+     * Function to set the content for the scrollable screen
+     * @param content: content to set
+     */
     @Composable
     protected fun SetScrollableScreen(content: @Composable ColumnScope.() -> Unit) {
         SetScreen(
@@ -86,6 +122,11 @@ abstract class Screen {
         )
     }
 
+    /**
+     * Function to set the content for the scrollable o simple screen
+     * @param content: content to set
+     * @param scrollEnabled: whether enable the scrollable option
+     */
     @Composable
     private fun SetScreen(
         content: @Composable ColumnScope.() -> Unit,
@@ -107,9 +148,18 @@ abstract class Screen {
         )
     }
 
+    /**
+     * Function to create a Pandoro's custom modal bottom sheet to get an input
+     *
+     * @param show: whether show the modal bottom sheet
+     * @param title: the title of the modal bottom sheet
+     * @param label: the label for the textarea
+     * @param requestLogic: the request to execute when the button has been pressed
+     * @param buttonText: the text for the button
+     * @param requiredTextArea: whether is required a textarea or a simple text field
+     */
     @Composable
     protected fun CreateInputModalBottom(
-        containerColor: Color = DwarfWhiteColor,
         show: MutableState<Boolean>,
         title: Int,
         label: Int,
@@ -122,55 +172,59 @@ abstract class Screen {
             modifier = Modifier
                 .fillMaxHeight()
                 .imePadding(),
-            containerColor = containerColor,
             show = show,
             onDismissRequest = {
                 show.value = false
                 sheetInputValue.value = ""
             },
-            title = title,
-            content = {
-                PandoroOutlinedTextField(
-                    label = label,
-                    value = sheetInputValue,
-                    isError = !inputValid(title),
-                    requiredTextArea = requiredTextArea
+            title = title
+        ) {
+            PandoroOutlinedTextField(
+                label = label,
+                value = sheetInputValue,
+                requiredTextArea = requiredTextArea
+            )
+            Button(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .height(65.dp)
+                    .fillMaxWidth(),
+                onClick = requestLogic,
+                shape = RoundedCornerShape(5.dp)
+            ) {
+                Text(
+                    text = stringResource(id = buttonText),
+                    fontSize = 20.sp
                 )
-                Button(
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .height(50.dp)
-                        .fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    onClick = requestLogic
-                ) {
-                    Text(
-                        text = stringResource(id = buttonText),
-                        fontSize = 20.sp
-                    )
-                }
             }
-        )
+        }
     }
 
-    private fun inputValid(title: Int): Boolean {
-        val sTitle = context.getString(title)
-        return if (sTitle.contains("password"))
-            isPasswordValid(sheetInputValue.value)
-        else if (sTitle.contains("email"))
-            isEmailValid(sheetInputValue.value)
-        else
-            isContentNoteValid(sheetInputValue.value)
-    }
-
+    /**
+     * Function to navigate to a project's screen
+     *
+     * @param project: the project to show
+     */
     protected fun navToProject(project: Project) {
         navTo(PROJECT_KEY, project, ProjectActivity::class.java)
     }
 
-    protected fun navToGroup(group: Group) {
+    /**
+     * Function to navigate to a group's screen
+     *
+     * @param group: the group to show
+     */
+    fun navToGroup(group: Group) {
         navTo(GROUP_KEY, group, GroupActivity::class.java)
     }
 
+    /**
+     * Function to navigate to a screen
+     *
+     * @param key: key to fetch the extra value
+     * @param extra: the payload to share with the other activity
+     * @param clazz: the class of the extra
+     */
     private fun <T> navTo(key: String, extra: Serializable, clazz: Class<T>) {
         val intent = Intent(context, clazz)
         intent.putExtra(key, extra)

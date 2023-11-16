@@ -36,12 +36,33 @@ import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * The **PandoroDialog** class is useful to create the custom Pandoro's dialogs
+ *
+ * @see SnackbarLauncher
+ */
 open class PandoroDialog : SnackbarLauncher {
 
-    protected lateinit var scope: CoroutineScope
+    /**
+     * **scope** the coroutine to launch the snackbars
+     */
+    private lateinit var scope: CoroutineScope
 
-    protected lateinit var snackbarHostState: SnackbarHostState
+    /**
+     * **snackbarHostState** the host to launch the snackbars
+     */
+    private lateinit var snackbarHostState: SnackbarHostState
 
+    /**
+     * Function to create a Pandoro's custom dialog
+     *
+     * @param show: whether show the dialog
+     * @param title: the title of the dialog
+     * @param customWeight: the custom weight of the dialog
+     * @param confirmText: the text to confirm an action
+     * @param requestLogic: the request to execute when the confirm text has been pressed
+     * @param content: the content to show with the dialog
+     */
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
     fun CreatePandoroDialog(
@@ -126,6 +147,11 @@ open class PandoroDialog : SnackbarLauncher {
         }
     }
 
+    /**
+     * Function to show a message with the [SnackbarHostState]
+     *
+     * @param message: the message resource identifier to show
+     */
     override fun showSnack(message: Int) {
         showSnack(
             scope = scope,

@@ -45,10 +45,20 @@ import com.tecknobit.pandoro.toImportFromLibrary.Group
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
 import com.tecknobit.pandoro.ui.theme.ErrorLight
-import layouts.components.PandoroTextField
+import com.tecknobit.pandoro.ui.components.PandoroTextField
 
+/**
+ * The **GroupDialogs** class is useful to create the groups dialogs
+ *
+ * @see PandoroDialog
+ */
 class GroupDialogs : PandoroDialog() {
 
+    /**
+     * Function to create a Pandoro's custom dialog to create a new [Group]
+     *
+     * **No-any params required
+     */
     @SuppressLint("UnrememberedMutableState")
     @Composable
     fun CreateGroup() {
@@ -201,6 +211,13 @@ class GroupDialogs : PandoroDialog() {
         }
     }
 
+    /**
+     * Function to create a Pandoro's custom dialog to remove an user from a [Group]
+     *
+     * @param show: whether show the dialog
+     * @param group: the group where remove the user
+     * @param member: the member to remove
+     */
     @Composable
     fun RemoveUser(
         show: MutableState<Boolean>,
@@ -219,6 +236,12 @@ class GroupDialogs : PandoroDialog() {
         )
     }
 
+    /**
+     * Function to create a Pandoro's custom dialog to leave from a [Group]
+     *
+     * @param show: whether show the dialog
+     * @param group: the group from leave
+     */
     @Composable
     fun LeaveGroup(
         show: MutableState<Boolean>,
@@ -236,6 +259,12 @@ class GroupDialogs : PandoroDialog() {
         )
     }
 
+    /**
+     * Function to create a Pandoro's custom dialog to delete a [Group]
+     *
+     * @param show: whether show the dialog
+     * @param group: the group to delete
+     */
     @Composable
     fun DeleteGroup(
         show: MutableState<Boolean>,

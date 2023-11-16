@@ -60,7 +60,7 @@ import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
-import layouts.components.PandoroTextField
+import com.tecknobit.pandoro.ui.components.PandoroTextField
 
 class ConnectActivity : ComponentActivity(), SnackbarLauncher {
 

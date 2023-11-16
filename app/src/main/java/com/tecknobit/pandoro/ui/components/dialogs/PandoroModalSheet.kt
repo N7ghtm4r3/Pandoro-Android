@@ -26,12 +26,34 @@ import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.theme.DwarfWhiteColor
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * The **PandoroModalSheet** class is useful to create the custom Pandoro's modal bottom sheets
+ *
+ * @see SnackbarLauncher
+ */
 class PandoroModalSheet : SnackbarLauncher {
 
+    /**
+     * **scope** the coroutine to launch the snackbars
+     */
     private lateinit var scope: CoroutineScope
 
+    /**
+     * **snackbarHostState** the host to launch the snackbars
+     */
     private lateinit var snackbarHostState: SnackbarHostState
 
+    /**
+     * Function to create a Pandoro's custom modal bottom sheet
+     *
+     * @param modifier: the modifier for the modal bottom sheet
+     * @param columnModifier: the modifier for the column inside the modal bottom sheet
+     * @param containerColor: the container color of the modal bottom sheet
+     * @param show: whether show the modal bottom sheet
+     * @param onDismissRequest: the action to execute when the modal bottom sheet is dismissed
+     * @param title: the title of the modal bottom sheet
+     * @param content: the content to show with the modal bottom sheet
+     */
     @SuppressLint("NotConstructor")
     @Composable
     fun PandoroModalSheet(
@@ -58,6 +80,17 @@ class PandoroModalSheet : SnackbarLauncher {
         )
     }
 
+    /**
+     * Function to create a Pandoro's custom modal bottom sheet
+     *
+     * @param modifier: the modifier for the modal bottom sheet
+     * @param columnModifier: the modifier for the column inside the modal bottom sheet
+     * @param containerColor: the container color of the modal bottom sheet
+     * @param show: whether show the modal bottom sheet
+     * @param onDismissRequest: the action to execute when the modal bottom sheet is dismissed
+     * @param title: the title of the modal bottom sheet
+     * @param content: the content to show with the modal bottom sheet
+     */
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "NotConstructor")
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -110,6 +143,11 @@ class PandoroModalSheet : SnackbarLauncher {
         }
     }
 
+    /**
+     * Function to show a message with the [SnackbarHostState]
+     *
+     * @param message: the message resource identifier to show
+     */
     override fun showSnack(message: Int) {
         showSnack(
             scope = scope,

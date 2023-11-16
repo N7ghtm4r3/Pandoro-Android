@@ -50,8 +50,13 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
-import layouts.components.PandoroTextField
+import com.tecknobit.pandoro.ui.components.PandoroTextField
 
+/**
+ * The **ProjectsScreen** class is useful to show the projects of the user
+ *
+ * @see Screen
+ */
 class ProjectsScreen: Screen() {
 
     companion object {
@@ -61,12 +66,23 @@ class ProjectsScreen: Screen() {
          */
         lateinit var projectsList: SnapshotStateList<Project>
 
+        /**
+         * **showAddProjectDialog** -> the flag to show the dialog to create a new project
+         */
         lateinit var showAddProjectDialog: MutableState<Boolean>
 
+        /**
+         * **showEditProjectDialog** -> the flag to show the dialog to edit an existing project
+         */
         lateinit var showEditProjectDialog: MutableState<Boolean>
 
     }
 
+    /**
+     * Function to show the content screen
+     *
+     * No any params required
+     */
     @Composable
     override fun ShowScreen() {
         showAddProjectDialog = rememberSaveable { mutableStateOf(false) }
@@ -224,6 +240,13 @@ class ProjectsScreen: Screen() {
         return false
     }
 
+    /**
+     * Function to create the search field to filter the projects list
+     *
+     * @param query: the query to filter the projects list
+     * @param onValueChange: the action to execute when the query value change
+     * @param onClear: the action to execute to clear the query value
+     */
     @Composable
     private fun SearchField(
         query: String,
@@ -255,6 +278,11 @@ class ProjectsScreen: Screen() {
         )
     }
 
+    /**
+     * Function to show the section when no projects has been found in the query search
+     *
+     * No any params required
+     */
     @Composable
     private fun NoProjectsFound() {
         Row(
@@ -269,6 +297,11 @@ class ProjectsScreen: Screen() {
         }
     }
 
+    /**
+     * Function to create a card for a project
+     *
+     * @param project: the project to create the card
+     */
     @Composable
     private fun ProjectCard(project: Project) {
         var showOptions by remember { mutableStateOf(false) }

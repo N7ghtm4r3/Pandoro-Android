@@ -8,8 +8,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 
-// TODO: IMPORTED COLORS FROM THE LIBRARY
-
+/**
+ * **LightColorScheme** -> the Pandoro's application color scheme
+ */
 private val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
     primaryContainer = DwarfWhiteColor,
@@ -22,6 +23,11 @@ private val LightColorScheme = lightColorScheme(
     error = ErrorLight
 )
 
+/**
+ * Function to create the Pandoro's theme
+ *
+ * @param content: the content of the UI to create with the theme
+ */
 @Composable
 fun PandoroTheme(
     content: @Composable () -> Unit

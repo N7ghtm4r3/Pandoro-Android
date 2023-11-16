@@ -91,7 +91,7 @@ class SplashScreen : ComponentActivity() {
             LaunchedEffect(key1 = true) {
                 delay(2000)
                 // TODO: CREATE THE REAL WORKFLOW
-                startActivity(Intent(this@SplashScreen, MainActivity::class.java))
+                startActivity(Intent(this@SplashScreen, ConnectActivity::class.java))
             }
         }
     }

@@ -25,14 +25,28 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 
+/**
+ * The **NavigationHelper** class is useful to manage the navigation of the screens in Pandoro's
+ * application
+ */
 class NavigationHelper {
 
+    /**
+     * The **NavigationItem** class is useful to create an item for the navigation
+     */
     data class NavigationItem(
         val title: Screen.ScreenType,
         val selectedIcon: ImageVector,
         val unselectedIcon: ImageVector
     )
 
+    /**
+     * Function to create a navigation bar to navigate in the Pandoro's application
+     *
+     * No any params required
+     *
+     * @return navigation bar as [Composable] function
+     */
     @Composable
     fun getNavigationBar() : @Composable () -> Unit {
         return {
