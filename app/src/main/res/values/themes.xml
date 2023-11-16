@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Pandoro" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.Pandoro.FullScreen" parent="android:Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">#07020d</item>
+    </style>
+
+    <style name="Theme.Pandoro.Connect" parent="android:Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">#f9f6f0</item>
+    </style>
+
+</resources>
