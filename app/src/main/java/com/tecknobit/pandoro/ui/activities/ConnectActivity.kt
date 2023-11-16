@@ -62,12 +62,35 @@ import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 
+/**
+ * The **ConnectActivity** class is useful to create an activity to connect the user to the Pandoro's
+ * system
+ *
+ * @see ComponentActivity
+ * @see SnackbarLauncher
+ */
 class ConnectActivity : ComponentActivity(), SnackbarLauncher {
 
+    /**
+     * **scope** the coroutine to launch the snackbars
+     */
     private lateinit var scope: CoroutineScope
 
+    /**
+     * **snackbarHostState** the host to launch the snackbars
+     */
     private lateinit var snackbarHostState: SnackbarHostState
 
+    /**
+     * On create method
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     * If your ComponentActivity is annotated with {@link ContentView}, this will
+     * call {@link #setContentView(int)} for you.
+     */
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -342,6 +365,12 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         }
     }
 
+    /**
+     * Function to check the credentials inserted
+     *
+     * @param email: the email of the user
+     * @param password: the password of the user
+     */
     private fun checkCredentials(email: String, password: String) {
         when (areCredentialsValid(email, password)) {
             OK -> {

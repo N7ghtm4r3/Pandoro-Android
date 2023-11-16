@@ -32,22 +32,48 @@ import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
 import kotlinx.coroutines.delay
 
+/**
+ * The **SplashScreen** class is useful to create the first showable screen of the Pandoro's application
+ * and init the logic
+ *
+ * @see ComponentActivity
+ */
 @SuppressLint("CustomSplashScreen")
 class SplashScreen : ComponentActivity() {
 
     companion object {
 
+        /**
+         * **user** the current user logged in
+         */
         val user = User()
 
+        /**
+         * **groupDialogs** the instance to manage the dialogs of the groups
+         */
         val groupDialogs = GroupDialogs()
 
+        /**
+         * **projectDialogs** the instance to manage the dialogs of the projects
+         */
         val projectDialogs = ProjectDialogs()
 
+        /**
+         * **pandoroModalSheet** the instance to manage the modal bottom sheets
+         */
         val pandoroModalSheet = PandoroModalSheet()
 
+        /**
+         * **context** the current context of the application
+         */
         @SuppressLint("StaticFieldLeak")
         lateinit var context: Context
 
+        /**
+         * Method to open a link in app
+         *
+         * @param url: the url to open
+         */
         fun openLink(url: String) {
             val intent = Intent()
             intent.data = url.toUri()
@@ -57,6 +83,16 @@ class SplashScreen : ComponentActivity() {
 
     }
 
+    /**
+     * On create method
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     * If your ComponentActivity is annotated with {@link ContentView}, this will
+     * call {@link #setContentView(int)} for you.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())

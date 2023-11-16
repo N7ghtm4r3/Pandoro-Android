@@ -10,7 +10,7 @@ import com.tecknobit.pandoro.toImportFromLibrary.Project.PROJECT_DESCRIPTION_MAX
 import com.tecknobit.pandoro.toImportFromLibrary.Project.PROJECT_NAME_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.Project.PROJECT_SHORT_DESCRIPTION_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.Project.RepositoryPlatform.isValidPlatform
-import com.tecknobit.pandoro.toImportFromLibrary.Update.TARGET_VERSION_MAX_LENGTH
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.TARGET_VERSION_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.User.EMAIL_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.User.PASSWORD_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.User.PASSWORD_MIN_LENGTH

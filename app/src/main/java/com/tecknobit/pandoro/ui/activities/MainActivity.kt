@@ -43,6 +43,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
+import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.screens.NotesScreen
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.showAddNoteSheet
@@ -57,22 +58,53 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.*
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 
+/**
+ * The **MainActivity** class is useful to create the main activity where place the main logic of the
+ * application like navigation, show the current screen, etc
+ *
+ * @see ComponentActivity
+ */
 class MainActivity : ComponentActivity() {
 
     companion object {
 
+        /**
+         * **activeScreen** -> the active screen to show
+         */
         lateinit var activeScreen: MutableState<ScreenType>
 
     }
 
+    /**
+     * **projectsScreen** -> the screen to show the projects
+     */
     private val projectsScreen = ProjectsScreen()
 
+    /**
+     * **notesScreen** -> the screen to show the notes
+     */
     private val notesScreen = NotesScreen()
 
+    /**
+     * **overviewScreen** -> the screen to show the overview
+     */
     private val overviewScreen = OverviewScreen()
 
+    /**
+     * **profileScreen** -> the screen to show the profile
+     */
     private val profileScreen = ProfileScreen()
 
+    /**
+     * On create method
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     * If your ComponentActivity is annotated with {@link ContentView}, this will
+     * call {@link #setContentView(int)} for you.
+     */
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {

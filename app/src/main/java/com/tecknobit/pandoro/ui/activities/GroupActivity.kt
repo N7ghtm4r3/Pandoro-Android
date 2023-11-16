@@ -3,6 +3,7 @@ package com.tecknobit.pandoro.ui.activities
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -60,7 +61,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.toImportFromLibrary.Group
@@ -75,16 +75,38 @@ import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 
+/**
+ * The **GroupActivity** class is useful to create the activity to show the [Group] details
+ *
+ * @see ComponentActivity
+ * @see PandoroDataActivity
+ */
 class GroupActivity : PandoroDataActivity() {
 
     companion object {
 
+        /**
+         * **GROUP_KEY** the group key
+         */
         const val GROUP_KEY = "group"
 
     }
 
+    /**
+     * **group** the group to show its details
+     */
     lateinit var group: Group
 
+    /**
+     * On create method
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     * If your ComponentActivity is annotated with {@link ContentView}, this will
+     * call {@link #setContentView(int)} for you.
+     */
     @OptIn(ExperimentalMaterial3Api::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,7 +116,7 @@ class GroupActivity : PandoroDataActivity() {
         else
             intent.getSerializableExtra(GROUP_KEY) as Group
         val isAdmin = group.isUserAdmin(user)
-        val isMantainer = group.isUserMaintainer(user)
+        val isMaintainer = group.isUserMaintainer(user)
         setContent {
             PandoroTheme {
                 Scaffold(
@@ -157,7 +179,7 @@ class GroupActivity : PandoroDataActivity() {
                         )
                     },
                     floatingActionButton = {
-                        if (isAdmin || isMantainer) {
+                        if (isAdmin || isMaintainer) {
                             val addMembers = remember { mutableStateOf(false) }
                             val members = mutableStateListOf("")
                             FloatingActionButton(
@@ -224,7 +246,7 @@ class GroupActivity : PandoroDataActivity() {
                                 val isLoggedUser = member.isLoggedUser(user)
                                 val changeRole = remember { mutableStateOf(false) }
                                 ListItem(
-                                    modifier = if (isAdmin || isMantainer) {
+                                    modifier = if (isAdmin || isMaintainer) {
                                         if ((isAdmin || !member.isAdmin) && !isLoggedUser) {
                                             modifier.clickable { changeRole.value = true }
                                         } else
@@ -265,7 +287,7 @@ class GroupActivity : PandoroDataActivity() {
                                         )
                                     },
                                     trailingContent = {
-                                        if (isAdmin || isMantainer) {
+                                        if (isAdmin || isMaintainer) {
                                             if (!isLoggedUser) {
                                                 val removeUser = remember { mutableStateOf(false) }
                                                 IconButton(
@@ -365,10 +387,16 @@ class GroupActivity : PandoroDataActivity() {
         }
     }
 
+    /**
+     * Function to change a role of a member of the group
+     *
+     * @param expanded: whether the roles menu is expanded
+     * @param member: the member to change the role
+     */
     @Composable
     private fun ChangeMemberRole(
         expanded: MutableState<Boolean>,
-        member: Member
+        member: GroupMember
     ) {
         DropdownMenu(
             expanded = expanded.value,

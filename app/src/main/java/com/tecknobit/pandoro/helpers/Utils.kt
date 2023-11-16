@@ -14,6 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
+/**
+ * Method to create a [Divider] on the UI
+ *
+ * No any params required
+ */
 @Composable
 fun Divide() {
     Divider(
@@ -22,6 +27,11 @@ fun Divide() {
     )
 }
 
+/**
+ * Method to space the content of the UI and create a [Divider]
+ *
+ * @param height: the height of the [Spacer]
+ */
 @Composable
 fun SpaceContent(height: Int = 10) {
     Spacer(
@@ -30,6 +40,11 @@ fun SpaceContent(height: Int = 10) {
     Divide()
 }
 
+/**
+ * Method to color the border of a [Box]
+ *
+ * @param color: the color for the border
+ */
 @Composable
 fun ColoredBorder(color: Color) {
     Box(

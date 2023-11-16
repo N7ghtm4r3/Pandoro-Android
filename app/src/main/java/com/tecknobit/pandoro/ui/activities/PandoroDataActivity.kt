@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
@@ -49,13 +50,29 @@ import com.tecknobit.pandoro.toImportFromLibrary.PandoroItem
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroCard
+import com.tecknobit.pandoro.ui.components.dialogs.PandoroDialog
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 
+/**
+ * The **PandoroDataActivity** class is useful to create an activity with the behavior to show the UI
+ * data
+ *
+ * @see ComponentActivity
+ */
+@Structure
 abstract class PandoroDataActivity : ComponentActivity() {
 
+    /**
+     * **coroutine** the coroutine to launch the snackbars
+     */
     protected lateinit var coroutine: CoroutineScope
 
+    /**
+     * Function to show the data
+     *
+     * @param content: the content to show
+     */
     @Composable
     protected fun ShowData(
         content: LazyListScope.() -> Unit
@@ -74,6 +91,14 @@ abstract class PandoroDataActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Function to create an header title
+     *
+     * @param headerTitle: the header title
+     * @param extraIcon: the extra icon to show with the title
+     * @param show: whether show the subsection
+     * @param showArrow: whether show the arrow to display the subsection
+     */
     @Composable
     protected fun CreateHeader(
         headerTitle: Int,
@@ -113,8 +138,13 @@ abstract class PandoroDataActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Function to show the description section
+     *
+     * @param description: the description to show
+     */
     @Composable
-    protected fun ShowDescription(description: String) {
+    protected open fun ShowDescription(description: String) {
         val showDescription = remember { mutableStateOf(false) }
         val showDescriptionSection = remember { mutableStateOf(true) }
         pandoroModalSheet.PandoroModalSheet(
@@ -147,6 +177,17 @@ abstract class PandoroDataActivity : ComponentActivity() {
         SpaceContent()
     }
 
+    /**
+     * Function to show a list of items
+     *
+     * @param show: whether show the list
+     * @param headerTitle: the header title
+     * @param extraIcon: the extra icon to show with the title
+     * @param itemsList: the list of the items to show
+     * @param key: the key value
+     * @param clazz: the class value of the items list
+     * @param adminPrivileges: whether the user has the admin privileges to execute the own actions
+     */
     @Composable
     protected fun <T> ShowItemsList(
         show: MutableState<Boolean>,
@@ -221,6 +262,9 @@ abstract class PandoroDataActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * The **ExtraIcon** class is useful to pair an icon and its action
+     */
     protected data class ExtraIcon(
         val action: () -> Unit,
         val icon: ImageVector

@@ -222,7 +222,7 @@ class GroupDialogs : PandoroDialog() {
     fun RemoveUser(
         show: MutableState<Boolean>,
         group: Group,
-        member: Group.Member
+        member: Group.GroupMember
     ) {
         PandoroAlertDialog(
             show = show,

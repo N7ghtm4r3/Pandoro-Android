@@ -43,34 +43,34 @@ public class Changelog implements Serializable {
         GROUP_DELETED("Group deleted"),
 
         /**
-         * {@code PROJECT_CREATED} type of the changelogEvent when a new project of a group has been created
+         * {@code PROJECT_ADDED} type of the changelogEvent when a new project of a group has been created
          */
-        PROJECT_CREATED("Project created"),
+        PROJECT_ADDED("Project added"),
 
         /**
-         * {@code PROJECT_DELETED} type of the changelogEvent when a project of a group has been deleted
+         * {@code PROJECT_REMOVED} type of the changelogEvent when a project of a group has been deleted
          */
-        PROJECT_DELETED("Project deleted"),
+        PROJECT_REMOVED("Project removed"),
 
         /**
          * {@code UPDATE_SCHEDULED} type of the changelogEvent when a new update of project of a group has been scheduled
          */
-        UPDATE_SCHEDULED("Update scheduled"),
+        UPDATE_SCHEDULED("ProjectUpdate scheduled"),
 
         /**
          * {@code UPDATE_STARTED} type of the changelogEvent when an update of project of a group has been started
          */
-        UPDATE_STARTED("Update started"),
+        UPDATE_STARTED("ProjectUpdate started"),
 
         /**
          * {@code UPDATE_PUBLISHED} type of the changelogEvent when an update of project of a group has been published
          */
-        UPDATE_PUBLISHED("Update published"),
+        UPDATE_PUBLISHED("ProjectUpdate published"),
 
         /**
          * {@code UPDATE_DELETED} type of the changelogEvent when an update of project of a group has been deleted
          */
-        UPDATE_DELETED("Update deleted");
+        UPDATE_DELETED("ProjectUpdate deleted");
 
         /**
          * {@code changelogEvent} type
@@ -278,8 +278,8 @@ public class Changelog implements Serializable {
             }
             case LEFT_GROUP -> "You left from the " + entityName + " group";
             case GROUP_DELETED -> "The " + entityName + " group has been deleted";
-            case PROJECT_CREATED -> "The project " + entityName + " has been created";
-            case PROJECT_DELETED -> "The project " + entityName + " has been deleted";
+            case PROJECT_ADDED -> "The project " + entityName + " has been created";
+            case PROJECT_REMOVED -> "The project " + entityName + " has been deleted";
             case UPDATE_SCHEDULED ->
                     "A new update for " + entityName + "'s project has been scheduled [v. " + extraContent + "]";
             case UPDATE_STARTED ->

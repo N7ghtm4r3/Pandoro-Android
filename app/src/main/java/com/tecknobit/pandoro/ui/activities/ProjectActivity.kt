@@ -3,6 +3,7 @@ package com.tecknobit.pandoro.ui.activities
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -74,10 +75,10 @@ import com.tecknobit.pandoro.helpers.isContentNoteValid
 import com.tecknobit.pandoro.toImportFromLibrary.Note
 import com.tecknobit.pandoro.toImportFromLibrary.Project
 import com.tecknobit.pandoro.toImportFromLibrary.Project.RepositoryPlatform.Github
-import com.tecknobit.pandoro.toImportFromLibrary.Update
-import com.tecknobit.pandoro.toImportFromLibrary.Update.Status.IN_DEVELOPMENT
-import com.tecknobit.pandoro.toImportFromLibrary.Update.Status.PUBLISHED
-import com.tecknobit.pandoro.toImportFromLibrary.Update.Status.SCHEDULED
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.IN_DEVELOPMENT
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.PUBLISHED
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.SCHEDULED
 import com.tecknobit.pandoro.ui.activities.GroupActivity.Companion.GROUP_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
@@ -98,18 +99,43 @@ import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
+/**
+ * The **ProjectActivity** class is useful to create the activity to show the [Project] details
+ *
+ * @see ComponentActivity
+ * @see PandoroDataActivity
+ */
 class ProjectActivity : PandoroDataActivity() {
 
     companion object {
 
+        /**
+         * **PROJECT_KEY** the project key
+         */
         const val PROJECT_KEY = "project"
 
     }
 
+    /**
+     * **project** the project to show its details
+     */
     lateinit var project: Project
 
-    private var publishUpdates = arrayListOf<Update>()
+    /**
+     * **publishUpdates** list of the published updates
+     */
+    private var publishUpdates = arrayListOf<ProjectUpdate>()
 
+    /**
+     * On create method
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     * If your ComponentActivity is annotated with {@link ContentView}, this will
+     * call {@link #setContentView(int)} for you.
+     */
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -685,10 +711,23 @@ class ProjectActivity : PandoroDataActivity() {
         }
     }
 
-    private suspend fun deleteUpdate(update: Update) {
+    /**
+     * Function to delete an update
+     *
+     * @param update: the update to delete
+     */
+    private suspend fun deleteUpdate(update: ProjectUpdate) {
         // TODO: MAKE REQUEST THEN
     }
 
+    /**
+     * Function to create a card for a change note
+     *
+     * @param note: the note to show
+     * @param markedAsDone: whether the note is marked as done
+     * @param isScheduled: whether the update is scheduled
+     * @param isInDevelopment: whether the update is in development
+     */
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun ChangeNoteCard(
@@ -787,6 +826,11 @@ class ProjectActivity : PandoroDataActivity() {
         }
     }
 
+    /**
+     * Function to show the user stats
+     *
+     * No any params required
+     */
     @Composable
     private fun ShowStats() {
         val barData = arrayListOf<BarData>()

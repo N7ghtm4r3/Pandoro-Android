@@ -36,10 +36,10 @@ import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.*
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.toImportFromLibrary.Project
-import com.tecknobit.pandoro.toImportFromLibrary.Update.Status
-import com.tecknobit.pandoro.toImportFromLibrary.Update.Status.IN_DEVELOPMENT
-import com.tecknobit.pandoro.toImportFromLibrary.Update.Status.PUBLISHED
-import com.tecknobit.pandoro.toImportFromLibrary.Update.Status.SCHEDULED
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.IN_DEVELOPMENT
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.PUBLISHED
+import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.SCHEDULED
 import com.tecknobit.pandoro.toImportFromLibrary.User
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user

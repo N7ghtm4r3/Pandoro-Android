@@ -69,7 +69,7 @@ public class Group extends PandoroItem {
     /**
      * {@code members} the list of the members of the group
      */
-    private final ArrayList<Member> members;
+    private final ArrayList<GroupMember> members;
 
     /**
      * {@code totalMembers} how many members the group has
@@ -97,8 +97,8 @@ public class Group extends PandoroItem {
     public Group(String id, String name, String description) {
         this(id, name, new User("Manuel", "Maurizio"), description,
                 new ArrayList<>(List.of(
-                        new Member("manu0", "Manuel", "Maurizio", Role.ADMIN),
-                        new Member("Gabriele", "Marengo", Role.MAINTAINER))
+                        new GroupMember("manu0", "Manuel", "Maurizio", Role.ADMIN),
+                        new GroupMember("Gabriele", "Marengo", Role.MAINTAINER))
                 ),
                 new ArrayList<>(of(
                         new Project(
@@ -116,14 +116,14 @@ public class Group extends PandoroItem {
                                                         "os harum sit veniam accusamus eum corrupti rerum qui voluptas dolor sit officiis modi sit " +
                                                         "eius quia",
                                                 new ArrayList<>(List.of(
-                                                        new Member("manu0", "Manuel", "Maurizio", Role.ADMIN),
-                                                        new Member("Gabriele", "Marengo", Role.MAINTAINER))
+                                                        new GroupMember("manu0", "Manuel", "Maurizio", Role.ADMIN),
+                                                        new GroupMember("Gabriele", "Marengo", Role.MAINTAINER))
                                                 ),
                                                 new ArrayList<>()
                                         )
                                 )),
                                 new ArrayList<>(List.of(
-                                        new Update(
+                                        new ProjectUpdate(
                                                 "gaga",
                                                 new User("Manuel", "Maurizio"),
                                                 System.currentTimeMillis(),
@@ -142,7 +142,7 @@ public class Group extends PandoroItem {
                                                                 "Fixed24",
                                                                 System.currentTimeMillis())))
                                         ),
-                                        new Update(
+                                        new ProjectUpdate(
                                                 "gagagaga",
                                                 new User("Manuel", "Maurizio"),
                                                 System.currentTimeMillis(),
@@ -162,7 +162,7 @@ public class Group extends PandoroItem {
                                                                 "Fixed2",
                                                                 System.currentTimeMillis())))
                                         ),
-                                        new Update(
+                                        new ProjectUpdate(
                                                 "gagagaga1",
                                                 new User("Gabriele", "Marengo"),
                                                 System.currentTimeMillis(),
@@ -187,7 +187,7 @@ public class Group extends PandoroItem {
                                                         "Fixed3",
                                                         1691852915000L)))
                                         ),
-                                        new Update(
+                                        new ProjectUpdate(
                                                 "gagagaga1",
                                                 new User("Gabriele", "Marengo"),
                                                 System.currentTimeMillis(),
@@ -212,7 +212,7 @@ public class Group extends PandoroItem {
                                                         "Fixed3",
                                                         1691852915000L)))
                                         ),
-                                        new Update(
+                                        new ProjectUpdate(
                                                 "gagagaga1",
                                                 new User("Gabriele", "Marengo"),
                                                 System.currentTimeMillis(),
@@ -237,7 +237,7 @@ public class Group extends PandoroItem {
                                                         "Fixed3",
                                                         1691852915000L)))
                                         ),
-                                        new Update(
+                                        new ProjectUpdate(
                                                 "gagagaga2",
                                                 System.currentTimeMillis(),
                                                 "0.0.0",
@@ -262,7 +262,7 @@ public class Group extends PandoroItem {
      * @param projects:    the list of the projects managed by the group
      */
     // TODO: 19/08/2023 TO REMOVE
-    public Group(String id, String name, String description, ArrayList<Member> members, ArrayList<Project> projects) {
+    public Group(String id, String name, String description, ArrayList<GroupMember> members, ArrayList<Project> projects) {
         this(id, name, new User("manu0", "Manuel", "Maurizio"), description, members, projects);
     }
 
@@ -276,7 +276,7 @@ public class Group extends PandoroItem {
      * @param members:     the list of the members of the group
      * @param projects:    the list of the projects managed by the group
      */
-    public Group(String id, String name, User author, String description, ArrayList<Member> members,
+    public Group(String id, String name, User author, String description, ArrayList<GroupMember> members,
                  ArrayList<Project> projects) {
         super(id, name);
         this.author = author;
@@ -311,9 +311,9 @@ public class Group extends PandoroItem {
      * Method to get {@link #members} instance <br>
      * No-any params required
      *
-     * @return {@link #members} instance as {@link ArrayList} of {@link Member}
+     * @return {@link #members} instance as {@link ArrayList} of {@link GroupMember}
      */
-    public ArrayList<Member> getMembers() {
+    public ArrayList<GroupMember> getMembers() {
         return members;
     }
 
@@ -354,7 +354,7 @@ public class Group extends PandoroItem {
      * @return whether the user is a {@link Role#MAINTAINER} as boolean
      */
     public boolean isUserMaintainer(User user) {
-        for (Member member : members)
+        for (GroupMember member : members)
             if (user.getId().equals(member.getId()))
                 return member.isMaintainer();
         return false;
@@ -367,21 +367,21 @@ public class Group extends PandoroItem {
      * @return whether the user is an {@link Role#ADMIN} as boolean
      */
     public boolean isUserAdmin(User user) {
-        for (Member member : members)
+        for (GroupMember member : members)
             if (user.getId().equals(member.getId()))
                 return member.isAdmin();
         return false;
     }
 
     /**
-     * The {@code Member} class is useful to create a <b>Pandoro's group member</b>
+     * The {@code GroupMember} class is useful to create a <b>Pandoro's group member</b>
      *
      * @author N7ghtm4r3 - Tecknobit
      * @see PandoroItem
      * @see User
      * @see Serializable
      */
-    public static class Member extends User {
+    public static class GroupMember extends User {
 
         /**
          * {@code role} the role of the member
@@ -389,32 +389,32 @@ public class Group extends PandoroItem {
         private final Role role;
 
         /**
-         * Constructor to init a {@link Member} object
+         * Constructor to init a {@link GroupMember} object
          *
          * @param id:      identifier of the member
          * @param name:    name of the member
          * @param surname: surname of the member
          * @param role:    the role of the member
          */
-        public Member(String id, String name, String surname, Role role) {
+        public GroupMember(String id, String name, String surname, Role role) {
             super(id, name, surname);
             this.role = role;
         }
 
         /**
-         * Constructor to init a {@link Member} object
+         * Constructor to init a {@link GroupMember} object
          *
          * @param name:    name of the member
          * @param surname: surname of the member
          * @param role:    the role of the member
          */
-        public Member(String name, String surname, Role role) {
+        public GroupMember(String name, String surname, Role role) {
             super(name, surname);
             this.role = role;
         }
 
         /**
-         * Constructor to init a {@link Member} object
+         * Constructor to init a {@link GroupMember} object
          *
          * @param id:             identifier of the member
          * @param name:           name of the member
@@ -427,9 +427,9 @@ public class Group extends PandoroItem {
          * @param projects:       list of the projects of the member
          * @param role:           the role of the member
          */
-        public Member(String id, String name, String profilePic, String surname, String email, String password,
-                      ArrayList<Group> groups, ArrayList<Changelog> changelogs, ArrayList<Project> projects,
-                      Role role) {
+        public GroupMember(String id, String name, String profilePic, String surname, String email, String password,
+                           ArrayList<Group> groups, ArrayList<Changelog> changelogs, ArrayList<Project> projects,
+                           Role role) {
             super(id, name, profilePic, surname, email, password, changelogs, groups, projects, null);
             this.role = role;
         }
