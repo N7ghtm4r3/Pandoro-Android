@@ -276,7 +276,12 @@ class GroupDialogs : PandoroDialog() {
             text = R.string.leave_group_text,
             requestLogic = {
                 if(group.isUserAdmin(user)) {
-                    if(members.size - 1 != 0) {
+                    var pendingUsers = 0
+                    members.forEach { member ->
+                        if(member.invitationStatus == PENDING)
+                            pendingUsers++;
+                    }
+                    if(((members.size - 1) - pendingUsers) != 0) {
                         var hasOtherAdmins = false
                         for(member in members) {
                             if(member.role == ADMIN && !member.isLoggedUser(user)) {
