@@ -43,7 +43,6 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.screens.NotesScreen
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.showAddNoteSheet
@@ -140,7 +139,7 @@ class MainActivity : ComponentActivity() {
                                                 ImageRequest.Builder(LocalContext.current)
                                                     .data(user.profilePic)
                                                     // TODO: CHANGE WITH THE APP ICON
-                                                    //.error(R.drawable.pillars)
+                                                    .error(R.drawable.error)
                                                     .crossfade(500)
                                                     .build()
                                             ),

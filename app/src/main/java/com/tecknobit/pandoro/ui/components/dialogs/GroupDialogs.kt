@@ -2,6 +2,7 @@ package com.tecknobit.pandoro.ui.components.dialogs
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,14 +11,23 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -28,10 +38,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_group_description
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_group_name
@@ -42,10 +57,15 @@ import com.tecknobit.pandoro.helpers.isEmailValid
 import com.tecknobit.pandoro.helpers.isGroupDescriptionValid
 import com.tecknobit.pandoro.helpers.isGroupNameValid
 import com.tecknobit.pandoro.toImportFromLibrary.Group
+import com.tecknobit.pandoro.toImportFromLibrary.Group.GroupMember
+import com.tecknobit.pandoro.toImportFromLibrary.Group.GroupMember.InvitationStatus.PENDING
+import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.ADMIN
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
+import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
 import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandoro.ui.components.PandoroTextField
+import com.tecknobit.pandoro.ui.theme.PrimaryLight
 
 /**
  * The **GroupDialogs** class is useful to create the groups dialogs
@@ -247,16 +267,148 @@ class GroupDialogs : PandoroDialog() {
         show: MutableState<Boolean>,
         group: Group,
     ) {
+        val showAdminChoseDialog = remember { mutableStateOf(false) }
+        val members = group.members
         PandoroAlertDialog(
             show = show,
             title = R.string.leave_group,
             extraTitle = group.name,
             text = R.string.leave_group_text,
             requestLogic = {
-                // TODO: REQUEST THEN
-                show.value = false
+                if(group.isUserAdmin(user)) {
+                    if(members.size - 1 != 0) {
+                        var hasOtherAdmins = false
+                        for(member in members) {
+                            if(member.role == ADMIN && !member.isLoggedUser(user)) {
+                                hasOtherAdmins = true
+                                break
+                            }
+                        }
+                        if(hasOtherAdmins)
+                            leaveFromGroup(show, group)
+                        else
+                            showAdminChoseDialog.value = true
+                    } else
+                        leaveFromGroup(show, group)
+                } else
+                    leaveFromGroup(show, group)
             }
         )
+        if(showAdminChoseDialog.value) {
+            var nextAdmin by remember { mutableStateOf<GroupMember?>(null) }
+            for(member in members) {
+                if(!member.isLoggedUser(user) && member.invitationStatus != PENDING) {
+                    nextAdmin = member
+                    break
+                }
+            }
+            AlertDialog(
+                modifier = Modifier.height(330.dp),
+                onDismissRequest = { showAdminChoseDialog.value = false },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = PrimaryLight
+                    )
+                },
+                title = {
+                    Text(
+                        text = stringResource(R.string.choose_the_next_admin)
+                    )
+                },
+                text = {
+                    Column (
+                        modifier = Modifier.verticalScroll(rememberScrollState())
+                    ) {
+                        members.forEach { member ->
+                            if(!member.isLoggedUser(user) && member.invitationStatus != PENDING) {
+                                ListItem(
+                                    leadingContent = {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(
+                                                ImageRequest.Builder(LocalContext.current)
+                                                    .data(member.profilePic)
+                                                    // TODO: CHANGE WITH THE APP ICON
+                                                    .error(R.drawable.error)
+                                                    .crossfade(500)
+                                                    .build()
+                                            ),
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape)
+                                        )
+                                    },
+                                    headlineContent = {
+                                        Text(
+                                            text = member.completeName,
+                                            fontSize = 18.sp
+                                        )
+                                    },
+                                    supportingContent = {
+                                        Text(
+                                            text = member.role.toString(),
+                                            color = if (member.isAdmin) ErrorLight else PrimaryLight
+                                        )
+                                    },
+                                    trailingContent = {
+                                        RadioButton(
+                                            modifier = Modifier.size(15.dp),
+                                            selected = member == nextAdmin,
+                                            onClick = { nextAdmin = member }
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            show.value = false
+                            showAdminChoseDialog.value = false
+                        },
+                        content = {
+                            Text(
+                                text = stringResource(R.string.dismiss),
+                            )
+                        }
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            leaveFromGroup(show, group, nextAdmin)
+                            showAdminChoseDialog.value = false
+                        },
+                        content = {
+                            Text(
+                                text = stringResource(R.string.confirm),
+                            )
+                        }
+                    )
+                }
+            )
+        }
+    }
+
+    /**
+     * Function to execute the request to leave from a [Group]
+     *
+     * @param show: whether show the dialog
+     * @param group: the group from leave
+     * @param nextAdmin: the next member chosen as next admin
+     */
+    private fun leaveFromGroup(
+        show: MutableState<Boolean>,
+        group: Group,
+        nextAdmin: GroupMember? = null
+    ) {
+        // TODO: REQUEST THEN
+        show.value = false
     }
 
     /**

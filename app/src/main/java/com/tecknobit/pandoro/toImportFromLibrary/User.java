@@ -389,6 +389,9 @@ public class User extends PandoroItem {
                                                                 "Lorem Ipsum is simply dummy text of the printing and typesetting industry. " +
                                                                         "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, " +
                                                                         "when an unknown printer took a galley of type and",
+                                                                System.currentTimeMillis(),
+                                                                true,
+                                                                new User("Gabriele", "Marengo"),
                                                                 System.currentTimeMillis()),
                                                         new Note(
                                                                 "gagaga1",
@@ -397,6 +400,8 @@ public class User extends PandoroItem {
                                                         new Note(
                                                                 "gagaga2",
                                                                 "Fixed2",
+                                                                System.currentTimeMillis(),
+                                                                true,
                                                                 System.currentTimeMillis())))
                                         ),
                                         new ProjectUpdate(

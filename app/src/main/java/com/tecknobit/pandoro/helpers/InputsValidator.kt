@@ -5,6 +5,7 @@ import com.tecknobit.pandoro.helpers.InputStatus.WRONG_EMAIL
 import com.tecknobit.pandoro.helpers.InputStatus.WRONG_PASSWORD
 import com.tecknobit.pandoro.toImportFromLibrary.Group.GROUP_DESCRIPTION_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.Group.GROUP_NAME_MAX_LENGTH
+import com.tecknobit.pandoro.toImportFromLibrary.Note
 import com.tecknobit.pandoro.toImportFromLibrary.Note.NOTE_CONTENT_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.Project.PROJECT_DESCRIPTION_MAX_LENGTH
 import com.tecknobit.pandoro.toImportFromLibrary.Project.PROJECT_NAME_MAX_LENGTH
@@ -288,4 +289,22 @@ fun isValidVersion(version: String): Boolean {
  */
 fun isValidRepository(repository: String): Boolean {
     return repository.isEmpty() || (urlValidator.isValid(repository) && isValidPlatform(repository))
+}
+
+
+// TODO: TO PACK IN THE LIBRARY
+/**
+ * Function to check whether the change notes are all done before the publish of the update
+ *
+ * @param changeNotes: the change notes to check
+ * @return whether the the change notes are all done before the publish of the update as [Boolean]
+ */
+fun areAllChangeNotesDone(changeNotes: List<Note>?): Boolean {
+    if(changeNotes == null)
+        return false
+    changeNotes.forEach {note ->
+        if(!note.isMarkedAsDone)
+            return false
+    }
+    return true
 }

@@ -19,18 +19,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
@@ -54,12 +51,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -74,14 +69,9 @@ import com.tecknobit.pandoro.R.string.profile_details
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
 import com.tecknobit.pandoro.helpers.Divide
-import com.tecknobit.pandoro.helpers.ScreenType
 import com.tecknobit.pandoro.helpers.isEmailValid
-import com.tecknobit.pandoro.helpers.isNameValid
 import com.tecknobit.pandoro.helpers.isPasswordValid
-import com.tecknobit.pandoro.helpers.isServerAddressValid
-import com.tecknobit.pandoro.helpers.isSurnameValid
 import com.tecknobit.pandoro.toImportFromLibrary.Changelog
-import com.tecknobit.pandoro.toImportFromLibrary.Changelog.ChangelogEvent
 import com.tecknobit.pandoro.toImportFromLibrary.Changelog.ChangelogEvent.*
 import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.ADMIN
 import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.DEVELOPER
@@ -166,7 +156,7 @@ class ProfileScreen: Screen() {
                     Builder(LocalContext.current)
                         .data(profilePic)
                         // TODO: CHANGE WITH THE APP ICON
-                        //.error(R.drawable.pillars)
+                        .error(R.drawable.error)
                         .crossfade(500)
                         .build()
                 ),

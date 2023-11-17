@@ -98,7 +98,8 @@ public class Group extends PandoroItem {
         this(id, name, new User("Manuel", "Maurizio"), description,
                 new ArrayList<>(List.of(
                         new GroupMember("manu0", "Manuel", "Maurizio", Role.ADMIN, GroupMember.InvitationStatus.JOINED),
-                        new GroupMember("Gabriele", "Marengo", Role.MAINTAINER, GroupMember.InvitationStatus.JOINED))
+                        new GroupMember("Gabriele", "Marengo", Role.DEVELOPER, GroupMember.InvitationStatus.JOINED),
+                        new GroupMember("Lara", "Pensi", Role.MAINTAINER, GroupMember.InvitationStatus.JOINED))
                 ),
                 new ArrayList<>(of(
                         new Project(

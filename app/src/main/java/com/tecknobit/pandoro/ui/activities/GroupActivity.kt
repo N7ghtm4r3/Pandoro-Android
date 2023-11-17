@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.toImportFromLibrary.Group
@@ -264,7 +265,7 @@ class GroupActivity : PandoroDataActivity() {
                                                     ImageRequest.Builder(LocalContext.current)
                                                         .data(member.profilePic)
                                                         // TODO: CHANGE WITH THE APP ICON
-                                                        //.error(R.drawable.pillars)
+                                                        .error(R.drawable.error)
                                                         .crossfade(500)
                                                         .build()
                                                 ),

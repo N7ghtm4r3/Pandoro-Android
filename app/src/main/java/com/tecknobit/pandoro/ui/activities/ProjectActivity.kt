@@ -71,6 +71,7 @@ import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.*
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
+import com.tecknobit.pandoro.helpers.areAllChangeNotesDone
 import com.tecknobit.pandoro.helpers.isContentNoteValid
 import com.tecknobit.pandoro.toImportFromLibrary.Note
 import com.tecknobit.pandoro.toImportFromLibrary.Project
@@ -85,6 +86,7 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSh
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
+import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
@@ -95,7 +97,6 @@ import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 import com.tecknobit.pandoro.ui.theme.defTypeface
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
@@ -270,6 +271,7 @@ class ProjectActivity : PandoroDataActivity() {
                                 val isInDevelopment = status == IN_DEVELOPMENT
                                 val isPublished = status == PUBLISHED
                                 val showUpdateInfo = remember { mutableStateOf(false) }
+                                val changeNotes = update.notes
                                 pandoroModalSheet.PandoroModalSheet(
                                     show = showUpdateInfo,
                                     title = getString(change_notes) + " ${update.targetVersion}",
@@ -376,7 +378,7 @@ class ProjectActivity : PandoroDataActivity() {
                                                     }
                                                 }
                                             }
-                                            items(update.notes) { note ->
+                                            items(changeNotes) { note ->
                                                 val markedAsDone = remember {
                                                     mutableStateOf(note.isMarkedAsDone)
                                                 }
@@ -430,7 +432,7 @@ class ProjectActivity : PandoroDataActivity() {
                                     shape = RoundedCornerShape(15.dp),
                                     onClick = { showUpdateInfo.value = true }
                                 ) {
-                                    var showOptions by remember { mutableStateOf(false) }
+                                    var showOptions = remember { mutableStateOf(false) }
                                     val showDeleteDialog = remember { mutableStateOf(false) }
                                     PandoroAlertDialog(
                                         show = showDeleteDialog,
@@ -475,14 +477,15 @@ class ProjectActivity : PandoroDataActivity() {
                                                         .fillMaxWidth(),
                                                     horizontalAlignment = Alignment.End
                                                 ) {
-                                                    if (showOptions) {
+                                                    if (showOptions.value) {
                                                         DropdownMenu(
                                                             modifier = Modifier.background(White),
-                                                            expanded = showOptions,
+                                                            expanded = showOptions.value,
                                                             onDismissRequest = {
-                                                                showOptions = false
+                                                                showOptions.value = false
                                                             }
                                                         ) {
+                                                            var publishUpdate = remember { mutableStateOf(false) }
                                                             DropdownMenuItem(
                                                                 text = {
                                                                     Text(
@@ -511,15 +514,19 @@ class ProjectActivity : PandoroDataActivity() {
                                                                 onClick = {
                                                                     if (isScheduled) {
                                                                         // TODO: MAKE REQUEST THEN
-                                                                    } else {
-                                                                        // TODO: BEFORE THE REQUEST CHECK
-                                                                        //  IF ALL THE NOTES ARE MARKED AS DONE
-                                                                        // AND WARN THE USER ON THAT IF NOT
-                                                                        // TODO: MAKE REQUEST THEN
-                                                                    }
-                                                                    showOptions = false
+                                                                        showOptions.value = false
+                                                                    } else
+                                                                        publishUpdate.value = true
                                                                 }
                                                             )
+                                                            if(publishUpdate.value) {
+                                                                PublishUpdate(
+                                                                    showOptions,
+                                                                    update,
+                                                                    changeNotes,
+                                                                    publishUpdate
+                                                                )
+                                                            }
                                                             DropdownMenuItem(
                                                                 text = {
                                                                     Text(
@@ -536,7 +543,7 @@ class ProjectActivity : PandoroDataActivity() {
                                                                     )
                                                                 },
                                                                 onClick = {
-                                                                    showOptions = false
+                                                                    showOptions.value = false
                                                                     showDeleteDialog.value = true
                                                                 }
                                                             )
@@ -548,7 +555,7 @@ class ProjectActivity : PandoroDataActivity() {
                                                             if (isPublished)
                                                                 showDeleteDialog.value = true
                                                             else
-                                                                showOptions = true
+                                                                showOptions.value = true
                                                         }
                                                     ) {
                                                         Icon(
@@ -824,6 +831,50 @@ class ProjectActivity : PandoroDataActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Method to check if all the change notes of the update are marked as done before publish that
+     * update
+     *
+     * @param showOptions: whether show the options menu
+     * @param update: the update to publish
+     * @param changeNotes: the list of the change notes to check
+     * @param check: whether check the change notes list
+     */
+    @Composable
+    private fun PublishUpdate(
+        showOptions: MutableState<Boolean>,
+        update: ProjectUpdate,
+        changeNotes: List<Note>,
+        check: MutableState<Boolean>
+    ) {
+        if(!areAllChangeNotesDone(changeNotes)) {
+            PandoroAlertDialog(
+                show = showOptions,
+                title = not_all_the_change_notes_are_done,
+                text = check_change_notes_message,
+                requestLogic = { publishUpdate(showOptions, update, check) }
+            )
+        } else
+            publishUpdate(showOptions, update, check)
+    }
+
+    /**
+     * Function to check execute the request to publish the [ProjectUpdate]
+     *
+     * @param showOptions: whether show the options menu
+     * @param update: the update to publish
+     * @param check: whether check the change notes list
+     */
+    private fun publishUpdate(
+        showOptions: MutableState<Boolean>,
+        update: ProjectUpdate,
+        check: MutableState<Boolean>
+    ) {
+        // TODO: MAKE REQUEST THEN
+        showOptions.value = false
+        check.value = false
     }
 
     /**
