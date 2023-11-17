@@ -161,4 +161,7 @@
     <string name="you_must_insert_a_correct_group_description">You must insert a correct group description</string>
     <string name="you_must_insert_a_correct_members_list">You must insert a correct members list</string>
     <string name="you_must_insert_one_member_at_least">You must insert one member at least</string>
+    <string name="decline">Decline</string>
+    <string name="join">Join</string>
+    <string name="accept_invite">Accept invite</string>
 </resources>

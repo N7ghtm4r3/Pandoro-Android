@@ -19,14 +19,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,6 +40,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -48,10 +54,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -66,9 +74,15 @@ import com.tecknobit.pandoro.R.string.profile_details
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
 import com.tecknobit.pandoro.helpers.Divide
+import com.tecknobit.pandoro.helpers.ScreenType
 import com.tecknobit.pandoro.helpers.isEmailValid
+import com.tecknobit.pandoro.helpers.isNameValid
 import com.tecknobit.pandoro.helpers.isPasswordValid
+import com.tecknobit.pandoro.helpers.isServerAddressValid
+import com.tecknobit.pandoro.helpers.isSurnameValid
 import com.tecknobit.pandoro.toImportFromLibrary.Changelog
+import com.tecknobit.pandoro.toImportFromLibrary.Changelog.ChangelogEvent
+import com.tecknobit.pandoro.toImportFromLibrary.Changelog.ChangelogEvent.*
 import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.ADMIN
 import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.DEVELOPER
 import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.MAINTAINER
@@ -77,6 +91,7 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSh
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
+import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 
 /**
@@ -140,8 +155,7 @@ class ProfileScreen: Screen() {
                         profilePic = path
                     }
                 } else
-                    profilePic =
-                        "https://consigliviaggiasiatravel.files.wordpress.com/2020/02/dscn1124-1.jpg"
+                    profilePic = "https://consigliviaggiasiatravel.files.wordpress.com/2020/02/dscn1124-1.jpg"
             }
             Image(
                 modifier = Modifier
@@ -409,22 +423,119 @@ class ProfileScreen: Screen() {
                     bottom = 55.dp,
                     top = 5.dp
                 ),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 items(user.changelogs) { changelog ->
+                    val isInviteToAGroup = changelog.changelogEvent == INVITED_GROUP
+                    val showInvite = remember { mutableStateOf(false) }
+                    val group = changelog.group
+                    if(showInvite.value) {
+                        AlertDialog(
+                            modifier = Modifier.height(330.dp),
+                            onDismissRequest = { showInvite.value = false },
+                            icon = {
+                                IconButton(
+                                    onClick = { navToGroup(group) }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Group,
+                                        contentDescription = null,
+                                        tint = PrimaryLight
+                                    )
+                                }
+                            },
+                            title = {
+                                Text(
+                                    text = stringResource(id = string.accept_invite)
+                                )
+                            },
+                            text = {
+                                Column (
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Text(
+                                        text = changelog.content,
+                                        fontSize = 14.sp,
+                                        textAlign = TextAlign.Justify
+                                    )
+                                    Row (
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(top = 5.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        Button(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .width(200.dp)
+                                                .height(40.dp),
+                                            shape = RoundedCornerShape(10.dp),
+                                            onClick = {
+                                                // TODO: MAKE REQUEST THEN
+                                                showInvite.value = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = ErrorLight
+                                            ),
+                                            content = {
+                                                Text(
+                                                    text = stringResource(string.decline),
+                                                    color = Color.White
+                                                )
+                                            }
+                                        )
+                                        Button(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .width(200.dp)
+                                                .height(40.dp),
+                                            shape = RoundedCornerShape(10.dp),
+                                            onClick = {
+                                                // TODO: MAKE REQUEST THEN
+                                                showInvite.value = false
+                                            },
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = GREEN_COLOR
+                                            ),
+                                            content = {
+                                                Text(
+                                                    text = stringResource(string.join),
+                                                    color = Color.White
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+                            },
+                            dismissButton = {},
+                            confirmButton = {
+                                TextButton(
+                                    onClick = { showInvite.value = false },
+                                    content = {
+                                        Text(
+                                            text = stringResource(R.string.dismiss),
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 5.dp)
-                            .height(100.dp)
+                            .height(110.dp)
                             .clickable {
-                                val project = changelog.project
-                                if (project != null)
-                                    navToProject(project)
+                                if (isInviteToAGroup)
+                                    showInvite.value = true
                                 else {
-                                    val group = changelog.group
                                     if (group != null)
                                         navToGroup(group)
+                                    else {
+                                        val project = changelog.project
+                                        if (project != null)
+                                            navToProject(project)
+                                    }
                                 }
                             },
                         verticalAlignment = Alignment.CenterVertically

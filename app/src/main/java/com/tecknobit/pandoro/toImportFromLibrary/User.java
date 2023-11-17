@@ -119,6 +119,12 @@ public class User extends PandoroItem {
                 new ArrayList<>(of(
                         new Changelog(
                                 "",
+                                Changelog.ChangelogEvent.INVITED_GROUP,
+                                System.currentTimeMillis(),
+                                new Group("FF", "Prova", "Prova join"),
+                                false),
+                        new Changelog(
+                                "",
                                 Changelog.ChangelogEvent.UPDATE_SCHEDULED,
                                 System.currentTimeMillis(),
                                 new Project("Prova"),
