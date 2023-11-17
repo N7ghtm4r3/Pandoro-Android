@@ -65,6 +65,7 @@ import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.toImportFromLibrary.Group
 import com.tecknobit.pandoro.toImportFromLibrary.Group.*
+import com.tecknobit.pandoro.toImportFromLibrary.Group.GroupMember.InvitationStatus.PENDING
 import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.ADMIN
 import com.tecknobit.pandoro.toImportFromLibrary.Project
 import com.tecknobit.pandoro.ui.activities.ProjectActivity.Companion.PROJECT_KEY
@@ -74,6 +75,7 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 
 /**
  * The **GroupActivity** class is useful to create the activity to show the [Group] details
@@ -245,68 +247,82 @@ class GroupActivity : PandoroDataActivity() {
                             items(group.members) { member ->
                                 val isLoggedUser = member.isLoggedUser(user)
                                 val changeRole = remember { mutableStateOf(false) }
-                                ListItem(
-                                    modifier = if (isAdmin || isMaintainer) {
-                                        if ((isAdmin || !member.isAdmin) && !isLoggedUser) {
-                                            modifier.clickable { changeRole.value = true }
+                                val isMemberPending = member.invitationStatus == PENDING
+                                if((isMemberPending && isMaintainer) || !isMemberPending) {
+                                    ListItem(
+                                        modifier = if (isAdmin || isMaintainer) {
+                                            if ((isAdmin || !member.isAdmin) && !isLoggedUser
+                                                && !isMemberPending) {
+                                                modifier.clickable { changeRole.value = true }
+                                            } else
+                                                modifier
                                         } else
-                                            modifier
-                                    } else
-                                        modifier,
-                                    leadingContent = {
-                                        Image(
-                                            painter = rememberAsyncImagePainter(
-                                                ImageRequest.Builder(LocalContext.current)
-                                                    .data(member.profilePic)
-                                                    // TODO: CHANGE WITH THE APP ICON
-                                                    //.error(R.drawable.pillars)
-                                                    .crossfade(500)
-                                                    .build()
-                                            ),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(55.dp)
-                                                .clip(CircleShape)
-                                        )
-                                    },
-                                    headlineContent = {
-                                        Text(
-                                            text = member.completeName,
-                                            fontSize = 20.sp
-                                        )
-                                    },
-                                    supportingContent = {
-                                        Text(
-                                            text = member.role.toString(),
-                                            color = if (member.isAdmin) ErrorLight else PrimaryLight
-                                        )
-                                        ChangeMemberRole(
-                                            expanded = changeRole,
-                                            member = member
-                                        )
-                                    },
-                                    trailingContent = {
-                                        if (isAdmin || isMaintainer) {
-                                            if (!isLoggedUser) {
-                                                val removeUser = remember { mutableStateOf(false) }
-                                                IconButton(
-                                                    onClick = { removeUser.value = true }
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Default.PersonRemove,
-                                                        contentDescription = null
+                                            modifier,
+                                        leadingContent = {
+                                            Image(
+                                                painter = rememberAsyncImagePainter(
+                                                    ImageRequest.Builder(LocalContext.current)
+                                                        .data(member.profilePic)
+                                                        // TODO: CHANGE WITH THE APP ICON
+                                                        //.error(R.drawable.pillars)
+                                                        .crossfade(500)
+                                                        .build()
+                                                ),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier
+                                                    .size(55.dp)
+                                                    .clip(CircleShape)
+                                            )
+                                        },
+                                        headlineContent = {
+                                            Text(
+                                                text = member.completeName,
+                                                fontSize = 20.sp
+                                            )
+                                        },
+                                        supportingContent = {
+                                            Text(
+                                                text = if(isMemberPending)
+                                                    PENDING.toString()
+                                                else
+                                                    member.role.toString(),
+                                                color =
+                                                if (member.isAdmin) ErrorLight
+                                                else {
+                                                    if(isMemberPending)
+                                                        YELLOW_COLOR
+                                                    else
+                                                        PrimaryLight
+                                                }
+                                            )
+                                            ChangeMemberRole(
+                                                expanded = changeRole,
+                                                member = member
+                                            )
+                                        },
+                                        trailingContent = {
+                                            if (isAdmin || isMaintainer) {
+                                                if (!isLoggedUser) {
+                                                    val removeUser = remember { mutableStateOf(false) }
+                                                    IconButton(
+                                                        onClick = { removeUser.value = true }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Default.PersonRemove,
+                                                            contentDescription = null
+                                                        )
+                                                    }
+                                                    groupDialogs.RemoveUser(
+                                                        show = removeUser,
+                                                        group = group,
+                                                        member = member
                                                     )
                                                 }
-                                                groupDialogs.RemoveUser(
-                                                    show = removeUser,
-                                                    group = group,
-                                                    member = member
-                                                )
                                             }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
                         item {

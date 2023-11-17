@@ -97,8 +97,8 @@ public class Group extends PandoroItem {
     public Group(String id, String name, String description) {
         this(id, name, new User("Manuel", "Maurizio"), description,
                 new ArrayList<>(List.of(
-                        new GroupMember("manu0", "Manuel", "Maurizio", Role.ADMIN),
-                        new GroupMember("Gabriele", "Marengo", Role.MAINTAINER))
+                        new GroupMember("manu0", "Manuel", "Maurizio", Role.ADMIN, GroupMember.InvitationStatus.JOINED),
+                        new GroupMember("Gabriele", "Marengo", Role.MAINTAINER, GroupMember.InvitationStatus.JOINED))
                 ),
                 new ArrayList<>(of(
                         new Project(
@@ -116,8 +116,8 @@ public class Group extends PandoroItem {
                                                         "os harum sit veniam accusamus eum corrupti rerum qui voluptas dolor sit officiis modi sit " +
                                                         "eius quia",
                                                 new ArrayList<>(List.of(
-                                                        new GroupMember("manu0", "Manuel", "Maurizio", Role.ADMIN),
-                                                        new GroupMember("Gabriele", "Marengo", Role.MAINTAINER))
+                                                        new GroupMember("manu0", "Manuel", "Maurizio", Role.ADMIN, GroupMember.InvitationStatus.JOINED),
+                                                        new GroupMember("Gabriele", "Marengo", Role.DEVELOPER, GroupMember.InvitationStatus.PENDING))
                                                 ),
                                                 new ArrayList<>()
                                         )
@@ -384,9 +384,32 @@ public class Group extends PandoroItem {
     public static class GroupMember extends User {
 
         /**
+         * {@code InvitationStatus} list of available invitation statuses for a group's member
+         */
+        public enum InvitationStatus {
+
+            /**
+             * {@code PENDING} invitation status
+             *
+             * @apiNote this invitation status means that the member has been invited, and it is not joined yet
+             */
+            PENDING,
+
+            /**
+             * {@code JOINED} invitation status
+             *
+             * @apiNote this invitation status means that the member has joined in the group
+             */
+            JOINED
+
+        }
+
+        /**
          * {@code role} the role of the member
          */
         private final Role role;
+
+        private final InvitationStatus invitationStatus;
 
         /**
          * Constructor to init a {@link GroupMember} object
@@ -396,9 +419,10 @@ public class Group extends PandoroItem {
          * @param surname: surname of the member
          * @param role:    the role of the member
          */
-        public GroupMember(String id, String name, String surname, Role role) {
+        public GroupMember(String id, String name, String surname, Role role, InvitationStatus status) {
             super(id, name, surname);
             this.role = role;
+            this.invitationStatus = status;
         }
 
         /**
@@ -408,9 +432,10 @@ public class Group extends PandoroItem {
          * @param surname: surname of the member
          * @param role:    the role of the member
          */
-        public GroupMember(String name, String surname, Role role) {
+        public GroupMember(String name, String surname, Role role, InvitationStatus status) {
             super(name, surname);
             this.role = role;
+            this.invitationStatus = status;
         }
 
         /**
@@ -429,9 +454,10 @@ public class Group extends PandoroItem {
          */
         public GroupMember(String id, String name, String profilePic, String surname, String email, String password,
                            ArrayList<Group> groups, ArrayList<Changelog> changelogs, ArrayList<Project> projects,
-                           Role role) {
+                           Role role, InvitationStatus status) {
             super(id, name, profilePic, surname, email, password, changelogs, groups, projects, null);
             this.role = role;
+            this.invitationStatus = status;
         }
 
         /**
@@ -442,6 +468,10 @@ public class Group extends PandoroItem {
          */
         public Role getRole() {
             return role;
+        }
+
+        public InvitationStatus getInvitationStatus() {
+            return invitationStatus;
         }
 
         /**

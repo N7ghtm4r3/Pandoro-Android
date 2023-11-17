@@ -162,8 +162,8 @@ public class User extends PandoroItem {
                                         "TecknobitJOIN",
                                         "ciao",
                                         new ArrayList<>(List.of(
-                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN),
-                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER))
+                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN, Group.GroupMember.InvitationStatus.JOINED),
+                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER, Group.GroupMember.InvitationStatus.JOINED))
                                         ),
                                         new ArrayList<>()
                                 ), false),
@@ -176,8 +176,8 @@ public class User extends PandoroItem {
                                         "TecknobitJOIN",
                                         "ciao",
                                         new ArrayList<>(List.of(
-                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN),
-                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER))
+                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN, Group.GroupMember.InvitationStatus.JOINED),
+                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER, Group.GroupMember.InvitationStatus.PENDING))
                                         ),
                                         new ArrayList<>()
                                 ),
@@ -192,8 +192,8 @@ public class User extends PandoroItem {
                                         "TecknobitJOIN",
                                         "ciao",
                                         new ArrayList<>(List.of(
-                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN),
-                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER))
+                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN, Group.GroupMember.InvitationStatus.JOINED),
+                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER, Group.GroupMember.InvitationStatus.PENDING))
                                         ),
                                         new ArrayList<>()
                                 ), true),
@@ -206,8 +206,8 @@ public class User extends PandoroItem {
                                         "TecknobitJOIN",
                                         "ciao",
                                         new ArrayList<>(List.of(
-                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN),
-                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER))
+                                                new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN, Group.GroupMember.InvitationStatus.JOINED),
+                                                new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER, Group.GroupMember.InvitationStatus.PENDING))
                                         ),
                                         new ArrayList<>()
                                 ), true),
@@ -232,9 +232,8 @@ public class User extends PandoroItem {
                                 "Tecknobit",
                                 "gagagagagagagwqgweagwegeggegrg",
                                 new ArrayList<>(List.of(
-                                        new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN),
-                                        new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER),
-                                        new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER))
+                                        new Group.GroupMember("manu0", "Manuel", "Maurizio", Group.Role.ADMIN, Group.GroupMember.InvitationStatus.JOINED),
+                                        new Group.GroupMember("Gabriele", "Marengo", Group.Role.MAINTAINER, Group.GroupMember.InvitationStatus.PENDING))
                                 ),
                                 new ArrayList<>()
                         ),
