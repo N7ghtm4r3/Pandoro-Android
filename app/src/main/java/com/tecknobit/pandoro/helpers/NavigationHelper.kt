@@ -28,11 +28,13 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 /**
  * The **NavigationHelper** class is useful to manage the navigation of the screens in Pandoro's
  * application
+ * @author N7ghtm4r3 - Tecknobit
  */
 class NavigationHelper {
 
     /**
      * The **NavigationItem** class is useful to create an item for the navigation
+     * @author N7ghtm4r3 - Tecknobit
      */
     data class NavigationItem(
         val title: Screen.ScreenType,

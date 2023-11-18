@@ -49,6 +49,7 @@ import me.saket.swipe.SwipeableActionsBox
 /**
  * The **NotesScreen** class is useful to show the notes of the user
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see Screen
  */
 class NotesScreen: Screen() {

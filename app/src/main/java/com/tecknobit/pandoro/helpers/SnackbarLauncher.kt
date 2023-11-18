@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 
 /**
  * **SnackbarLauncher** the interface useful to manage the launch of the snackbars
+ * @author N7ghtm4r3 - Tecknobit
  */
 interface SnackbarLauncher {
 

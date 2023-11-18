@@ -39,6 +39,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * The **PandoroDialog** class is useful to create the custom Pandoro's dialogs
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see SnackbarLauncher
  */
 open class PandoroDialog : SnackbarLauncher {

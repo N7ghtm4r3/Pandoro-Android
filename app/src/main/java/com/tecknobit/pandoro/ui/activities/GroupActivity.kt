@@ -81,6 +81,7 @@ import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 /**
  * The **GroupActivity** class is useful to create the activity to show the [Group] details
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  * @see PandoroDataActivity
  */

@@ -49,14 +49,15 @@ import com.tecknobit.pandoro.helpers.isValidVersion
 import com.tecknobit.pandoro.toImportFromLibrary.Group
 import com.tecknobit.pandoro.toImportFromLibrary.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showEditProjectDialog
 import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandoro.ui.components.PandoroTextField
 
 /**
  * The **ProjectDialogs** class is useful to create the projects dialogs
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see PandoroDialog
  */
 class ProjectDialogs : PandoroDialog() {

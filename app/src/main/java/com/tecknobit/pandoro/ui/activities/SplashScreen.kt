@@ -36,6 +36,7 @@ import kotlinx.coroutines.delay
  * The **SplashScreen** class is useful to create the first showable screen of the Pandoro's application
  * and init the logic
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  */
 @SuppressLint("CustomSplashScreen")

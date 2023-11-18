@@ -34,12 +34,12 @@ import com.tecknobit.pandoro.ui.activities.ProjectActivity.Companion.PROJECT_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
-import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
 import java.io.Serializable
 
 /**
  * The **Screen** class is useful to give the base behaviour of the other screens of the
  * Pandoro's application
+ * @author N7ghtm4r3 - Tecknobit
  */
 @Structure
 abstract class Screen {

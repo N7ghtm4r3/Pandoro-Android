@@ -52,6 +52,7 @@ import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 /**
  * The **OverviewScreen** class is useful to show the overview performance of the user
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see Screen
  */
 class OverviewScreen: Screen() {

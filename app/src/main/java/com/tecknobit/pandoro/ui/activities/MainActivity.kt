@@ -61,6 +61,7 @@ import com.tecknobit.pandoro.ui.theme.PrimaryLight
  * The **MainActivity** class is useful to create the main activity where place the main logic of the
  * application like navigation, show the current screen, etc
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  */
 class MainActivity : ComponentActivity() {

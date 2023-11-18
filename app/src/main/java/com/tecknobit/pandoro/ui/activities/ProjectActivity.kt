@@ -103,6 +103,7 @@ import me.saket.swipe.SwipeableActionsBox
 /**
  * The **ProjectActivity** class is useful to create the activity to show the [Project] details
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  * @see PandoroDataActivity
  */

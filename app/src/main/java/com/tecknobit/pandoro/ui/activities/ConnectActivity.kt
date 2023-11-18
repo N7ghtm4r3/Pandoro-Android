@@ -66,6 +66,8 @@ import com.tecknobit.pandoro.ui.components.PandoroTextField
  * The **ConnectActivity** class is useful to create an activity to connect the user to the Pandoro's
  * system
  *
+ * @author N7ghtm4r3 - Tecknobit
+ *
  * @see ComponentActivity
  * @see SnackbarLauncher
  */

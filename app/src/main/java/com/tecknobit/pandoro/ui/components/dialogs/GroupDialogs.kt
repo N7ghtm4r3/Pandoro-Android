@@ -70,6 +70,7 @@ import com.tecknobit.pandoro.ui.theme.PrimaryLight
 /**
  * The **GroupDialogs** class is useful to create the groups dialogs
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see PandoroDialog
  */
 class GroupDialogs : PandoroDialog() {

@@ -58,6 +58,7 @@ import kotlinx.coroutines.CoroutineScope
  * The **PandoroDataActivity** class is useful to create an activity with the behavior to show the UI
  * data
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  */
 @Structure

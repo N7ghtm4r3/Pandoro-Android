@@ -49,12 +49,13 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.components.PandoroTextField
+import com.tecknobit.pandoro.ui.theme.ErrorLight
 
 /**
  * The **ProjectsScreen** class is useful to show the projects of the user
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see Screen
  */
 class ProjectsScreen: Screen() {

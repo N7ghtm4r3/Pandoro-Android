@@ -87,6 +87,7 @@ import com.tecknobit.pandoro.ui.theme.PrimaryLight
 /**
  * The **ProfileScreen** class is useful to show the profile of the user
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see Screen
  */
 class ProfileScreen: Screen() {

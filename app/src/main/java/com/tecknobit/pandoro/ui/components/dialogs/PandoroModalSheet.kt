@@ -29,6 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * The **PandoroModalSheet** class is useful to create the custom Pandoro's modal bottom sheets
  *
+ * @author N7ghtm4r3 - Tecknobit
  * @see SnackbarLauncher
  */
 class PandoroModalSheet : SnackbarLauncher {
