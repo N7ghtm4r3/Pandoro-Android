@@ -10,6 +10,8 @@ dependencyResolutionManagement {
     repositories {
         maven("https://jitpack.io")
         google()
+        // TODO: REMOVE TESTING PURPOSE ONLY
+        mavenLocal()
         mavenCentral()
     }
 }

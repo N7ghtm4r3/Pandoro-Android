@@ -25,8 +25,8 @@ import androidx.core.content.ContextCompat.startActivity
 import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
-import com.tecknobit.pandoro.toImportFromLibrary.Group
-import com.tecknobit.pandoro.toImportFromLibrary.Project
+import com.tecknobit.pandoro.records.Group
+import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.GroupActivity
 import com.tecknobit.pandoro.ui.activities.GroupActivity.Companion.GROUP_KEY
 import com.tecknobit.pandoro.ui.activities.ProjectActivity

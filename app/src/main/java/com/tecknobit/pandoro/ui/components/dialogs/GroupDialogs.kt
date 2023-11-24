@@ -56,10 +56,10 @@ import com.tecknobit.pandoro.helpers.checkMembersValidity
 import com.tecknobit.pandoro.helpers.isEmailValid
 import com.tecknobit.pandoro.helpers.isGroupDescriptionValid
 import com.tecknobit.pandoro.helpers.isGroupNameValid
-import com.tecknobit.pandoro.toImportFromLibrary.Group
-import com.tecknobit.pandoro.toImportFromLibrary.Group.GroupMember
-import com.tecknobit.pandoro.toImportFromLibrary.Group.GroupMember.InvitationStatus.PENDING
-import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.ADMIN
+import com.tecknobit.pandoro.records.Group
+import com.tecknobit.pandoro.records.users.GroupMember
+import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
+import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroTextField
@@ -243,7 +243,7 @@ class GroupDialogs : PandoroDialog() {
     fun RemoveUser(
         show: MutableState<Boolean>,
         group: Group,
-        member: Group.GroupMember
+        member: GroupMember
     ) {
         PandoroAlertDialog(
             show = show,

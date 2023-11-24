@@ -46,8 +46,8 @@ import com.tecknobit.pandoro.helpers.isValidProjectName
 import com.tecknobit.pandoro.helpers.isValidProjectShortDescription
 import com.tecknobit.pandoro.helpers.isValidRepository
 import com.tecknobit.pandoro.helpers.isValidVersion
-import com.tecknobit.pandoro.toImportFromLibrary.Group
-import com.tecknobit.pandoro.toImportFromLibrary.Project
+import com.tecknobit.pandoro.records.Group
+import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog

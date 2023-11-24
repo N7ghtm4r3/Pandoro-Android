@@ -35,12 +35,10 @@ import com.tecknobit.apimanager.trading.TradingTools.computeProportion
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.*
 import com.tecknobit.pandoro.helpers.ColoredBorder
-import com.tecknobit.pandoro.toImportFromLibrary.Project
-import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status
-import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.IN_DEVELOPMENT
-import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.PUBLISHED
-import com.tecknobit.pandoro.toImportFromLibrary.ProjectUpdate.Status.SCHEDULED
-import com.tecknobit.pandoro.toImportFromLibrary.User
+import com.tecknobit.pandoro.records.Project
+import com.tecknobit.pandoro.records.ProjectUpdate.Status
+import com.tecknobit.pandoro.records.ProjectUpdate.Status.*
+import com.tecknobit.pandoro.records.users.PublicUser
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroCard
@@ -308,7 +306,7 @@ class OverviewScreen: Screen() {
                     total++
                     if (!project.hasGroups())
                         personalValue++
-                    val author: User? = when (status) {
+                    val author: PublicUser? = when (status) {
                         SCHEDULED -> update.author
                         IN_DEVELOPMENT -> update.startedBy
                         PUBLISHED -> update.publishedBy

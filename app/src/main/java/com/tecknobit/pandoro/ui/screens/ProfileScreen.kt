@@ -71,11 +71,9 @@ import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
 import com.tecknobit.pandoro.helpers.Divide
 import com.tecknobit.pandoro.helpers.isEmailValid
 import com.tecknobit.pandoro.helpers.isPasswordValid
-import com.tecknobit.pandoro.toImportFromLibrary.Changelog
-import com.tecknobit.pandoro.toImportFromLibrary.Changelog.ChangelogEvent.*
-import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.ADMIN
-import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.DEVELOPER
-import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.MAINTAINER
+import com.tecknobit.pandoro.records.Changelog
+import com.tecknobit.pandoro.records.Changelog.ChangelogEvent.INVITED_GROUP
+import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user

@@ -147,9 +147,9 @@ class PandoroModalSheet : SnackbarLauncher {
     /**
      * Function to show a message with the [SnackbarHostState]
      *
-     * @param message: the message resource identifier to show
+     * @param message: the message to show
      */
-    override fun showSnack(message: Int) {
+    override fun showSnack(message: String) {
         showSnack(
             scope = scope,
             snackbarHostState = snackbarHostState,

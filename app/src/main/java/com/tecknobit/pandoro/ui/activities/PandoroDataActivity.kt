@@ -46,11 +46,10 @@ import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
-import com.tecknobit.pandoro.toImportFromLibrary.PandoroItem
+import com.tecknobit.pandoro.records.structures.PandoroItem
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.components.dialogs.PandoroDialog
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 

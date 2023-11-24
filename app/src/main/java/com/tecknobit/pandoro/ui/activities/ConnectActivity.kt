@@ -1,6 +1,7 @@
 package com.tecknobit.pandoro.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.Context.*
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,6 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons.Default
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -36,13 +40,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation.Companion.None
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.*
+import com.tecknobit.pandoro.controllers.PandoroController.IDENTIFIER_KEY
 import com.tecknobit.pandoro.helpers.InputStatus.*
+import com.tecknobit.pandoro.helpers.Requester
 import com.tecknobit.pandoro.helpers.ScreenType
 import com.tecknobit.pandoro.helpers.ScreenType.SignIn
 import com.tecknobit.pandoro.helpers.ScreenType.SignUp
@@ -53,14 +62,26 @@ import com.tecknobit.pandoro.helpers.isNameValid
 import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.helpers.isServerAddressValid
 import com.tecknobit.pandoro.helpers.isSurnameValid
+import com.tecknobit.pandoro.helpers.ui.LocalUser
+import com.tecknobit.pandoro.records.users.User
+import com.tecknobit.pandoro.services.UsersHelper.EMAIL_KEY
+import com.tecknobit.pandoro.services.UsersHelper.NAME_KEY
+import com.tecknobit.pandoro.services.UsersHelper.PASSWORD_KEY
+import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
+import com.tecknobit.pandoro.services.UsersHelper.SURNAME_KEY
+import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
-import com.tecknobit.pandoro.ui.components.PandoroTextField
+import org.json.JSONObject
 
 /**
  * The **ConnectActivity** class is useful to create an activity to connect the user to the Pandoro's
@@ -245,17 +266,34 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     email = it
                                 }
                             )
+                            var isVisible by remember { mutableStateOf(false) }
                             PandoroTextField(
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .width(300.dp)
                                     .height(55.dp),
                                 textFieldModifier = Modifier.fillMaxWidth(),
+                                visualTransformation = if (isVisible) None
+                                else
+                                    PasswordVisualTransformation(),
                                 label = getString(string.password),
                                 value = password,
                                 isError = !isPasswordValid(password),
                                 onValueChange = {
                                     password = it
+                                },
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = { isVisible = !isVisible }
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isVisible)
+                                                Default.VisibilityOff
+                                            else
+                                                Default.Visibility,
+                                            contentDescription = null,
+                                        )
+                                    }
                                 }
                             )
                             Button(
@@ -269,9 +307,15 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                         SignUp -> {
                                             if (isServerAddressValid(serverAddress)) {
                                                 if (isNameValid(name)) {
-                                                    if (isSurnameValid(surname))
-                                                        checkCredentials(email, password)
-                                                    else
+                                                    if (isSurnameValid(surname)) {
+                                                        checkCredentials(
+                                                            serverAddress,
+                                                            name,
+                                                            surname,
+                                                            email,
+                                                            password
+                                                        )
+                                                    } else
                                                         showSnack(you_must_insert_a_correct_surname)
                                                 } else
                                                     showSnack(you_must_insert_a_correct_name)
@@ -280,9 +324,13 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                         }
 
                                         SignIn -> {
-                                            if (isServerAddressValid(serverAddress))
-                                                checkCredentials(email, password)
-                                            else
+                                            if (isServerAddressValid(serverAddress)) {
+                                                checkCredentials(
+                                                    serverAddress = serverAddress,
+                                                    email = email,
+                                                    password = password
+                                                )
+                                            } else
                                                 showSnack(you_must_insert_a_correct_server_address)
                                         }
                                     }
@@ -373,13 +421,42 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
      * @param email: the email of the user
      * @param password: the password of the user
      */
-    private fun checkCredentials(email: String, password: String) {
+    private fun checkCredentials(
+        serverAddress: String,
+        name: String = "",
+        surname: String = "",
+        email: String,
+        password: String
+    ) {
         when (areCredentialsValid(email, password)) {
             OK -> {
-                // TODO: MAKE REQUEST THEN
-                startActivity(Intent(context, MainActivity::class.java))
+                if(requester == null)
+                    requester = Requester(serverAddress)
+                val response: JSONObject = if(name.isNotEmpty()) {
+                    requester!!.execSignUp(
+                        name,
+                        surname,
+                        email,
+                        password
+                    )
+                } else {
+                    requester!!.execSignIn(
+                        email,
+                        password
+                    )
+                }
+                if(requester!!.successResponse()) {
+                    localAuthHelper.initUserSession(
+                        JsonHelper(response),
+                        serverAddress,
+                        name,
+                        surname,
+                        email,
+                        password
+                    )
+                } else
+                    showSnack(requester!!.errorMessage())
             }
-
             WRONG_PASSWORD -> showSnack(you_must_insert_a_correct_password)
             WRONG_EMAIL -> showSnack(you_must_insert_a_correct_email)
         }
@@ -390,12 +467,44 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
      *
      * @param message: the message to show
      */
-    override fun showSnack(message: Int) {
+    override fun showSnack(message: String) {
         showSnack(
             scope = scope,
             snackbarHostState = snackbarHostState,
             message = message
         )
+    }
+
+    inner class LocalAuthHelper : LocalUser() {
+
+        private val preferences = context.getSharedPreferences("pandoro", MODE_PRIVATE)
+
+        override fun initUserCredentials() {
+            host = preferences.getString(SERVER_ADDRESS_KEY, null)
+            val userId = preferences.getString(IDENTIFIER_KEY, null)
+            val userToken = preferences.getString(TOKEN_KEY, null)
+            if(userId != null) {
+                user = User(
+                    JSONObject()
+                        .put(IDENTIFIER_KEY, userId)
+                        .put(TOKEN_KEY, userToken)
+                        .put(PROFILE_PIC_KEY, preferences.getString(PROFILE_PIC_KEY, null))
+                        .put(NAME_KEY, preferences.getString(NAME_KEY, null))
+                        .put(SURNAME_KEY, preferences.getString(SURNAME_KEY, null))
+                        .put(EMAIL_KEY, preferences.getString(EMAIL_KEY, null))
+                        .put(PASSWORD_KEY, preferences.getString(PASSWORD_KEY, null))
+                )
+                requester = Requester(host!!, userId, userToken)
+                startActivity(Intent(this@ConnectActivity, MainActivity::class.java))
+            } else {
+                requester = null
+                user = User()
+            }
+        }
+
+        override fun logout() {
+        }
+
     }
 
 }

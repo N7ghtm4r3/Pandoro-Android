@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +24,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
+import com.tecknobit.apimanager.apis.APIRequest
 import com.tecknobit.pandoro.R
-import com.tecknobit.pandoro.toImportFromLibrary.User
+import com.tecknobit.pandoro.helpers.Requester
+import com.tecknobit.pandoro.records.users.User
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
 import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
@@ -47,7 +50,11 @@ class SplashScreen : ComponentActivity() {
         /**
          * **user** the current user logged in
          */
-        val user = User()
+        var user = User()
+
+        var requester: Requester? = null
+
+        lateinit var localAuthHelper: ConnectActivity.LocalAuthHelper
 
         /**
          * **groupDialogs** the instance to manage the dialogs of the groups
@@ -97,10 +104,15 @@ class SplashScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())
+        val a = APIRequest()
+        a.sendAPIRequest("https://api.binance.com/api/v3/time", APIRequest.RequestMethod.GET)
+        Log.i("gagagagaegwgwgwgwgwg", a.response)
         setContent {
             PandoroTheme {
                 context = LocalContext.current
-                defTypeface = ResourcesCompat.getFont(LocalContext.current, R.font.rem)!!
+                localAuthHelper = ConnectActivity().LocalAuthHelper()
+                localAuthHelper.initUserCredentials()
+                defTypeface = ResourcesCompat.getFont(context, R.font.rem)!!
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -127,8 +139,10 @@ class SplashScreen : ComponentActivity() {
             }
             LaunchedEffect(key1 = true) {
                 delay(2000)
-                // TODO: CREATE THE REAL WORKFLOW
-                startActivity(Intent(this@SplashScreen, MainActivity::class.java))
+                if(user.id != null)
+                    startActivity(Intent(this@SplashScreen, MainActivity::class.java))
+                else
+                    startActivity(Intent(this@SplashScreen, ConnectActivity::class.java))
             }
         }
     }

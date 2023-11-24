@@ -64,11 +64,11 @@ import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.helpers.SpaceContent
-import com.tecknobit.pandoro.toImportFromLibrary.Group
-import com.tecknobit.pandoro.toImportFromLibrary.Group.*
-import com.tecknobit.pandoro.toImportFromLibrary.Group.GroupMember.InvitationStatus.PENDING
-import com.tecknobit.pandoro.toImportFromLibrary.Group.Role.ADMIN
-import com.tecknobit.pandoro.toImportFromLibrary.Project
+import com.tecknobit.pandoro.records.Group
+import com.tecknobit.pandoro.records.Project
+import com.tecknobit.pandoro.records.users.GroupMember
+import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
+import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.ui.activities.ProjectActivity.Companion.PROJECT_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
@@ -420,7 +420,7 @@ class GroupActivity : PandoroDataActivity() {
             expanded = expanded.value,
             onDismissRequest = { expanded.value = false }
         ) {
-            Role.values().forEach { role ->
+            values().forEach { role ->
                 DropdownMenuItem(
                     text = {
                         Text(
