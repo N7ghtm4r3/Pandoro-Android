@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -24,9 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
-import com.tecknobit.apimanager.apis.APIRequest
 import com.tecknobit.pandoro.R
-import com.tecknobit.pandoro.helpers.Requester
+import com.tecknobit.pandoro.helpers.AndroidRequester
 import com.tecknobit.pandoro.records.users.User
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
@@ -52,7 +50,7 @@ class SplashScreen : ComponentActivity() {
          */
         var user = User()
 
-        var requester: Requester? = null
+        var requester: AndroidRequester? = null
 
         lateinit var localAuthHelper: ConnectActivity.LocalAuthHelper
 
@@ -104,9 +102,6 @@ class SplashScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())
-        val a = APIRequest()
-        a.sendAPIRequest("https://api.binance.com/api/v3/time", APIRequest.RequestMethod.GET)
-        Log.i("gagagagaegwgwgwgwgwg", a.response)
         setContent {
             PandoroTheme {
                 context = LocalContext.current

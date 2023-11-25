@@ -50,8 +50,8 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.*
 import com.tecknobit.pandoro.controllers.PandoroController.IDENTIFIER_KEY
+import com.tecknobit.pandoro.helpers.AndroidRequester
 import com.tecknobit.pandoro.helpers.InputStatus.*
-import com.tecknobit.pandoro.helpers.Requester
 import com.tecknobit.pandoro.helpers.ScreenType
 import com.tecknobit.pandoro.helpers.ScreenType.SignIn
 import com.tecknobit.pandoro.helpers.ScreenType.SignUp
@@ -431,7 +431,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         when (areCredentialsValid(email, password)) {
             OK -> {
                 if(requester == null)
-                    requester = Requester(serverAddress)
+                    requester = AndroidRequester(serverAddress, null, null)
                 val response: JSONObject = if(name.isNotEmpty()) {
                     requester!!.execSignUp(
                         name,
@@ -494,7 +494,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                         .put(EMAIL_KEY, preferences.getString(EMAIL_KEY, null))
                         .put(PASSWORD_KEY, preferences.getString(PASSWORD_KEY, null))
                 )
-                requester = Requester(host!!, userId, userToken)
+                requester = AndroidRequester(host!!, userId, userToken)
                 startActivity(Intent(this@ConnectActivity, MainActivity::class.java))
             } else {
                 requester = null
