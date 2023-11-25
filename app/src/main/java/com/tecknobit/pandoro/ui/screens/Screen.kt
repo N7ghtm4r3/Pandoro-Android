@@ -31,6 +31,9 @@ import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
+import com.tecknobit.pandoro.helpers.isContentNoteValid
+import com.tecknobit.pandoro.helpers.isEmailValid
+import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.GroupActivity
@@ -204,9 +207,16 @@ abstract class Screen: SnackbarLauncher {
             },
             title = title
         ) {
+            val sTitle = stringResource(id = title)
             PandoroOutlinedTextField(
                 label = label,
                 value = sheetInputValue,
+                isError = if(sTitle.contains("password"))
+                    !isPasswordValid(sheetInputValue.value)
+                else if(sTitle.contains("email"))
+                    !isEmailValid(sheetInputValue.value)
+                else
+                    !isContentNoteValid(sheetInputValue.value),
                 requiredTextArea = requiredTextArea
             )
             Button(

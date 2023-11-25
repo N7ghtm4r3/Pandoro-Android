@@ -1,8 +1,5 @@
 package com.tecknobit.pandoro.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -58,9 +55,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toFile
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest.*
+import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
@@ -78,7 +75,6 @@ import com.tecknobit.pandoro.records.Changelog
 import com.tecknobit.pandoro.records.Changelog.ChangelogEvent.INVITED_GROUP
 import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
-import com.tecknobit.pandoro.ui.activities.SplashScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
@@ -88,6 +84,7 @@ import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import java.io.File
 
 
 /**
@@ -141,28 +138,28 @@ class ProfileScreen: Screen() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
+            var showImagePicker by remember { mutableStateOf(false) }
             val profilePic by remember { mutableStateOf(user.profilePic) }
-            val pickPictureLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.PickVisualMedia()
-            ) { imageUri ->
-                if (imageUri != null) {
-                    val response = requester!!.execChangeProfilePic(// TODO: CHANGE PIC )
+            FilePicker(
+                show = showImagePicker,
+                fileExtensions = listOf("jpeg", "jpg", "png")
+            ) { file ->
+                if(file != null) {
+                    // TODO: CORRECT PROFILE PIC REQUEST
+                    val response = requester!!.execChangeProfilePic(File(file.path))
                     if(requester!!.successResponse()) {
                         localAuthHelper.storeProfilePic(JsonHelper(response)
                             .getString(PROFILE_PIC_KEY), true)
                     } else
                         showSnack(requester!!.errorMessage())
+                    showImagePicker = false
                 }
             }
             Image(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = 475.dp)
-                    .clickable {
-                        pickPictureLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    },
+                    .clickable { showImagePicker = true },
                 painter = rememberAsyncImagePainter(
                     Builder(LocalContext.current)
                         .data(profilePic)
@@ -248,6 +245,7 @@ class ProfileScreen: Screen() {
         val showEditEmail = remember { mutableStateOf(false) }
         val showEditPassword = remember { mutableStateOf(false) }
         var passValue by remember { mutableStateOf(HIDE_PASS_VALUE) }
+        var email by remember { mutableStateOf(user.email) }
         ShowSubsection {
             CreateInputModalBottom(
                 show = showEditEmail,
@@ -255,9 +253,14 @@ class ProfileScreen: Screen() {
                 label = new_email,
                 requestLogic = {
                     if (isEmailValid(sheetInputValue.value)) {
-                        /*TODO MAKE REQUEST THEN*/
-                        sheetInputValue.value = ""
-                        showEditEmail.value = false
+                        requester!!.execChangeEmail(sheetInputValue.value)
+                        if(requester!!.successResponse()) {
+                            localAuthHelper.storeEmail(sheetInputValue.value, true)
+                            email = user.email
+                            sheetInputValue.value = ""
+                            showEditEmail.value = false
+                        } else
+                            pandoroModalSheet.showSnack(requester!!.errorMessage())
                     } else
                         pandoroModalSheet.showSnack(you_must_insert_a_correct_email)
                 }
@@ -268,9 +271,15 @@ class ProfileScreen: Screen() {
                 label = new_password,
                 requestLogic = {
                     if (isPasswordValid(sheetInputValue.value)) {
-                        /*TODO MAKE REQUEST THEN*/
-                        sheetInputValue.value = ""
-                        showEditPassword.value = false
+                        requester!!.execChangePassword(sheetInputValue.value)
+                        if(requester!!.successResponse()) {
+                            localAuthHelper.storePassword(sheetInputValue.value, true)
+                            if(passValue != HIDE_PASS_VALUE)
+                                passValue = user.password
+                            sheetInputValue.value = ""
+                            showEditPassword.value = false
+                        } else
+                            pandoroModalSheet.showSnack(requester!!.errorMessage())
                     } else
                         pandoroModalSheet.showSnack(you_must_insert_a_correct_password)
                 }
@@ -307,7 +316,7 @@ class ProfileScreen: Screen() {
                     Text(
                         text = stringResource(string.email)
                     )
-                    ShowProfileData(profileData = user.email)
+                    ShowProfileData(profileData = email)
                 }
                 IconButton(
                     modifier = Modifier.padding(start = 10.dp),
@@ -376,7 +385,11 @@ class ProfileScreen: Screen() {
                     containerColor = ErrorLight
                 ),
                 onClick = {
-                    // TODO: MAKE REQUEST THEN
+                    requester!!.execDeleteAccount()
+                    if(requester!!.successResponse())
+                        localAuthHelper.logout()
+                    else
+                        showSnack(requester!!.errorMessage())
                 },
                 content = {
                     Text(

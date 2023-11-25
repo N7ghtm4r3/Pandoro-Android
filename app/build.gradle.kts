@@ -75,6 +75,7 @@ dependencies {
     implementation("com.github.N7ghtm4r3:APIManager:2.1.8")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("com.tecknobit.pandoro:Pandoro:0.0.0.1")
+    implementation("com.darkrockstudios:mpfilepicker:3.0.0")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("me.saket.swipe:swipe:1.2.0")
     implementation("co.yml:ycharts:2.1.0")

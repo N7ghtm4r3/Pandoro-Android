@@ -1,9 +1,13 @@
 package com.tecknobit.pandoro.helpers
 
+import com.tecknobit.apimanager.annotations.RequestPath
 import com.tecknobit.apimanager.apis.APIRequest
 import com.tecknobit.apimanager.formatters.JsonHelper
-import com.tecknobit.pandoro.controllers.PandoroController
-import com.tecknobit.pandoro.controllers.PandoroController.IDENTIFIER_KEY
+import com.tecknobit.pandoro.controllers.UsersController.BASE_ENDPOINT
+import com.tecknobit.pandoro.controllers.UsersController.CHANGE_PROFILE_PIC_ENDPOINT
+import com.tecknobit.pandoro.controllers.UsersController.IDENTIFIER_KEY
+import com.tecknobit.pandoro.controllers.UsersController.USERS_ENDPOINT
+import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
 import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -11,11 +15,13 @@ import okhttp3.Call
 import okhttp3.FormBody
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import java.io.File
 
 
 /**
@@ -54,6 +60,39 @@ class AndroidRequester(
     }
 
     /**
+     * Function to execute the request to change the profile pic of the user
+     *
+     * @param profilePic: the profile pic of the user
+     *
+     * @return the result of the request as [JSONObject]
+     *
+     */
+    @RequestPath(path = "/api/v1/users/{id}/changeProfilePic", method = APIRequest.RequestMethod.POST)
+    override fun execChangeProfilePic(profilePic: File): JSONObject {
+        val body = MultipartBody.Builder().setType(MultipartBody.FORM)
+            .addFormDataPart(
+                PROFILE_PIC_KEY,
+                profilePic.name,
+                profilePic.readBytes().toRequestBody("image/*".toMediaType())
+            )
+            .build()
+        val request: Request = Request.Builder()
+            .headers(headers.toHeaders())
+            .url("$host$BASE_ENDPOINT$USERS_ENDPOINT/$userId/$CHANGE_PROFILE_PIC_ENDPOINT")
+            .post(body)
+            .build()
+        val client = OkHttpClient()
+        var response: JSONObject? = null
+        runBlocking {
+            async {
+                response = client.newCall(request).execute().body?.string()?.let { JSONObject(it) }
+                lastResponse = JsonHelper(response)
+            }.await()
+        }
+        return response!!
+    }
+
+    /**
      * Function to execute a request to the backend
      *
      * @param contentType: the content type of the request
@@ -86,7 +125,7 @@ class AndroidRequester(
      * @param payload: the payload of the request, default null
      * @param jsonPayload: whether the payload must be formatted as JSON, default true
      */
-    private suspend fun asyncRequestExecution(
+    private fun asyncRequestExecution(
         contentType: String,
         endpoint: String,
         requestMethod: APIRequest.RequestMethod,
@@ -95,7 +134,7 @@ class AndroidRequester(
     ): String {
         headers["Content-Type"] = contentType
         return try {
-            val requestUrl = host + PandoroController.BASE_ENDPOINT + endpoint
+            val requestUrl = host + BASE_ENDPOINT + endpoint
             var rPayload: RequestBody? = null
             if(payload != null) {
                 val paramsMap = payload.getPayload()
