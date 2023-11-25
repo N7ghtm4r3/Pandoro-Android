@@ -216,7 +216,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .width(300.dp)
-                                    .height(55.dp),
+                                    .height(60.dp),
                                 textFieldModifier = Modifier.fillMaxWidth(),
                                 label = getString(server_address),
                                 value = serverAddress,
@@ -230,7 +230,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     modifier = Modifier
                                         .padding(10.dp)
                                         .width(300.dp)
-                                        .height(55.dp),
+                                        .height(60.dp),
                                     textFieldModifier = Modifier.fillMaxWidth(),
                                     label = getString(string.name),
                                     value = name,
@@ -243,7 +243,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     modifier = Modifier
                                         .padding(10.dp)
                                         .width(300.dp)
-                                        .height(55.dp),
+                                        .height(60.dp),
                                     textFieldModifier = Modifier.fillMaxWidth(),
                                     label = getString(string.surname),
                                     value = surname,
@@ -257,13 +257,13 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .width(300.dp)
-                                    .height(55.dp),
+                                    .height(60.dp),
                                 textFieldModifier = Modifier.fillMaxWidth(),
                                 label = getString(string.email),
                                 value = email,
                                 isError = !isEmailValid(email),
                                 onValueChange = {
-                                    email = it
+                                    email = it.replace(" ", "")
                                 }
                             )
                             var isVisible by remember { mutableStateOf(false) }
@@ -271,7 +271,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                 modifier = Modifier
                                     .padding(10.dp)
                                     .width(300.dp)
-                                    .height(55.dp),
+                                    .height(60.dp),
                                 textFieldModifier = Modifier.fillMaxWidth(),
                                 visualTransformation = if (isVisible) None
                                 else
@@ -280,7 +280,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                 value = password,
                                 isError = !isPasswordValid(password),
                                 onValueChange = {
-                                    password = it
+                                    password = it.replace(" ", "")
                                 },
                                 trailingIcon = {
                                     IconButton(
@@ -351,9 +351,11 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     .padding(top = 10.dp)
                                     .clickable(true, onClick = {
                                         screenType =
-                                            if (screenType == SignUp)
+                                            if (screenType == SignUp) {
+                                                name = ""
+                                                surname = ""
                                                 SignIn
-                                            else
+                                            } else
                                                 SignUp
                                     }),
                                 text = buildAnnotatedString {
@@ -430,27 +432,17 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
     ) {
         when (areCredentialsValid(email, password)) {
             OK -> {
-                if(requester == null)
-                    requester = AndroidRequester(serverAddress, null, null)
-                val response: JSONObject = if(name.isNotEmpty()) {
-                    requester!!.execSignUp(
-                        name,
-                        surname,
-                        email,
-                        password
-                    )
-                } else {
-                    requester!!.execSignIn(
-                        email,
-                        password
-                    )
-                }
+                requester = AndroidRequester(serverAddress, null, null)
+                val response: JsonHelper = if(name.isNotEmpty())
+                    JsonHelper(requester!!.execSignUp(name, surname, email, password))
+                else
+                    JsonHelper(requester!!.execSignIn(email, password))
                 if(requester!!.successResponse()) {
                     localAuthHelper.initUserSession(
-                        JsonHelper(response),
+                        response,
                         serverAddress,
-                        name,
-                        surname,
+                        name.ifEmpty { response.getString(NAME_KEY) },
+                        surname.ifEmpty { response.getString(SURNAME_KEY) },
                         email,
                         password
                     )
@@ -475,10 +467,21 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         )
     }
 
+    /**
+     * This **LocalAuthHelper** class is useful to manage the credentials of the user in local
+     *
+     * @author Tecknobit - N7ghtm4r3
+     * @see LocalUser
+     */
     inner class LocalAuthHelper : LocalUser() {
 
         private val preferences = context.getSharedPreferences("pandoro", MODE_PRIVATE)
 
+        /**
+         * Function to init the user credentials
+         *
+         * No-any params required
+         */
         override fun initUserCredentials() {
             host = preferences.getString(SERVER_ADDRESS_KEY, null)
             val userId = preferences.getString(IDENTIFIER_KEY, null)
@@ -495,14 +498,58 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                         .put(PASSWORD_KEY, preferences.getString(PASSWORD_KEY, null))
                 )
                 requester = AndroidRequester(host!!, userId, userToken)
-                startActivity(Intent(this@ConnectActivity, MainActivity::class.java))
             } else {
                 requester = null
                 user = User()
             }
         }
 
+        /**
+         * Function to init the user credentials
+         *
+         * @param response: the response of the auth request
+         * @param host: the host to used in the requests
+         * @param name: the name of the user
+         * @param surname: the surname of the user
+         * @param email: the email of the user
+         * @param password: the password of the user
+         */
+        override fun initUserSession(
+            response: JsonHelper,
+            host: String?,
+            name: String,
+            surname: String,
+            email: String?,
+            password: String?
+        ) {
+            super.initUserSession(response, host, name, surname, email, password)
+            context.startActivity(Intent(context, MainActivity::class.java))
+        }
+
+        /**
+         * Function to store a user value
+         *
+         * @param key: the key of the value to store
+         * @param value: the value to store
+         * @param refreshUser: whether refresh the user
+         */
+        override fun storeUserValue(
+            key: String,
+            value: String?,
+            refreshUser: Boolean
+        ) {
+            preferences.edit().putString(key, value).apply()
+            super.storeUserValue(key, value, refreshUser)
+        }
+
+        /**
+         * Function to disconnect the user and clear its properties stored
+         *
+         * No-any params required
+         */
         override fun logout() {
+            preferences.edit().clear().apply()
+            context.startActivity(Intent(context, ConnectActivity::class.java))
         }
 
     }

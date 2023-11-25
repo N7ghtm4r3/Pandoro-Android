@@ -1,5 +1,6 @@
 package com.tecknobit.pandoro.ui.screens
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,10 +14,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -25,6 +30,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
+import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.GroupActivity
@@ -34,15 +40,17 @@ import com.tecknobit.pandoro.ui.activities.ProjectActivity.Companion.PROJECT_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import kotlinx.coroutines.CoroutineScope
 import java.io.Serializable
 
 /**
  * The **Screen** class is useful to give the base behaviour of the other screens of the
  * Pandoro's application
  * @author N7ghtm4r3 - Tecknobit
+ * @see SnackbarLauncher
  */
 @Structure
-abstract class Screen {
+abstract class Screen: SnackbarLauncher {
 
     /**
      * **ScreenType** the list of available screen types
@@ -86,6 +94,16 @@ abstract class Screen {
     }
 
     /**
+     * **scope** the coroutine to launch the snackbars
+     */
+    private lateinit var scope: CoroutineScope
+
+    /**
+     * **snackbarHostState** the host to launch the snackbars
+     */
+    private lateinit var snackbarHostState: SnackbarHostState
+
+    /**
      * **sheetInputValue** the value fetched from the bottom modal sheet
      */
     protected var sheetInputValue = mutableStateOf("")
@@ -127,11 +145,14 @@ abstract class Screen {
      * @param content: content to set
      * @param scrollEnabled: whether enable the scrollable option
      */
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
     private fun SetScreen(
         content: @Composable ColumnScope.() -> Unit,
         scrollEnabled: Boolean
     ) {
+        scope = rememberCoroutineScope()
+        snackbarHostState = remember { SnackbarHostState() }
         var modifier = Modifier
             .fillMaxSize()
             .padding(
@@ -142,10 +163,14 @@ abstract class Screen {
             )
         if (scrollEnabled)
             modifier = modifier.verticalScroll(rememberScrollState())
-        Column(
-            modifier = modifier,
-            content = content
-        )
+        Scaffold(
+            snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) }
+        ) {
+            Column(
+                modifier = modifier,
+                content = content
+            )
+        }
     }
 
     /**
@@ -198,6 +223,19 @@ abstract class Screen {
                 )
             }
         }
+    }
+
+    /**
+     * Function to show a message with the [SnackbarHostState]
+     *
+     * @param message: the message to show
+     */
+    override fun showSnack(message: String) {
+        showSnack(
+            scope = scope,
+            snackbarHostState = snackbarHostState,
+            message = message
+        )
     }
 
     /**

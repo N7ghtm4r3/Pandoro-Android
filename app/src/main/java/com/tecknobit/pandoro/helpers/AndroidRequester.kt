@@ -5,6 +5,8 @@ import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.controllers.PandoroController
 import com.tecknobit.pandoro.controllers.PandoroController.IDENTIFIER_KEY
 import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import okhttp3.Call
 import okhttp3.FormBody
 import okhttp3.Headers.Companion.toHeaders
@@ -67,6 +69,30 @@ class AndroidRequester(
         payload: PandoroPayload?,
         jsonPayload: Boolean
     ): String {
+        var response: String? = null
+        runBlocking {
+            async { response = asyncRequestExecution(contentType, endpoint, requestMethod, payload,
+                jsonPayload) }.await()
+        }
+        return response!!
+    }
+
+    /**
+     * Function to execute a request to the backend and wait for the response
+     *
+     * @param contentType: the content type of the request
+     * @param endpoint: the endpoint which make the request
+     * @param requestMethod: the method of the request to execute
+     * @param payload: the payload of the request, default null
+     * @param jsonPayload: whether the payload must be formatted as JSON, default true
+     */
+    private suspend fun asyncRequestExecution(
+        contentType: String,
+        endpoint: String,
+        requestMethod: APIRequest.RequestMethod,
+        payload: PandoroPayload?,
+        jsonPayload: Boolean
+    ): String {
         headers["Content-Type"] = contentType
         return try {
             val requestUrl = host + PandoroController.BASE_ENDPOINT + endpoint
@@ -93,7 +119,6 @@ class AndroidRequester(
             lastResponse = JsonHelper(response)
             response
         } catch (e: Exception) {
-            e.printStackTrace()
             lastResponse = JsonHelper(errorResponse)
             errorResponse
         }

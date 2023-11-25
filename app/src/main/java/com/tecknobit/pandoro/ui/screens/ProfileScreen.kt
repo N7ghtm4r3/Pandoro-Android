@@ -1,6 +1,7 @@
 package com.tecknobit.pandoro.ui.screens
 
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -57,8 +58,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toFile
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest.*
+import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.change_email
@@ -74,13 +77,18 @@ import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.records.Changelog
 import com.tecknobit.pandoro.records.Changelog.ChangelogEvent.INVITED_GROUP
 import com.tecknobit.pandoro.records.users.GroupMember.Role.*
+import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
+import com.tecknobit.pandoro.ui.activities.SplashScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+
 
 /**
  * The **ProfileScreen** class is useful to show the profile of the user
@@ -133,24 +141,28 @@ class ProfileScreen: Screen() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            var profilePic by remember { mutableStateOf(user.profilePic) }
+            val profilePic by remember { mutableStateOf(user.profilePic) }
             val pickPictureLauncher = rememberLauncherForActivityResult(
-                ActivityResultContracts.GetContent()
+                contract = ActivityResultContracts.PickVisualMedia()
             ) { imageUri ->
                 if (imageUri != null) {
-                    val path = imageUri.path
-                    if (path != null) {
-                        // TODO: MAKE REQUEST THEN USE THE REAL path
-                        profilePic = path
-                    }
-                } else
-                    profilePic = "https://consigliviaggiasiatravel.files.wordpress.com/2020/02/dscn1124-1.jpg"
+                    val response = requester!!.execChangeProfilePic(// TODO: CHANGE PIC )
+                    if(requester!!.successResponse()) {
+                        localAuthHelper.storeProfilePic(JsonHelper(response)
+                            .getString(PROFILE_PIC_KEY), true)
+                    } else
+                        showSnack(requester!!.errorMessage())
+                }
             }
             Image(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(bottom = 475.dp)
-                    .clickable { pickPictureLauncher.launch("image/*") },
+                    .clickable {
+                        pickPictureLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
                 painter = rememberAsyncImagePainter(
                     Builder(LocalContext.current)
                         .data(profilePic)
@@ -346,9 +358,7 @@ class ProfileScreen: Screen() {
                     .height(50.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
-                onClick = {
-                    // TODO: MAKE REQUEST THEN
-                },
+                onClick = { localAuthHelper.logout() },
                 content = {
                     Text(
                         text = stringResource(string.logout),
@@ -681,6 +691,7 @@ class ProfileScreen: Screen() {
             content = content
         )
     }
+
 
     /**
      * Function to make request to read a changelog
