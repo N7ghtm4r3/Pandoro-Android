@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.delete_project
 import com.tecknobit.pandoro.R.string.delete_text_dialog
+import com.tecknobit.pandoro.R.string.no_projects_found
 import com.tecknobit.pandoro.helpers.ui.filterProjects
 import com.tecknobit.pandoro.helpers.ui.populateFrequentProjects
 import com.tecknobit.pandoro.records.Project
@@ -204,16 +205,7 @@ class ProjectsScreen: Screen() {
      */
     @Composable
     private fun NoProjectsFound() {
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = stringResource(string.no_projects_found),
-                fontSize = 18.sp
-            )
-        }
+        EmptyList(message = no_projects_found)
     }
 
     /**

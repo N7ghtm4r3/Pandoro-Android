@@ -50,11 +50,15 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.SpaceContent
+import com.tecknobit.pandoro.records.Group
+import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.records.structures.PandoroItem
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.screens.Screen
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 
@@ -202,7 +206,6 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
      * @param headerTitle: the header title
      * @param extraIcon: the extra icon to show with the title
      * @param itemsList: the list of the items to show
-     * @param key: the key value
      * @param clazz: the class value of the items list
      * @param adminPrivileges: whether the user has the admin privileges to execute the own actions
      */
@@ -212,7 +215,6 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         headerTitle: Int,
         extraIcon: ExtraIcon? = null,
         itemsList: List<PandoroItem>,
-        key: String,
         clazz: Class<T>,
         adminPrivileges: Boolean = false
     ) {
@@ -245,9 +247,11 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                                 height = 65.dp
                             ),
                             onClick = {
-                                val intent = Intent(context, clazz)
-                                intent.putExtra(key, item)
-                                ContextCompat.startActivity(context, intent, null)
+                                if(item is Group)
+                                    currentGroup.value = item
+                                else
+                                    currentProject.value = item as Project
+                                ContextCompat.startActivity(context, Intent(context, clazz), null)
                             }
                         ) {
                             Row {

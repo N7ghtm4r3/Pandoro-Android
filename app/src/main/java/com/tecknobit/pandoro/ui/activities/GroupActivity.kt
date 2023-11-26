@@ -1,7 +1,6 @@
 package com.tecknobit.pandoro.ui.activities
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -63,20 +62,28 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_members_list
 import com.tecknobit.pandoro.helpers.SpaceContent
+import com.tecknobit.pandoro.helpers.checkMembersValidity
+import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.records.users.GroupMember
 import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
 import com.tecknobit.pandoro.records.users.GroupMember.Role.*
-import com.tecknobit.pandoro.ui.activities.ProjectActivity.Companion.PROJECT_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * The **GroupActivity** class is useful to create the activity to show the [Group] details
@@ -84,22 +91,18 @@ import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  * @see PandoroDataActivity
+ * @see AndroidSingleItemManager
  */
-class GroupActivity : PandoroDataActivity() {
-
-    companion object {
-
-        /**
-         * **GROUP_KEY** the group key
-         */
-        const val GROUP_KEY = "group"
-
-    }
+class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
 
     /**
      * **group** the group to show its details
      */
-    lateinit var group: Group
+    lateinit var group: MutableState<Group>
+
+    private var isAdmin: Boolean = false
+
+    private var isMaintainer: Boolean = false
 
     /**
      * On create method
@@ -115,13 +118,11 @@ class GroupActivity : PandoroDataActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        group = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getSerializableExtra(GROUP_KEY, Group::class.java) as Group
-        else
-            intent.getSerializableExtra(GROUP_KEY) as Group
-        val isAdmin = group.isUserAdmin(user)
-        val isMaintainer = group.isUserMaintainer(user)
         setContent {
+            group = remember { mutableStateOf(currentGroup.value!!) }
+            isAdmin = group.value.isUserAdmin(user)
+            isMaintainer = group.value.isUserMaintainer(user)
+            refreshItem()
             PandoroTheme {
                 Scaffold(
                     topBar = {
@@ -152,10 +153,10 @@ class GroupActivity : PandoroDataActivity() {
                                     ) {
                                         Text(
                                             modifier = Modifier.alignBy(LastBaseline),
-                                            text = group.name
+                                            text = group.value.name
                                         )
                                     }
-                                    val author = group.author
+                                    val author = group.value.author
                                     if (author != null) {
                                         Text(
                                             text = getString(string.author) + " ${author.completeName}",
@@ -177,7 +178,7 @@ class GroupActivity : PandoroDataActivity() {
                                 }
                                 groupDialogs.LeaveGroup(
                                     show = leaveGroup,
-                                    group = group
+                                    group = group.value
                                 )
                             },
                         )
@@ -208,9 +209,11 @@ class GroupActivity : PandoroDataActivity() {
                                             .fillMaxWidth(),
                                         shape = RoundedCornerShape(10.dp),
                                         onClick = {
-                                            // TODO: VALIDATE INPUTS FIRST
-                                            // TODO: MAKE REQUEST THENù
-                                            addMembers.value = false
+                                            if(checkMembersValidity(members)) {
+                                                // TODO: MAKE REQUEST THEN
+                                                addMembers.value = false
+                                            } else
+                                                showSnack(you_must_insert_a_correct_members_list)
                                         },
                                         content = {
                                             Text(
@@ -230,7 +233,7 @@ class GroupActivity : PandoroDataActivity() {
                     ShowData {
                         item {
                             ShowDescription(
-                                description = group.description
+                                description = group.value.description
                             )
                         }
                         item {
@@ -246,7 +249,7 @@ class GroupActivity : PandoroDataActivity() {
                                 shape = RoundedCornerShape(15.dp)
                             )
                         if (showMembersSection.value) {
-                            items(group.members) { member ->
+                            items(group.value.members) { member ->
                                 val isLoggedUser = member.isLoggedUser(user)
                                 val changeRole = remember { mutableStateOf(false) }
                                 val isMemberPending = member.invitationStatus == PENDING
@@ -315,9 +318,9 @@ class GroupActivity : PandoroDataActivity() {
                                                             contentDescription = null
                                                         )
                                                     }
-                                                    groupDialogs.RemoveUser(
+                                                    groupDialogs.RemoveMember(
                                                         show = removeUser,
-                                                        group = group,
+                                                        group = group.value,
                                                         member = member
                                                     )
                                                 }
@@ -341,7 +344,7 @@ class GroupActivity : PandoroDataActivity() {
                                     content = {
                                         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
                                             val projects = mutableStateListOf<Project>()
-                                            projects.addAll(group.projects)
+                                            projects.addAll(group.value.projects)
                                             items(user.projects) { project ->
                                                 var inserted by remember {
                                                     mutableStateOf(projects.contains(project))
@@ -393,8 +396,7 @@ class GroupActivity : PandoroDataActivity() {
                                 show = showProjectsSection,
                                 headerTitle = string.projects,
                                 extraIcon = extraIcon,
-                                itemsList = group.projects,
-                                key = PROJECT_KEY,
+                                itemsList = group.value.projects,
                                 clazz = ProjectActivity::class.java,
                                 adminPrivileges = isAdmin
                             )
@@ -429,10 +431,42 @@ class GroupActivity : PandoroDataActivity() {
                         )
                     },
                     onClick = {
-                        // TODO: MAKE REQUEST THEN
+                        requester!!.execChangeMemberRole(
+                            groupId = group.value.id,
+                            memberId = member.id,
+                            role = role
+                        )
+                        if(!requester!!.successResponse())
+                            showSnack(requester!!.errorMessage())
                         expanded.value = false
                     }
                 )
+            }
+        }
+    }
+
+    /**
+     * Function to refresh an item to display in the UI
+     *
+     * No-any params required
+     */
+    override fun refreshItem() {
+        CoroutineScope(Dispatchers.Default).launch {
+            while (user.id != null && currentGroup.value != null) {
+                try {
+                    val response = requester!!.execGetSingleGroup(currentGroup.value!!.id)
+                    if(requester!!.successResponse()) {
+                        val tmpGroup = Group(response)
+                        if(needToRefresh(group.value, tmpGroup)) {
+                            group.value = tmpGroup
+                            isAdmin = group.value.isUserAdmin(user)
+                            isMaintainer = group.value.isUserMaintainer(user)
+                        }
+                    } else
+                        showSnack(requester!!.errorMessage())
+                } catch (_ : Exception){
+                }
+                delay(1000)
             }
         }
     }

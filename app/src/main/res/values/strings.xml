@@ -130,4 +130,5 @@
     <string name="not_all_the_change_notes_are_done">Not all the change notes are done</string>
     <string name="check_change_notes_message">You are publishing an update where not all the change notes are marked as done, do you want anyway publish the update?</string>
     <string name="choose_the_next_admin">Choose the next admin</string>
+    <string name="no_any_groups">No-any groups</string>
 </resources>

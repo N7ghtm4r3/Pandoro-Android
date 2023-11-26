@@ -2,8 +2,10 @@ package com.tecknobit.pandoro.ui.screens
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +24,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -109,6 +112,11 @@ abstract class Screen: SnackbarLauncher {
          * **currentProject** the current project currently displayed
          */
         var currentProject = mutableStateOf<Project?>(null)
+
+        /**
+         * **currentGroup** the current group currently displayed
+         */
+        var currentGroup = mutableStateOf<Group?>(null)
 
     }
 
@@ -255,11 +263,30 @@ abstract class Screen: SnackbarLauncher {
     }
 
     /**
+     * Function to show the empty section when a list is empty
+     *
+     * No any params required
+     */
+    @Composable
+    protected fun EmptyList(message: Int) {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = stringResource(message),
+                fontSize = 18.sp
+            )
+        }
+    }
+
+    /**
      * Function to navigate to a project's screen
      *
      * @param project: the project to show
      */
-    protected fun navToProject(project: Project) {
+    fun navToProject(project: Project) {
         currentProject.value = project
         navTo(ProjectActivity::class.java)
     }
@@ -270,6 +297,7 @@ abstract class Screen: SnackbarLauncher {
      * @param group: the group to show
      */
     fun navToGroup(group: Group) {
+        currentGroup.value = group
         navTo(GroupActivity::class.java)
     }
 

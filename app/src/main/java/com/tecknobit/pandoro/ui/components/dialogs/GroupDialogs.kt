@@ -1,6 +1,7 @@
 package com.tecknobit.pandoro.ui.components.dialogs
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
@@ -60,10 +62,18 @@ import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.users.GroupMember
 import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
 import com.tecknobit.pandoro.records.users.GroupMember.Role.*
+import com.tecknobit.pandoro.ui.activities.MainActivity
+import com.tecknobit.pandoro.ui.activities.ProjectActivity
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 
@@ -95,8 +105,17 @@ class GroupDialogs : PandoroDialog() {
                     if (isGroupDescriptionValid(description)) {
                         if (members.isNotEmpty()) {
                             if (checkMembersValidity(members)) {
-                                // TODO: MAKE REQUEST THEN
-                                showCreateGroup.value = false
+                                requester!!.execCreateGroup(
+                                    name = name,
+                                    groupDescription = description,
+                                    members = members
+                                )
+                                if(requester!!.successResponse()) {
+                                    showCreateGroup.value = false
+                                    name = ""
+                                    description = ""
+                                } else
+                                    showSnack(requester!!.errorMessage())
                             } else
                                 showSnack(you_must_insert_a_correct_members_list)
                         } else
@@ -119,7 +138,7 @@ class GroupDialogs : PandoroDialog() {
                 modifier = Modifier
                     .padding(10.dp)
                     .fillMaxWidth()
-                    .height(height = 55.dp),
+                    .height(height = 60.dp),
                 textFieldModifier = Modifier.fillMaxWidth(),
                 label = stringResource(R.string.name),
                 value = name,
@@ -132,7 +151,7 @@ class GroupDialogs : PandoroDialog() {
                 modifier = Modifier
                     .padding(10.dp)
                     .fillMaxWidth()
-                    .height(height = 55.dp),
+                    .height(height = 60.dp),
                 textFieldModifier = Modifier.fillMaxWidth(),
                 label = stringResource(R.string.description),
                 value = description,
@@ -160,7 +179,6 @@ class GroupDialogs : PandoroDialog() {
      *
      * @param members: the list of the members
      */
-// TODO: PACK IN THE LIBRARY
     @SuppressLint("UnrememberedMutableState")
     @OptIn(ExperimentalFoundationApi::class)
     @Composable
@@ -233,14 +251,14 @@ class GroupDialogs : PandoroDialog() {
     }
 
     /**
-     * Function to create a Pandoro's custom dialog to remove an user from a [Group]
+     * Function to create a Pandoro's custom dialog to remove a member from a [Group]
      *
      * @param show: whether show the dialog
      * @param group: the group where remove the user
      * @param member: the member to remove
      */
     @Composable
-    fun RemoveUser(
+    fun RemoveMember(
         show: MutableState<Boolean>,
         group: Group,
         member: GroupMember
@@ -251,8 +269,14 @@ class GroupDialogs : PandoroDialog() {
             extraTitle = group.name,
             text = R.string.remove_user_text,
             requestLogic = {
-                // TODO: REQUEST THEN
-                show.value = false
+                requester!!.execRemoveMember(
+                    groupId = group.id,
+                    memberId = member.id
+                )
+                if(requester!!.successResponse())
+                    show.value = false
+                else
+                    showSnack(requester!!.errorMessage())
             }
         )
     }
@@ -413,8 +437,21 @@ class GroupDialogs : PandoroDialog() {
         group: Group,
         nextAdmin: GroupMember? = null
     ) {
-        // TODO: REQUEST THEN
-        show.value = false
+        requester!!.execLeaveGroup(
+            groupId = group.id,
+            nextAdminId = nextAdmin?.id
+        )
+        if(requester!!.successResponse()) {
+            currentGroup.value = null
+            if(currentProject.value != null)
+                ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
+            else {
+                activeScreen.value = Profile
+                ContextCompat.startActivity(context, Intent(context, MainActivity::class.java), null)
+            }
+            show.value = false
+        } else
+            showSnack(requester!!.errorMessage())
     }
 
     /**
@@ -426,7 +463,7 @@ class GroupDialogs : PandoroDialog() {
     @Composable
     fun DeleteGroup(
         show: MutableState<Boolean>,
-        group: Group,
+        group: Group
     ) {
         PandoroAlertDialog(
             show = show,
@@ -434,8 +471,11 @@ class GroupDialogs : PandoroDialog() {
             extraTitle = group.name,
             text = R.string.delete_group_text,
             requestLogic = {
-                // TODO: REQUEST THEN
-                show.value = false
+                requester!!.execDeleteGroup(group.id)
+                if(requester!!.successResponse())
+                    show.value = false
+                else
+                    showSnack(requester!!.errorMessage())
             }
         )
     }

@@ -45,6 +45,7 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
+import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
@@ -54,11 +55,13 @@ import com.tecknobit.pandoro.ui.screens.NotesScreen
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.showAddNoteSheet
 import com.tecknobit.pandoro.ui.screens.OverviewScreen
 import com.tecknobit.pandoro.ui.screens.ProfileScreen
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showAddGroupButton
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectsList
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.scope
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.*
@@ -237,7 +240,8 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
         CoroutineScope(Dispatchers.Default).launch {
             var response: String
             while (user.id != null) {
-                if(activeScreen.value == Projects || activeScreen.value == Overview) {
+                if(activeScreen.value == Projects || activeScreen.value == Overview ||
+                    currentGroup.value != null) {
                     try {
                         val tmpProjects = mutableStateListOf<Project>()
                         response = requester!!.execProjectsList()
@@ -249,6 +253,24 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
                                 projectsList.clear()
                                 projectsList.addAll(tmpProjects)
                                 user.setProjects(projectsList)
+                            }
+                        } else
+                            showSnack(requester!!.errorMessage())
+                    } catch (_: JSONException){
+                    }
+                }
+                if(activeScreen.value == Profile || activeScreen.value == Projects) {
+                    try {
+                        val tmpGroups = mutableStateListOf<Group>()
+                        response = requester!!.execGroupsList()
+                        if(requester!!.successResponse()) {
+                            val jGroups = JSONArray(response)
+                            for (j in 0 until jGroups.length())
+                                tmpGroups.add(Group(jGroups[j] as JSONObject))
+                            if(needToRefresh(groups, tmpGroups)) {
+                                groups.clear()
+                                groups.addAll(tmpGroups)
+                                user.setGroups(groups)
                             }
                         } else
                             showSnack(requester!!.errorMessage())

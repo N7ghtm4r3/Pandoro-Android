@@ -79,7 +79,6 @@ import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.records.Project.RepositoryPlatform.*
 import com.tecknobit.pandoro.records.ProjectUpdate
 import com.tecknobit.pandoro.records.ProjectUpdate.Status.*
-import com.tecknobit.pandoro.ui.activities.GroupActivity.Companion.GROUP_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
@@ -728,7 +727,6 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                 show = showGroupsSection,
                                 headerTitle = groups,
                                 itemsList = project.value.groups,
-                                key = GROUP_KEY,
                                 clazz = GroupActivity::class.java
                             )
                         }

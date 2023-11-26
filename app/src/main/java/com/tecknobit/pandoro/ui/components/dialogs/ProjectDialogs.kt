@@ -241,7 +241,7 @@ class ProjectDialogs : PandoroDialog() {
                         projectRepository = it
                     }
                 )
-                if(groups.isNotEmpty()) {
+                if(user.adminGroups.isNotEmpty()) {
                     Column(
                         modifier = Modifier.fillMaxSize()
                     ) {

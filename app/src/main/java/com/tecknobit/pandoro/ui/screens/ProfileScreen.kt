@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -65,6 +66,7 @@ import com.tecknobit.pandoro.R.string.change_email
 import com.tecknobit.pandoro.R.string.change_password
 import com.tecknobit.pandoro.R.string.new_email
 import com.tecknobit.pandoro.R.string.new_password
+import com.tecknobit.pandoro.R.string.no_any_groups
 import com.tecknobit.pandoro.R.string.profile_details
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
@@ -73,6 +75,7 @@ import com.tecknobit.pandoro.helpers.isEmailValid
 import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.records.Changelog
 import com.tecknobit.pandoro.records.Changelog.ChangelogEvent.INVITED_GROUP
+import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
@@ -116,6 +119,8 @@ class ProfileScreen: Screen() {
          * **showCreateGroup** -> whether show the add group dialog
          */
         lateinit var showCreateGroup: MutableState<Boolean>
+
+        val groups = mutableStateListOf<Group>()
 
     }
 
@@ -616,78 +621,81 @@ class ProfileScreen: Screen() {
     @Composable
     private fun ShowMyGroups() {
         ShowSubsection {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    bottom = 55.dp,
-                    top = 5.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(user.groups) { group ->
-                    val role =
-                        if (group.isUserAdmin(user))
-                            ADMIN
-                        else if (group.isUserMaintainer(user))
-                            MAINTAINER
-                        else
-                            DEVELOPER
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 5.dp)
-                            .height(100.dp)
-                            .clickable { navToGroup(group) },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(10f),
-                            verticalArrangement = Arrangement.spacedBy(5.dp)
+            if(groups.isNotEmpty()) {
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        bottom = 55.dp,
+                        top = 5.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(groups) { group ->
+                        val role =
+                            if (group.isUserAdmin(user))
+                                ADMIN
+                            else if (group.isUserMaintainer(user))
+                                MAINTAINER
+                            else
+                                DEVELOPER
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 5.dp)
+                                .height(100.dp)
+                                .clickable { navToGroup(group) },
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = group.name,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 22.sp
-                            )
-                            Text(
-                                text = group.description
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            Column(
+                                modifier = Modifier.weight(10f),
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
                                 Text(
-                                    text = stringResource(string.role)
+                                    text = group.name,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 22.sp
                                 )
                                 Text(
-                                    text = role.toString(),
-                                    color = if (role == ADMIN) ErrorLight else PrimaryLight,
+                                    text = group.description
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(string.role)
+                                    )
+                                    Text(
+                                        text = role.toString(),
+                                        color = if (role == ADMIN) ErrorLight else PrimaryLight,
+                                    )
+                                }
+                            }
+                            if (role == ADMIN) {
+                                val deleteGroup = remember { mutableStateOf(false) }
+                                IconButton(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .size(24.dp),
+                                    onClick = { deleteGroup.value = true }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null,
+                                        tint = ErrorLight
+                                    )
+                                }
+                                groupDialogs.DeleteGroup(
+                                    show = deleteGroup,
+                                    group = group
                                 )
                             }
                         }
-                        if (role == ADMIN) {
-                            val deleteGroup = remember { mutableStateOf(false) }
-                            IconButton(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .size(24.dp),
-                                onClick = { deleteGroup.value = true }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = ErrorLight
-                                )
-                            }
-                            groupDialogs.DeleteGroup(
-                                show = deleteGroup,
-                                group = group
-                            )
-                        }
+                        Divide()
                     }
-                    Divide()
                 }
-            }
+            } else
+                EmptyList(message = no_any_groups)
         }
     }
 
