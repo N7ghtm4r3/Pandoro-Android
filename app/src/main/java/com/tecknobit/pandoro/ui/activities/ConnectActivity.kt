@@ -71,6 +71,7 @@ import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
 import com.tecknobit.pandoro.services.UsersHelper.SURNAME_KEY
 import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
@@ -549,6 +550,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
          */
         override fun logout() {
             preferences.edit().clear().apply()
+            isRefreshing.value = false
             context.startActivity(Intent(context, ConnectActivity::class.java))
         }
 

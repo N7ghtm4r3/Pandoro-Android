@@ -48,6 +48,7 @@ import com.tecknobit.pandoro.helpers.isValidRepository
 import com.tecknobit.pandoro.helpers.isValidVersion
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.Project
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
@@ -135,7 +136,34 @@ class ProjectDialogs : PandoroDialog() {
                         if (isValidProjectShortDescription(shortDescription)) {
                             if (isValidVersion(version)) {
                                 if (isValidRepository(projectRepository)) {
-                                    show.value = false
+                                    val groupIds = mutableListOf<String>()
+                                    groups.forEach { group ->
+                                        groupIds.add(group.id)
+                                    }
+                                    if(project == null) {
+                                        requester!!.execAddProject(
+                                            name = name,
+                                            projectDescription = description,
+                                            projectShortDescription = shortDescription,
+                                            projectVersion = version,
+                                            groups = groupIds,
+                                            projectRepository = projectRepository
+                                        )
+                                    } else {
+                                        requester!!.execEditProject(
+                                            projectId = project.id,
+                                            name = name,
+                                            projectDescription = description,
+                                            projectShortDescription = shortDescription,
+                                            projectVersion = version,
+                                            groups = groupIds,
+                                            projectRepository = projectRepository
+                                        )
+                                    }
+                                    if(requester!!.successResponse())
+                                        show.value = false
+                                    else
+                                        showSnack(requester!!.errorMessage())
                                 } else
                                     showSnack(insert_a_correct_repository_url)
                             } else
@@ -152,7 +180,7 @@ class ProjectDialogs : PandoroDialog() {
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .height(height = 55.dp),
+                        .height(height = 60.dp),
                     textFieldModifier = Modifier.fillMaxWidth(),
                     label = stringResource(string.name),
                     isError = !isValidProjectName(name),
@@ -165,7 +193,7 @@ class ProjectDialogs : PandoroDialog() {
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .height(height = 55.dp),
+                        .height(height = 60.dp),
                     textFieldModifier = Modifier.fillMaxWidth(),
                     label = stringResource(string.description),
                     isError = !isValidProjectDescription(description),
@@ -178,7 +206,7 @@ class ProjectDialogs : PandoroDialog() {
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .height(height = 55.dp),
+                        .height(height = 60.dp),
                     textFieldModifier = Modifier.fillMaxWidth(),
                     label = stringResource(short_description),
                     isError = !isValidProjectShortDescription(shortDescription),
@@ -191,7 +219,7 @@ class ProjectDialogs : PandoroDialog() {
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .height(height = 55.dp),
+                        .height(height = 60.dp),
                     textFieldModifier = Modifier.fillMaxWidth(),
                     label = stringResource(string.version),
                     isError = !isValidVersion(version),
@@ -204,7 +232,7 @@ class ProjectDialogs : PandoroDialog() {
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .height(height = 55.dp),
+                        .height(height = 60.dp),
                     textFieldModifier = Modifier.fillMaxWidth(),
                     label = stringResource(project_repository),
                     isError = !isValidRepository(projectRepository),
@@ -213,42 +241,44 @@ class ProjectDialogs : PandoroDialog() {
                         projectRepository = it
                     }
                 )
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Text(
-                        modifier = Modifier.padding(start = 15.dp, bottom = 10.dp, top = 5.dp),
-                        text =
-                        if (project == null)
-                            stringResource(add_to_a_group)
-                        else {
-                            stringResource(add) + " " + project.name + " " +
-                                    stringResource(to_a_group)
-                        },
-                        fontSize = 18.sp
-                    )
-                    Divider(thickness = 1.dp)
-                    LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-                        items(user.adminGroups) { group ->
-                            var inserted by remember { mutableStateOf(groups.contains(group)) }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Checkbox(
-                                    checked = inserted,
-                                    onCheckedChange = {
-                                        inserted = it
-                                        if (it)
-                                            groups.add(group)
-                                        else
-                                            groups.remove(group)
-                                    }
-                                )
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(
-                                    text = group.name,
-                                    fontSize = 12.sp
-                                )
+                if(groups.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 15.dp, bottom = 10.dp, top = 5.dp),
+                            text =
+                            if (project == null)
+                                stringResource(add_to_a_group)
+                            else {
+                                stringResource(add) + " " + project.name + " " +
+                                        stringResource(to_a_group)
+                            },
+                            fontSize = 18.sp
+                        )
+                        Divider(thickness = 1.dp)
+                        LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+                            items(user.adminGroups) { group ->
+                                var inserted by remember { mutableStateOf(groups.contains(group)) }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Checkbox(
+                                        checked = inserted,
+                                        onCheckedChange = {
+                                            inserted = it
+                                            if (it)
+                                                groups.add(group)
+                                            else
+                                                groups.remove(group)
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = group.name,
+                                        fontSize = 12.sp
+                                    )
+                                }
                             }
                         }
                     }
@@ -295,7 +325,7 @@ class ProjectDialogs : PandoroDialog() {
                 modifier = Modifier
                     .padding(10.dp)
                     .fillMaxWidth()
-                    .height(height = 55.dp),
+                    .height(height = 60.dp),
                 textFieldModifier = Modifier.fillMaxWidth(),
                 label = stringResource(target_version),
                 value = targetVersion,

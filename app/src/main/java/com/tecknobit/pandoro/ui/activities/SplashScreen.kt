@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +32,8 @@ import com.tecknobit.pandoro.records.users.User
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
 import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
+import com.tecknobit.pandoro.ui.screens.Screen
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
 import kotlinx.coroutines.delay
@@ -53,6 +58,13 @@ class SplashScreen : ComponentActivity() {
         var requester: AndroidRequester? = null
 
         lateinit var localAuthHelper: ConnectActivity.LocalAuthHelper
+
+        lateinit var isRefreshing: MutableState<Boolean>
+
+        /**
+         * **activeScreen** -> the active screen to show
+         */
+        lateinit var activeScreen: MutableState<Screen.ScreenType>
 
         /**
          * **groupDialogs** the instance to manage the dialogs of the groups
@@ -105,6 +117,8 @@ class SplashScreen : ComponentActivity() {
         setContent {
             PandoroTheme {
                 context = LocalContext.current
+                activeScreen = rememberSaveable { mutableStateOf(Projects) }
+                isRefreshing = rememberSaveable { mutableStateOf(false) }
                 localAuthHelper = ConnectActivity().LocalAuthHelper()
                 localAuthHelper.initUserCredentials()
                 defTypeface = ResourcesCompat.getFont(context, R.font.rem)!!

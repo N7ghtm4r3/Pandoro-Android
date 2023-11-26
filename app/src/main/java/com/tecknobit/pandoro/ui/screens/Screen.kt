@@ -96,15 +96,19 @@ abstract class Screen: SnackbarLauncher {
 
     }
 
-    /**
-     * **scope** the coroutine to launch the snackbars
-     */
-    private lateinit var scope: CoroutineScope
+    companion object {
 
-    /**
-     * **snackbarHostState** the host to launch the snackbars
-     */
-    private lateinit var snackbarHostState: SnackbarHostState
+        /**
+         * **scope** the coroutine to launch the snackbars
+         */
+        lateinit var scope: CoroutineScope
+
+        /**
+         * **snackbarHostState** the host to launch the snackbars
+         */
+        lateinit var snackbarHostState: SnackbarHostState
+
+    }
 
     /**
      * **sheetInputValue** the value fetched from the bottom modal sheet

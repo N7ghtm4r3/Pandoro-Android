@@ -48,7 +48,6 @@ import com.tecknobit.pandoro.helpers.ui.filterProjects
 import com.tecknobit.pandoro.helpers.ui.populateFrequentProjects
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroTextField
@@ -67,7 +66,7 @@ class ProjectsScreen: Screen() {
         /**
          * **projectsList** -> the list of the projects
          */
-        lateinit var projectsList: SnapshotStateList<Project>
+        val projectsList: SnapshotStateList<Project> = mutableStateListOf()
 
         /**
          * **showAddProjectDialog** -> the flag to show the dialog to create a new project
@@ -90,8 +89,6 @@ class ProjectsScreen: Screen() {
     override fun ShowScreen() {
         showAddProjectDialog = rememberSaveable { mutableStateOf(false) }
         showEditProjectDialog = rememberSaveable { mutableStateOf(false) }
-        projectsList = remember { mutableStateListOf() }
-        projectsList.addAll(user.projects)
         SetScreen {
             projectDialogs.AddNewProject()
             Column(
