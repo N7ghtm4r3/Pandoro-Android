@@ -78,6 +78,9 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroTextField
+import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.notes
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.changelogs
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectsList
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
@@ -479,6 +482,9 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
      */
     inner class LocalAuthHelper : LocalUser() {
 
+        /**
+         * **preferences** -> the instance to manage the user preferences
+         */
         private val preferences = context.getSharedPreferences("pandoro", MODE_PRIVATE)
 
         /**
@@ -527,6 +533,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
             password: String?
         ) {
             super.initUserSession(response, host, name, surname, email, password)
+            activeScreen.value = Projects
             context.startActivity(Intent(context, MainActivity::class.java))
         }
 
@@ -554,8 +561,10 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         override fun logout() {
             preferences.edit().clear().apply()
             projectsList.clear()
+            notes.clear()
+            changelogs.clear()
+            groups.clear()
             isRefreshing.value = false
-            activeScreen.value = Projects
             context.startActivity(Intent(context, ConnectActivity::class.java))
         }
 

@@ -131,4 +131,6 @@
     <string name="check_change_notes_message">You are publishing an update where not all the change notes are marked as done, do you want anyway publish the update?</string>
     <string name="choose_the_next_admin">Choose the next admin</string>
     <string name="no_any_groups">No-any groups</string>
+    <string name="no_any_personal_notes">No-any personal notes</string>
+    <string name="no_any_changelogs">No-any changelogs</string>
 </resources>

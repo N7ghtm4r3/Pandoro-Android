@@ -67,11 +67,11 @@ import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.helpers.checkMembersValidity
 import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
 import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.records.users.GroupMember
 import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
 import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
@@ -210,10 +210,16 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                         shape = RoundedCornerShape(10.dp),
                                         onClick = {
                                             if(checkMembersValidity(members)) {
-                                                // TODO: MAKE REQUEST THEN
-                                                addMembers.value = false
+                                                requester!!.execAddMembers(
+                                                    groupId = group.value.id,
+                                                    members = members.toList()
+                                                )
+                                                if(requester!!.successResponse())
+                                                    addMembers.value = false
+                                                else
+                                                    pandoroModalSheet.showSnack(requester!!.errorMessage())
                                             } else
-                                                showSnack(you_must_insert_a_correct_members_list)
+                                                pandoroModalSheet.showSnack(you_must_insert_a_correct_members_list)
                                         },
                                         content = {
                                             Text(
@@ -267,7 +273,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                             Image(
                                                 painter = rememberAsyncImagePainter(
                                                     ImageRequest.Builder(LocalContext.current)
-                                                        .data(member.profilePic)
+                                                        .data("${localAuthHelper.host}/${member.profilePic}")
                                                         // TODO: CHANGE WITH THE APP ICON
                                                         .error(R.drawable.error)
                                                         .crossfade(500)
@@ -332,7 +338,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                         }
                         item {
                             var extraIcon: ExtraIcon? = null
-                            if (isAdmin) {
+                            if (isAdmin && user.projects.isNotEmpty()) {
                                 val editProjects = remember { mutableStateOf(false) }
                                 extraIcon = ExtraIcon(
                                     action = { editProjects.value = true },
@@ -342,12 +348,14 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                     show = editProjects,
                                     title = string.edit_the_groups_projects,
                                     content = {
+                                        val projects = mutableStateListOf<String>()
+                                        group.value.projects.forEach { project ->
+                                            projects.add(project.id)
+                                        }
                                         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-                                            val projects = mutableStateListOf<Project>()
-                                            projects.addAll(group.value.projects)
                                             items(user.projects) { project ->
                                                 var inserted by remember {
-                                                    mutableStateOf(projects.contains(project))
+                                                    mutableStateOf(projects.contains(project.id))
                                                 }
                                                 Row(
                                                     verticalAlignment = Alignment.CenterVertically
@@ -357,9 +365,9 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                         onCheckedChange = {
                                                             inserted = it
                                                             if (it)
-                                                                projects.add(project)
+                                                                projects.add(project.id)
                                                             else
-                                                                projects.remove(project)
+                                                                projects.remove(project.id)
                                                         }
                                                     )
                                                     Spacer(modifier = Modifier.width(3.dp))
@@ -377,8 +385,14 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                 .fillMaxWidth(),
                                             shape = RoundedCornerShape(10.dp),
                                             onClick = {
-                                                // TODO: MAKE REQUEST THEN
-                                                editProjects.value = false
+                                                requester!!.execEditProjects(
+                                                    groupId = group.value.id,
+                                                    projects = projects.toList()
+                                                )
+                                                if(requester!!.successResponse())
+                                                    editProjects.value = false
+                                                else
+                                                    showSnack(requester!!.errorMessage())
                                             },
                                             content = {
                                                 Text(

@@ -27,10 +27,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +45,7 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
+import com.tecknobit.pandoro.records.Changelog
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
@@ -55,6 +56,7 @@ import com.tecknobit.pandoro.ui.screens.NotesScreen
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.showAddNoteSheet
 import com.tecknobit.pandoro.ui.screens.OverviewScreen
 import com.tecknobit.pandoro.ui.screens.ProfileScreen
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.changelogs
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showAddGroupButton
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
@@ -72,7 +74,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONArray
-import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -107,6 +108,11 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
     private val profileScreen = ProfileScreen()
 
     /**
+     * **unreadChangelogsNumber** -> the number of the changelogs yet to read
+     */
+    private lateinit var unreadChangelogsNumber: MutableIntState
+
+    /**
      * On create method
      *
      * @param savedInstanceState If the activity is being re-initialized after
@@ -122,9 +128,7 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
         super.onCreate(savedInstanceState)
         val navigationHelper = NavigationHelper()
         setContent {
-            val unreadChangelogsNumber by rememberSaveable {
-                mutableIntStateOf(user.unreadChangelogsNumber)
-            }
+            unreadChangelogsNumber = remember { mutableIntStateOf(user.unreadChangelogsNumber) }
             PandoroTheme {
                 Scaffold(
                     topBar = {
@@ -161,7 +165,7 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
                                                 .clickable { activeScreen.value = Profile }
                                                 .clip(CircleShape)
                                         )
-                                        if (unreadChangelogsNumber > 0) {
+                                        if (unreadChangelogsNumber.intValue > 0) {
                                             Badge(
                                                 modifier = Modifier
                                                     .align(Alignment.BottomEnd)
@@ -174,7 +178,7 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
                                                     )
                                             ) {
                                                 Text(
-                                                    text = "$unreadChangelogsNumber",
+                                                    text = "${unreadChangelogsNumber.intValue}",
                                                 )
                                             }
                                         }
@@ -256,7 +260,7 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
                             }
                         } else
                             showSnack(requester!!.errorMessage())
-                    } catch (_: JSONException){
+                    } catch (_: Exception){
                     }
                 }
                 if(activeScreen.value == Profile || activeScreen.value == Projects) {
@@ -274,8 +278,28 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
                             }
                         } else
                             showSnack(requester!!.errorMessage())
-                    } catch (_: JSONException){
+                    } catch (_: Exception){
                     }
+                }
+                try {
+                    val tmpChangelogs = mutableStateListOf<Changelog>()
+                    response = requester!!.execChangelogsList()
+                    if(requester!!.successResponse()) {
+                        val jChangelogs = JSONArray(response)
+                        for (j in 0 until jChangelogs.length())
+                            tmpChangelogs.add(Changelog(jChangelogs[j] as JSONObject))
+                        if(needToRefresh(changelogs, tmpChangelogs)) {
+                            changelogs.clear()
+                            unreadChangelogsNumber.intValue = 0
+                            changelogs.addAll(tmpChangelogs)
+                            changelogs.forEach { changelog ->
+                                if(!changelog.isRed)
+                                    unreadChangelogsNumber.intValue++
+                            }
+                        }
+                    } else
+                        showSnack(requester!!.errorMessage())
+                } catch (_: Exception){
                 }
                 delay(1000)
             }

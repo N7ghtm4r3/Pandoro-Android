@@ -66,6 +66,7 @@ import com.tecknobit.pandoro.R.string.change_email
 import com.tecknobit.pandoro.R.string.change_password
 import com.tecknobit.pandoro.R.string.new_email
 import com.tecknobit.pandoro.R.string.new_password
+import com.tecknobit.pandoro.R.string.no_any_changelogs
 import com.tecknobit.pandoro.R.string.no_any_groups
 import com.tecknobit.pandoro.R.string.profile_details
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
@@ -120,6 +121,14 @@ class ProfileScreen: Screen() {
          */
         lateinit var showCreateGroup: MutableState<Boolean>
 
+        /**
+         * **changelogs** -> the list of the changelogs
+         */
+        val changelogs = mutableStateListOf<Changelog>()
+
+        /**
+         * **groups** -> the list of the groups
+         */
         val groups = mutableStateListOf<Group>()
 
     }
@@ -435,181 +444,207 @@ class ProfileScreen: Screen() {
     @Composable
     private fun ShowChangelogs() {
         ShowSubsection {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    bottom = 55.dp,
-                    top = 5.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
-                items(user.changelogs) { changelog ->
-                    val isInviteToAGroup = changelog.changelogEvent == INVITED_GROUP
-                    val showInvite = remember { mutableStateOf(false) }
-                    val group = changelog.group
-                    if(showInvite.value) {
-                        AlertDialog(
-                            modifier = Modifier.height(330.dp),
-                            onDismissRequest = { showInvite.value = false },
-                            icon = {
-                                IconButton(
-                                    onClick = { navToGroup(group) }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Group,
-                                        contentDescription = null,
-                                        tint = PrimaryLight
-                                    )
-                                }
-                            },
-                            title = {
-                                Text(
-                                    text = stringResource(id = string.accept_invite)
-                                )
-                            },
-                            text = {
-                                Column (
-                                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
+            if(changelogs.isNotEmpty()) {
+                LazyColumn(
+                    contentPadding = PaddingValues(
+                        bottom = 55.dp,
+                        top = 5.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    items(changelogs) { changelog ->
+                        val isInviteToAGroup = changelog.changelogEvent == INVITED_GROUP
+                        val showInvite = remember { mutableStateOf(false) }
+                        val group = changelog.group
+                        if(showInvite.value) {
+                            AlertDialog(
+                                modifier = Modifier.height(330.dp),
+                                onDismissRequest = { showInvite.value = false },
+                                icon = {
+                                    IconButton(
+                                        onClick = { navToGroup(group) }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Group,
+                                            contentDescription = null,
+                                            tint = PrimaryLight
+                                        )
+                                    }
+                                },
+                                title = {
                                     Text(
-                                        text = changelog.content,
-                                        fontSize = 14.sp,
-                                        textAlign = TextAlign.Justify
+                                        text = stringResource(id = string.accept_invite)
                                     )
-                                    Row (
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(top = 5.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                },
+                                text = {
+                                    Column (
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
                                     ) {
-                                        Button(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .width(200.dp)
-                                                .height(40.dp),
-                                            shape = RoundedCornerShape(10.dp),
-                                            onClick = {
-                                                // TODO: MAKE REQUEST THEN
-                                                showInvite.value = false
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = ErrorLight
-                                            ),
-                                            content = {
-                                                Text(
-                                                    text = stringResource(string.decline),
-                                                    color = Color.White
-                                                )
-                                            }
-                                        )
-                                        Button(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .width(200.dp)
-                                                .height(40.dp),
-                                            shape = RoundedCornerShape(10.dp),
-                                            onClick = {
-                                                // TODO: MAKE REQUEST THEN
-                                                showInvite.value = false
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = GREEN_COLOR
-                                            ),
-                                            content = {
-                                                Text(
-                                                    text = stringResource(string.join),
-                                                    color = Color.White
-                                                )
-                                            }
-                                        )
-                                    }
-                                }
-                            },
-                            dismissButton = {},
-                            confirmButton = {
-                                TextButton(
-                                    onClick = { showInvite.value = false },
-                                    content = {
                                         Text(
-                                            text = stringResource(R.string.dismiss),
+                                            text = changelog.content,
+                                            fontSize = 14.sp,
+                                            textAlign = TextAlign.Justify
                                         )
+                                        Row (
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(top = 5.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                        ) {
+                                            Button(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .width(200.dp)
+                                                    .height(40.dp),
+                                                shape = RoundedCornerShape(10.dp),
+                                                onClick = {
+                                                    requester!!.execDeclineInvitation(
+                                                        groupId = group.id,
+                                                        changelogId = changelog.id
+                                                    )
+                                                    if(requester!!.successResponse())
+                                                        showInvite.value = false
+                                                    else
+                                                        showSnack(requester!!.errorMessage())
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = ErrorLight
+                                                ),
+                                                content = {
+                                                    Text(
+                                                        text = stringResource(string.decline),
+                                                        color = Color.White
+                                                    )
+                                                }
+                                            )
+                                            Button(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .width(200.dp)
+                                                    .height(40.dp),
+                                                shape = RoundedCornerShape(10.dp),
+                                                onClick = {
+                                                    requester!!.execAcceptInvitation(
+                                                        groupId = group.id,
+                                                        changelogId = changelog.id
+                                                    )
+                                                    if(requester!!.successResponse())
+                                                        showInvite.value = false
+                                                    else
+                                                        showSnack(requester!!.errorMessage())
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = GREEN_COLOR
+                                                ),
+                                                content = {
+                                                    Text(
+                                                        text = stringResource(string.join),
+                                                        color = Color.White
+                                                    )
+                                                }
+                                            )
+                                        }
                                     }
-                                )
-                            }
-                        )
-                    }
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 5.dp)
-                            .height(110.dp)
-                            .clickable {
-                                if (isInviteToAGroup)
-                                    showInvite.value = true
-                                else {
-                                    if (group != null)
-                                        navToGroup(group)
+                                },
+                                dismissButton = {},
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = { showInvite.value = false },
+                                        content = {
+                                            Text(
+                                                text = stringResource(R.string.dismiss),
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 5.dp)
+                                .height(110.dp)
+                                .clickable {
+                                    if (isInviteToAGroup)
+                                        showInvite.value = true
                                     else {
-                                        val project = changelog.project
-                                        if (project != null)
-                                            navToProject(project)
+                                        if (group != null)
+                                            navToGroup(group)
+                                        else {
+                                            val project = changelog.project
+                                            if (project != null)
+                                                navToProject(project)
+                                        }
                                     }
-                                }
-                            },
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(10f),
-                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                                },
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
+                            Column(
+                                modifier = Modifier.weight(10f),
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
                             ) {
-                                val isRed = changelog.isRed
-                                if (!isRed) {
-                                    Badge(
-                                        modifier = Modifier
-                                            .padding(end = 5.dp)
-                                            .size(10.dp)
-                                            .clickable { readChangelog(changelog) }
-                                    ) {
-                                        Text(text = "")
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    val isRed = changelog.isRed
+                                    if (!isRed) {
+                                        Badge(
+                                            modifier = Modifier
+                                                .padding(end = 5.dp)
+                                                .size(10.dp)
+                                                .clickable { readChangelog(changelog) }
+                                        ) {
+                                            Text(text = "")
+                                        }
                                     }
-                                }
-                                var modifier = Modifier.weight(10f)
-                                if (!isRed) {
-                                    modifier = modifier.clickable {
-                                        readChangelog(changelog)
+                                    var modifier = Modifier.weight(10f)
+                                    if (!isRed) {
+                                        modifier = modifier.clickable {
+                                            readChangelog(changelog)
+                                        }
                                     }
+                                    Text(
+                                        modifier = modifier,
+                                        text = changelog.title,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                                 Text(
-                                    modifier = modifier,
-                                    text = changelog.title,
-                                    fontWeight = FontWeight.Bold
+                                    text = changelog.content,
+                                    fontSize = 14.sp,
+                                    textAlign = TextAlign.Justify
                                 )
                             }
-                            Text(
-                                text = changelog.content,
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Justify
-                            )
+                            IconButton(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .size(24.dp),
+                                onClick = {
+                                    val groupId = if (changelog.group != null)
+                                        changelog.group.id
+                                    else
+                                        null
+                                    requester!!.execDeleteChangelog(
+                                        changelogId = changelog.id,
+                                        groupId = groupId
+                                    )
+                                    if(!requester!!.successResponse())
+                                        showSnack(requester!!.errorMessage())
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = null,
+                                    tint = ErrorLight
+                                )
+                            }
                         }
-                        IconButton(
-                            modifier = Modifier
-                                .weight(1f)
-                                .size(24.dp),
-                            onClick = { /*TODO MAKE REQUEST THEN*/ }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = null,
-                                tint = ErrorLight
-                            )
-                        }
+                        Divide()
                     }
-                    Divide()
                 }
-            }
+            } else
+                EmptyList(message = no_any_changelogs)
         }
     }
 
@@ -720,7 +755,9 @@ class ProfileScreen: Screen() {
      * @param changelog: the changelog to read
      */
     private fun readChangelog(changelog: Changelog) {
-        // TODO: MAKE REQUEST THEN
+        requester!!.execReadChangelog(changelog.id)
+        if(!requester!!.successResponse())
+            showSnack(requester!!.errorMessage())
     }
 
 }

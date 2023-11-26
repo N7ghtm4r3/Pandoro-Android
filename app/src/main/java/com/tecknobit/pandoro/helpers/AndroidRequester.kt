@@ -1,13 +1,15 @@
 package com.tecknobit.pandoro.helpers
 
 import com.tecknobit.apimanager.annotations.RequestPath
-import com.tecknobit.apimanager.apis.APIRequest
+import com.tecknobit.apimanager.apis.APIRequest.RequestMethod
 import com.tecknobit.apimanager.apis.APIRequest.RequestMethod.PATCH
 import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.controllers.UsersController.BASE_ENDPOINT
 import com.tecknobit.pandoro.controllers.UsersController.CHANGE_PROFILE_PIC_ENDPOINT
 import com.tecknobit.pandoro.controllers.UsersController.IDENTIFIER_KEY
 import com.tecknobit.pandoro.controllers.UsersController.USERS_ENDPOINT
+import com.tecknobit.pandoro.records.users.GroupMember.Role
+import com.tecknobit.pandoro.services.GroupsHelper.MEMBER_ROLE_KEY
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
 import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
 import kotlinx.coroutines.async
@@ -68,7 +70,7 @@ class AndroidRequester(
      * @return the result of the request as [JSONObject]
      *
      */
-    @RequestPath(path = "/api/v1/users/{id}/changeProfilePic", method = APIRequest.RequestMethod.POST)
+    @RequestPath(path = "/api/v1/users/{id}/changeProfilePic", method = RequestMethod.POST)
     override fun execChangeProfilePic(profilePic: File): JSONObject {
         val body = MultipartBody.Builder().setType(MultipartBody.FORM)
             .addFormDataPart(
@@ -105,7 +107,7 @@ class AndroidRequester(
     override fun execRequest(
         contentType: String,
         endpoint: String,
-        requestMethod: APIRequest.RequestMethod,
+        requestMethod: RequestMethod,
         payload: PandoroPayload?,
         jsonPayload: Boolean
     ): String {
@@ -129,7 +131,7 @@ class AndroidRequester(
     private fun asyncRequestExecution(
         contentType: String,
         endpoint: String,
-        requestMethod: APIRequest.RequestMethod,
+        requestMethod: RequestMethod,
         payload: PandoroPayload?,
         jsonPayload: Boolean
     ): String {
@@ -139,9 +141,12 @@ class AndroidRequester(
             var rPayload: RequestBody? = null
             if(payload != null) {
                 val paramsMap = payload.getPayload()
-                rPayload = if(jsonPayload)
-                    JSONObject(paramsMap).toString().toRequestBody(contentType.toMediaType())
-                else {
+                rPayload = if(jsonPayload) {
+                    val jPayload = JSONObject(paramsMap)
+                    if(jPayload.has(MEMBER_ROLE_KEY))
+                        jPayload.put(MEMBER_ROLE_KEY, Role.valueOf(paramsMap[MEMBER_ROLE_KEY].toString()))
+                    jPayload.toString().toRequestBody(contentType.toMediaType())
+                } else {
                     if(paramsMap.size == 1)
                         paramsMap.keys.first().toRequestBody()
                     else {
