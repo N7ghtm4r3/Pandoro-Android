@@ -2,6 +2,7 @@ package com.tecknobit.pandoro.helpers
 
 import com.tecknobit.apimanager.annotations.RequestPath
 import com.tecknobit.apimanager.apis.APIRequest
+import com.tecknobit.apimanager.apis.APIRequest.RequestMethod.PATCH
 import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.controllers.UsersController.BASE_ENDPOINT
 import com.tecknobit.pandoro.controllers.UsersController.CHANGE_PROFILE_PIC_ENDPOINT
@@ -141,17 +142,24 @@ class AndroidRequester(
                 rPayload = if(jsonPayload)
                     JSONObject(paramsMap).toString().toRequestBody(contentType.toMediaType())
                 else {
-                    val contentPayload = FormBody.Builder()
-                    paramsMap.keys.forEach { key ->
-                        contentPayload.add(key, paramsMap[key].toString())
+                    if(paramsMap.size == 1)
+                        paramsMap.keys.first().toRequestBody()
+                    else {
+                        val contentPayload = FormBody.Builder()
+                        paramsMap.keys.forEach { key ->
+                            contentPayload.add(key, paramsMap[key].toString())
+                        }
+                        contentPayload.build()
                     }
-                    contentPayload.build()
                 }
             }
+            val method = requestMethod.name
+            if(rPayload == null && method == PATCH.name)
+                rPayload = "".toRequestBody()
             val request: Request = Request.Builder()
                 .headers(headers.toHeaders())
                 .url(requestUrl)
-                .method(requestMethod.name, rPayload)
+                .method(method, rPayload)
                 .build()
             val call: Call = okHttpClient.newCall(request)
             val response: String = call.execute().body!!.string()

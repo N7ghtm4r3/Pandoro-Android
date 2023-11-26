@@ -316,9 +316,10 @@ class ProjectDialogs : PandoroDialog() {
                                 targetVersion = targetVersion,
                                 updateChangeNotes = notes
                             )
-                            if(requester!!.successResponse())
+                            if(requester!!.successResponse()) {
+                                targetVersion = ""
                                 show.value = false
-                            else
+                            } else
                                 showSnack(requester!!.errorMessage())
                         } else
                             showSnack(you_must_insert_correct_notes)

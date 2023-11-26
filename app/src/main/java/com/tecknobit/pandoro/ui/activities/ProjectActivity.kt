@@ -42,6 +42,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -130,10 +131,16 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
     /**
      * **publishUpdates** list of the published updates
      */
-    private var publishUpdates = arrayListOf<ProjectUpdate>()
+    private var publishUpdates = mutableStateListOf<ProjectUpdate>()
 
+    /**
+     * **hasGroup** -> whether the projects has group
+     */
     private var hasGroup: Boolean = false
 
+    /**
+     * **showDeleteDialog** -> whether show the delete dialog to delete an update
+     */
     private lateinit var showDeleteDialog: MutableState<Boolean>
 
     /**
@@ -153,7 +160,8 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
         setContent {
             project = remember { mutableStateOf(currentProject.value!!) }
             hasGroup = project.value.hasGroups()
-            publishUpdates.addAll(project.value.publishedUpdates)
+            if(publishUpdates.isEmpty())
+                publishUpdates.addAll(project.value.publishedUpdates)
             refreshItem()
             showDeleteDialog = remember { mutableStateOf(false) }
             val showScheduleUpdate = remember { mutableStateOf(false) }
@@ -432,7 +440,9 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                                             note.id
                                                                         )
                                                                     }
-                                                                    if(!requester!!.successResponse())
+                                                                    if(requester!!.successResponse())
+                                                                        markedAsDone.value = !markedAsDone.value
+                                                                    else
                                                                         showSnack(requester!!.errorMessage())
                                                                 }
                                                             )
@@ -1009,6 +1019,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                         if(needToRefresh(project.value, tmpProject)) {
                             project.value = tmpProject
                             hasGroup = project.value.hasGroups()
+                            publishUpdates.clear()
                             publishUpdates.addAll(project.value.publishedUpdates)
                         }
                     } else

@@ -14,6 +14,9 @@ interface AndroidSingleItemManager: SingleItemManager {
 
     companion object {
 
+        /**
+         * **gson** -> instance to JSON serialize the items to check
+         */
         private val gson = Gson()
 
     }

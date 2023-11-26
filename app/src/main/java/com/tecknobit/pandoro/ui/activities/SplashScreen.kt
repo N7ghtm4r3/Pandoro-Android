@@ -30,6 +30,7 @@ import androidx.core.net.toUri
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.AndroidRequester
 import com.tecknobit.pandoro.records.users.User
+import com.tecknobit.pandoro.ui.activities.ConnectActivity.LocalAuthHelper
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
 import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
@@ -52,15 +53,24 @@ class SplashScreen : ComponentActivity() {
     companion object {
 
         /**
+         * **isRefreshing** -> whether is current allowed refresh the lists
+         */
+        lateinit var isRefreshing: MutableState<Boolean>
+
+        /**
+         * **localAuthHelper** -> the instance to manage the auth credentials in local
+         */
+        lateinit var localAuthHelper: LocalAuthHelper
+
+        /**
          * **user** the current user logged in
          */
         var user = User()
 
+        /**
+         * **requester** -> the stance to manage the requests with the backend
+         */
         var requester: AndroidRequester? = null
-
-        lateinit var localAuthHelper: ConnectActivity.LocalAuthHelper
-
-        lateinit var isRefreshing: MutableState<Boolean>
 
         /**
          * **activeScreen** -> the active screen to show
