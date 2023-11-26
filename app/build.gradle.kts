@@ -76,6 +76,7 @@ dependencies {
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("com.tecknobit.pandoro:Pandoro:0.0.0.1")
     implementation("com.darkrockstudios:mpfilepicker:3.0.0")
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation("me.saket.swipe:swipe:1.2.0")
     implementation("co.yml:ycharts:2.1.0")

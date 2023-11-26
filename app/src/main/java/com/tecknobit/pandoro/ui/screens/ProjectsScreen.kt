@@ -48,6 +48,7 @@ import com.tecknobit.pandoro.helpers.ui.filterProjects
 import com.tecknobit.pandoro.helpers.ui.populateFrequentProjects
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroTextField
@@ -274,8 +275,10 @@ class ProjectsScreen: Screen() {
                                     title = delete_project,
                                     text = delete_text_dialog,
                                     requestLogic = {
-                                        /*MAKE REQUEST THEN*/
                                         showDeleteDialog.value = false
+                                        requester!!.execDeleteProject(project.id)
+                                        if(!requester!!.successResponse())
+                                            showSnack(requester!!.errorMessage())
                                     }
                                 )
                             } else {

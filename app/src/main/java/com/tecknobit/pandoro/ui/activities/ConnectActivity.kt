@@ -70,6 +70,7 @@ import com.tecknobit.pandoro.services.UsersHelper.PASSWORD_KEY
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
 import com.tecknobit.pandoro.services.UsersHelper.SURNAME_KEY
 import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
@@ -77,6 +78,8 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroTextField
+import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectsList
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
@@ -550,7 +553,9 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
          */
         override fun logout() {
             preferences.edit().clear().apply()
+            projectsList.clear()
             isRefreshing.value = false
+            activeScreen.value = Projects
             context.startActivity(Intent(context, ConnectActivity::class.java))
         }
 

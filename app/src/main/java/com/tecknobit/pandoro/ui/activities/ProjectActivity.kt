@@ -1,7 +1,6 @@
 package com.tecknobit.pandoro.ui.activities
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -73,6 +72,7 @@ import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.helpers.areAllChangeNotesDone
 import com.tecknobit.pandoro.helpers.isContentNoteValid
+import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
 import com.tecknobit.pandoro.records.Note
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.records.Project.RepositoryPlatform.*
@@ -82,9 +82,12 @@ import com.tecknobit.pandoro.ui.activities.GroupActivity.Companion.GROUP_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
@@ -93,8 +96,10 @@ import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 import com.tecknobit.pandoro.ui.theme.defTypeface
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
@@ -104,8 +109,9 @@ import me.saket.swipe.SwipeableActionsBox
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  * @see PandoroDataActivity
+ * @see AndroidSingleItemManager
  */
-class ProjectActivity : PandoroDataActivity() {
+class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
 
     companion object {
 
@@ -119,12 +125,16 @@ class ProjectActivity : PandoroDataActivity() {
     /**
      * **project** the project to show its details
      */
-    lateinit var project: Project
+    private lateinit var project: MutableState<Project>
 
     /**
      * **publishUpdates** list of the published updates
      */
     private var publishUpdates = arrayListOf<ProjectUpdate>()
+
+    private var hasGroup: Boolean = false
+
+    private lateinit var showDeleteDialog: MutableState<Boolean>
 
     /**
      * On create method
@@ -140,15 +150,15 @@ class ProjectActivity : PandoroDataActivity() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        project = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
-            intent.getSerializableExtra(PROJECT_KEY, Project::class.java) as Project
-        else
-            intent.getSerializableExtra(PROJECT_KEY) as Project
-        publishUpdates.addAll(project.publishedUpdates)
         setContent {
+            project = remember { mutableStateOf(currentProject.value!!) }
+            hasGroup = project.value.hasGroups()
+            publishUpdates.addAll(project.value.publishedUpdates)
+            refreshItem()
+            showDeleteDialog = remember { mutableStateOf(false) }
             val showScheduleUpdate = remember { mutableStateOf(false) }
             projectDialogs.ScheduleUpdate(
-                project = project,
+                project = project.value,
                 show = showScheduleUpdate
             )
             PandoroTheme {
@@ -163,7 +173,10 @@ class ProjectActivity : PandoroDataActivity() {
                             ),
                             navigationIcon = {
                                 IconButton(
-                                    onClick = { onBackPressedDispatcher.onBackPressed() }
+                                    onClick = {
+                                        currentProject.value = null
+                                        onBackPressedDispatcher.onBackPressed()
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Default.ArrowBack,
@@ -181,16 +194,16 @@ class ProjectActivity : PandoroDataActivity() {
                                     ) {
                                         Text(
                                             modifier = Modifier.alignBy(LastBaseline),
-                                            text = project.name
+                                            text = project.value.name
                                         )
                                         Text(
                                             modifier = Modifier.alignBy(LastBaseline),
-                                            text = "v. ${project.version}",
+                                            text = "v. ${project.value.version}",
                                             fontSize = 14.sp
                                         )
                                     }
-                                    val author = project.author
-                                    if(author != null) {
+                                    val author = project.value.author
+                                    if(author != null && project.value.hasGroups()) {
                                         Text(
                                             text = getString(string.author) + " ${author.completeName}",
                                             fontSize = 16.sp
@@ -199,7 +212,7 @@ class ProjectActivity : PandoroDataActivity() {
                                 }
                             },
                             actions = {
-                                val platform = project.repositoryPlatform
+                                val platform = project.value.repositoryPlatform
                                 if (platform != null) {
                                     val isGitHub = platform == Github
                                     var modifier = Modifier.size(
@@ -216,7 +229,7 @@ class ProjectActivity : PandoroDataActivity() {
                                     }
                                     IconButton(
                                         modifier = modifier,
-                                        onClick = { openLink(project.projectRepo) }
+                                        onClick = { openLink(project.value.projectRepo) }
                                     ) {
                                         Image(
                                             painter = painterResource(
@@ -249,7 +262,7 @@ class ProjectActivity : PandoroDataActivity() {
                     ShowData {
                         item {
                             ShowDescription(
-                                description = project.description
+                                description = project.value.description
                             )
                         }
                         item {
@@ -259,12 +272,12 @@ class ProjectActivity : PandoroDataActivity() {
                             )
                             Text(
                                 modifier = Modifier.padding(top = 5.dp),
-                                text = getString(last_update) + " ${project.lastUpdateDate}"
+                                text = getString(last_update) + " ${project.value.lastUpdateDate}"
                             )
                             SpaceContent()
                         }
                         if (showUpdatesSection.value) {
-                            items(project.updates) { update ->
+                            items(project.value.updates) { update ->
                                 val status = update.status
                                 val isScheduled = status == SCHEDULED
                                 val isInDevelopment = status == IN_DEVELOPMENT
@@ -336,15 +349,23 @@ class ProjectActivity : PandoroDataActivity() {
                                                                                     contentNote.value
                                                                                 )
                                                                             ) {
-                                                                                // TODO: MAKE REQUEST THEN
-                                                                                addNote = false
-                                                                                contentNote.value =
-                                                                                    ""
-                                                                            } else {
-                                                                                pandoroModalSheet
-                                                                                    .showSnack(
-                                                                                        insert_a_correct_content
+                                                                                requester!!.execAddChangeNote(
+                                                                                    project.value.id,
+                                                                                    update.id,
+                                                                                    contentNote.value
+                                                                                )
+                                                                                if(requester!!.successResponse()) {
+                                                                                    addNote = false
+                                                                                    contentNote.value = ""
+                                                                                } else {
+                                                                                    pandoroModalSheet.showSnack(
+                                                                                        requester!!.errorMessage()
                                                                                     )
+                                                                                }
+                                                                            } else {
+                                                                                pandoroModalSheet.showSnack(
+                                                                                    insert_a_correct_content
+                                                                                )
                                                                             }
                                                                         },
                                                                         containerColor = GREEN_COLOR,
@@ -399,16 +420,27 @@ class ProjectActivity : PandoroDataActivity() {
                                                                     GREEN_COLOR,
                                                                 onSwipe = {
                                                                     if (markedAsDone.value) {
-                                                                        // TODO: MAKE REQUEST THEN
+                                                                        requester!!.execMarkChangeNoteAsToDo(
+                                                                            project.value.id,
+                                                                            update.id,
+                                                                            note.id
+                                                                        )
                                                                     } else {
-                                                                        // TODO: MAKE REQUEST THEN
+                                                                        requester!!.execMarkChangeNoteAsDone(
+                                                                            project.value.id,
+                                                                            update.id,
+                                                                            note.id
+                                                                        )
                                                                     }
+                                                                    if(!requester!!.successResponse())
+                                                                        showSnack(requester!!.errorMessage())
                                                                 }
                                                             )
                                                         )
                                                     ) {
                                                         ChangeNoteCard(
                                                             note = note,
+                                                            update = update,
                                                             markedAsDone = markedAsDone,
                                                             isScheduled = false,
                                                             isInDevelopment = true
@@ -417,6 +449,7 @@ class ProjectActivity : PandoroDataActivity() {
                                                 } else {
                                                     ChangeNoteCard(
                                                         note = note,
+                                                        update = update,
                                                         markedAsDone = markedAsDone,
                                                         isScheduled = isScheduled,
                                                         isInDevelopment = false
@@ -431,21 +464,13 @@ class ProjectActivity : PandoroDataActivity() {
                                     shape = RoundedCornerShape(15.dp),
                                     onClick = { showUpdateInfo.value = true }
                                 ) {
-                                    var showOptions = remember { mutableStateOf(false) }
-                                    val showDeleteDialog = remember { mutableStateOf(false) }
+                                    val showOptions = remember { mutableStateOf(false) }
                                     PandoroAlertDialog(
                                         show = showDeleteDialog,
                                         title = delete_update,
                                         extraTitle = update.targetVersion,
                                         text = delete_update_text,
-                                        requestLogic = {
-                                            runBlocking {
-                                                launch {
-                                                    deleteUpdate(update)
-                                                    showDeleteDialog.value = false
-                                                }
-                                            }
-                                        }
+                                        requestLogic = { deleteUpdate(update) }
                                     )
                                     Row(
                                         modifier = Modifier.height(IntrinsicSize.Min)
@@ -484,7 +509,9 @@ class ProjectActivity : PandoroDataActivity() {
                                                                 showOptions.value = false
                                                             }
                                                         ) {
-                                                            var publishUpdate = remember { mutableStateOf(false) }
+                                                            val publishUpdate = remember {
+                                                                mutableStateOf(false)
+                                                            }
                                                             DropdownMenuItem(
                                                                 text = {
                                                                     Text(
@@ -512,7 +539,12 @@ class ProjectActivity : PandoroDataActivity() {
                                                                 },
                                                                 onClick = {
                                                                     if (isScheduled) {
-                                                                        // TODO: MAKE REQUEST THEN
+                                                                        requester!!.execStartUpdate(
+                                                                            project.value.id,
+                                                                            update.id
+                                                                        )
+                                                                        if(!requester!!.successResponse())
+                                                                            showSnack(requester!!.errorMessage())
                                                                         showOptions.value = false
                                                                     } else
                                                                         publishUpdate.value = true
@@ -574,15 +606,25 @@ class ProjectActivity : PandoroDataActivity() {
                                             Column(
                                                 modifier = Modifier.padding(end = 10.dp)
                                             ) {
-                                                Text(
-                                                    text = getString(update_id) + " ${update.id}",
-                                                )
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    verticalAlignment = CenterVertically,
+                                                    horizontalArrangement = spacedBy(5.dp)
+                                                ) {
+                                                    Text(
+                                                        text = getString(update_id),
+                                                    )
+                                                    Text(
+                                                        text = update.id,
+                                                        fontSize = 14.sp
+                                                    )
+                                                }
                                                 SpaceContent()
                                                 Column(
                                                     modifier = Modifier.padding(top = 5.dp),
                                                 ) {
                                                     val updateAuthor = update.author
-                                                    if (updateAuthor != null) {
+                                                    if (updateAuthor != null && hasGroup) {
                                                         Text(
                                                             text = getString(author)
                                                                     + " ${updateAuthor.completeName}",
@@ -599,7 +641,7 @@ class ProjectActivity : PandoroDataActivity() {
                                                         modifier = Modifier.padding(top = 5.dp),
                                                     ) {
                                                         val scheduledBy = update.startedBy
-                                                        if (scheduledBy != null) {
+                                                        if (scheduledBy != null && hasGroup) {
                                                             Text(
                                                                 text = getString(started_by)
                                                                         + " ${scheduledBy.completeName}",
@@ -617,7 +659,7 @@ class ProjectActivity : PandoroDataActivity() {
                                                         modifier = Modifier.padding(top = 5.dp),
                                                     ) {
                                                         val publishedBy = update.publishedBy
-                                                        if (publishedBy != null) {
+                                                        if (publishedBy != null && hasGroup) {
                                                             Text(
                                                                 text = getString(published_by)
                                                                         + " ${publishedBy.completeName}",
@@ -675,7 +717,7 @@ class ProjectActivity : PandoroDataActivity() {
                             ShowItemsList(
                                 show = showGroupsSection,
                                 headerTitle = groups,
-                                itemsList = project.groups,
+                                itemsList = project.value.groups,
                                 key = GROUP_KEY,
                                 clazz = GroupActivity::class.java
                             )
@@ -689,9 +731,9 @@ class ProjectActivity : PandoroDataActivity() {
                                 Text(
                                     modifier = Modifier.padding(top = 5.dp),
                                     text = getString(total_development_days)
-                                            + " ${project.totalDevelopmentDays}"
+                                            + " ${project.value.totalDevelopmentDays}"
                                 )
-                                val avgDevelopmentTime = project.averageDevelopmentTime
+                                val avgDevelopmentTime = project.value.averageDevelopmentTime
                                 val temporal =
                                     if (avgDevelopmentTime > 0)
                                         days
@@ -722,14 +764,19 @@ class ProjectActivity : PandoroDataActivity() {
      *
      * @param update: the update to delete
      */
-    private suspend fun deleteUpdate(update: ProjectUpdate) {
-        // TODO: MAKE REQUEST THEN
+    private fun deleteUpdate(update: ProjectUpdate) {
+        requester!!.execDeleteUpdate(project.value.id, update.id)
+        if(requester!!.successResponse())
+            showDeleteDialog.value = false
+        else
+            showSnack(requester!!.errorMessage())
     }
 
     /**
      * Function to create a card for a change note
      *
      * @param note: the note to show
+     * @param update: the update where is placed the change note
      * @param markedAsDone: whether the note is marked as done
      * @param isScheduled: whether the update is scheduled
      * @param isInDevelopment: whether the update is in development
@@ -738,6 +785,7 @@ class ProjectActivity : PandoroDataActivity() {
     @Composable
     private fun ChangeNoteCard(
         note: Note,
+        update: ProjectUpdate,
         markedAsDone: MutableState<Boolean>,
         isScheduled: Boolean,
         isInDevelopment: Boolean
@@ -755,7 +803,7 @@ class ProjectActivity : PandoroDataActivity() {
                 Column(
                     verticalArrangement = spacedBy(5.dp)
                 ) {
-                    if (authorIsNotNull) {
+                    if (authorIsNotNull && hasGroup) {
                         Text(
                             text = getString(string.author) + " ${author.completeName}"
                         )
@@ -764,7 +812,7 @@ class ProjectActivity : PandoroDataActivity() {
                         text = stringResource(creation_date) + " ${note.creationDate}",
                     )
                     if (markedAsDone.value) {
-                        if (authorIsNotNull) {
+                        if (authorIsNotNull && hasGroup) {
                             Text(
                                 text = stringResource(marked_as_done_by) + " ${author.completeName}"
                             )
@@ -817,7 +865,9 @@ class ProjectActivity : PandoroDataActivity() {
                     ) {
                         IconButton(
                             onClick = {
-                                // TODO: MAKE REQUEST THEN
+                                requester!!.execDeleteChangeNote(project.value.id, update.id, note.id)
+                                if(!requester!!.successResponse())
+                                    showSnack(requester!!.errorMessage())
                             }
                         ) {
                             Icon(
@@ -871,9 +921,12 @@ class ProjectActivity : PandoroDataActivity() {
         update: ProjectUpdate,
         check: MutableState<Boolean>
     ) {
-        // TODO: MAKE REQUEST THEN
-        showOptions.value = false
-        check.value = false
+        requester!!.execPublishUpdate(project.value.id, update.id)
+        if(requester!!.successResponse()) {
+            showOptions.value = false
+            check.value = false
+        } else
+            showSnack(requester!!.errorMessage())
     }
 
     /**
@@ -938,6 +991,32 @@ class ProjectActivity : PandoroDataActivity() {
                 modifier = Modifier.height(350.dp),
                 barChartData = barChartData
             )
+        }
+    }
+
+    /**
+     * Function to refresh an item to display in the UI
+     *
+     * No-any params required
+     */
+    override fun refreshItem() {
+        CoroutineScope(Dispatchers.Default).launch {
+            while (user.id != null && currentProject.value != null) {
+                try {
+                    val response = requester!!.execGetSingleProject(currentProject.value!!.id)
+                    if(requester!!.successResponse()) {
+                        val tmpProject = Project(response)
+                        if(needToRefresh(project.value, tmpProject)) {
+                            project.value = tmpProject
+                            hasGroup = project.value.hasGroups()
+                            publishUpdates.addAll(project.value.publishedUpdates)
+                        }
+                    } else
+                        showSnack(requester!!.errorMessage())
+                } catch (_ : Exception){
+                }
+                delay(1000)
+            }
         }
     }
 

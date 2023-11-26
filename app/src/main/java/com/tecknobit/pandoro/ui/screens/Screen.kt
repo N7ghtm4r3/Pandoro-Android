@@ -37,14 +37,11 @@ import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.GroupActivity
-import com.tecknobit.pandoro.ui.activities.GroupActivity.Companion.GROUP_KEY
 import com.tecknobit.pandoro.ui.activities.ProjectActivity
-import com.tecknobit.pandoro.ui.activities.ProjectActivity.Companion.PROJECT_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
 import kotlinx.coroutines.CoroutineScope
-import java.io.Serializable
 
 /**
  * The **Screen** class is useful to give the base behaviour of the other screens of the
@@ -107,6 +104,11 @@ abstract class Screen: SnackbarLauncher {
          * **snackbarHostState** the host to launch the snackbars
          */
         lateinit var snackbarHostState: SnackbarHostState
+
+        /**
+         * **currentProject** the current project currently displayed
+         */
+        var currentProject = mutableStateOf<Project?>(null)
 
     }
 
@@ -258,7 +260,8 @@ abstract class Screen: SnackbarLauncher {
      * @param project: the project to show
      */
     protected fun navToProject(project: Project) {
-        navTo(PROJECT_KEY, project, ProjectActivity::class.java)
+        currentProject.value = project
+        navTo(ProjectActivity::class.java)
     }
 
     /**
@@ -267,20 +270,16 @@ abstract class Screen: SnackbarLauncher {
      * @param group: the group to show
      */
     fun navToGroup(group: Group) {
-        navTo(GROUP_KEY, group, GroupActivity::class.java)
+        navTo(GroupActivity::class.java)
     }
 
     /**
      * Function to navigate to a screen
      *
-     * @param key: key to fetch the extra value
-     * @param extra: the payload to share with the other activity
-     * @param clazz: the class of the extra
+     * @param clazz: the class to display
      */
-    private fun <T> navTo(key: String, extra: Serializable, clazz: Class<T>) {
-        val intent = Intent(context, clazz)
-        intent.putExtra(key, extra)
-        startActivity(context, intent, null)
+    private fun <T> navTo(clazz: Class<T>) {
+        startActivity(context, Intent(context, clazz), null)
     }
 
 }

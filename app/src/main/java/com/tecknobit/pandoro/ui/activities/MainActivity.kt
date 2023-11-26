@@ -44,7 +44,7 @@ import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
-import com.tecknobit.pandoro.helpers.ui.ListManager
+import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
 import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
@@ -79,9 +79,9 @@ import org.json.JSONObject
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  * @see SnackbarLauncher
- * @see ListManager
+ * @see AndroidListManager
  */
-class MainActivity : ComponentActivity(), SnackbarLauncher, ListManager {
+class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
 
     /**
      * **projectsScreen** -> the screen to show the projects
@@ -226,11 +226,6 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, ListManager {
                 finishAffinity()
             }
         })
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        refreshValues()
     }
 
     /**

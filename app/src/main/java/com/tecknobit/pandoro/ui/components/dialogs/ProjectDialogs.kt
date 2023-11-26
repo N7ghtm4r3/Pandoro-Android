@@ -311,8 +311,15 @@ class ProjectDialogs : PandoroDialog() {
                 if (isValidVersion(targetVersion)) {
                     if (notes.isNotEmpty()) {
                         if (areNotesValid(notes)) {
-                            // TODO: MAKE REQUEST THEN
-                            show.value = false
+                            requester!!.execScheduleUpdate(
+                                projectId = project.id,
+                                targetVersion = targetVersion,
+                                updateChangeNotes = notes
+                            )
+                            if(requester!!.successResponse())
+                                show.value = false
+                            else
+                                showSnack(requester!!.errorMessage())
                         } else
                             showSnack(you_must_insert_correct_notes)
                     } else
