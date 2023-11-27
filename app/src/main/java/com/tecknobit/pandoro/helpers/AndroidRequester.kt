@@ -81,7 +81,7 @@ class AndroidRequester(
             .build()
         val request: Request = Request.Builder()
             .headers(headers.toHeaders())
-            .url("$host$BASE_ENDPOINT$USERS_ENDPOINT/$userId/$CHANGE_PROFILE_PIC_ENDPOINT")
+            .url("$host$BASE_ENDPOINT$USERS_ENDPOINT/$userId$CHANGE_PROFILE_PIC_ENDPOINT")
             .post(body)
             .build()
         val client = OkHttpClient()

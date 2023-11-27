@@ -1,5 +1,7 @@
 package com.tecknobit.pandoro.ui.screens
 
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest.*
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
@@ -79,6 +82,7 @@ import com.tecknobit.pandoro.records.Changelog.ChangelogEvent.INVITED_GROUP
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
@@ -88,7 +92,12 @@ import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import kotlin.math.min
 
 
 /**
@@ -153,19 +162,25 @@ class ProfileScreen: Screen() {
             contentAlignment = Alignment.Center
         ) {
             var showImagePicker by remember { mutableStateOf(false) }
-            val profilePic by remember { mutableStateOf(user.profilePic) }
+            var profilePic by remember { mutableStateOf(user.profilePic) }
             FilePicker(
                 show = showImagePicker,
                 fileExtensions = listOf("jpeg", "jpg", "png")
             ) { file ->
                 if(file != null) {
-                    // TODO: CORRECT PROFILE PIC REQUEST
-                    val response = requester!!.execChangeProfilePic(File(file.path))
-                    if(requester!!.successResponse()) {
-                        localAuthHelper.storeProfilePic(JsonHelper(response)
-                            .getString(PROFILE_PIC_KEY), true)
-                    } else
-                        showSnack(requester!!.errorMessage())
+                    var imagePath: String? = null
+                    runBlocking {
+                        async { imagePath = getImagePath(file.path.toUri()) }.await()
+                    }
+                    if(imagePath != null) {
+                        val response = requester!!.execChangeProfilePic(File(imagePath!!))
+                        if(requester!!.successResponse()) {
+                            localAuthHelper.storeProfilePic(JsonHelper(response)
+                                .getString(PROFILE_PIC_KEY), true)
+                            profilePic = user.profilePic
+                        } else
+                            showSnack(requester!!.errorMessage())
+                    }
                     showImagePicker = false
                 }
             }
@@ -179,6 +194,8 @@ class ProfileScreen: Screen() {
                         .data(profilePic)
                         // TODO: CHANGE WITH THE APP ICON
                         .error(R.drawable.error)
+                        .diskCacheKey(profilePic)
+                        .memoryCacheKey(profilePic)
                         .crossfade(500)
                         .build()
                 ),
@@ -247,6 +264,44 @@ class ProfileScreen: Screen() {
                 }
             }
         }
+    }
+
+    /**
+     * Function to get the complete image path of an image
+     *
+     * @param uri: the uri of the image
+     * @return the path of the image
+     */
+    private fun getImagePath(uri: Uri): String? {
+        val returnCursor = context.contentResolver.query(uri, null, null, null, null)
+        val nameIndex =  returnCursor!!.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        val sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE)
+        returnCursor.moveToFirst()
+        val name = returnCursor.getString(nameIndex)
+        returnCursor.getLong(sizeIndex).toString()
+        val file = File(context.filesDir, name)
+        try {
+            val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+            val outputStream = FileOutputStream(file)
+            var read = 0
+            val maxBufferSize = 1 * 1024 * 1024
+            val bytesAvailable: Int = inputStream?.available() ?: 0
+            val bufferSize = min(bytesAvailable, maxBufferSize)
+            val buffers = ByteArray(bufferSize)
+            while (inputStream?.read(buffers).also {
+                    if (it != null) {
+                        read = it
+                    }
+                } != -1) {
+                outputStream.write(buffers, 0, read)
+            }
+            inputStream?.close()
+            outputStream.close()
+        } catch (_: Exception) {
+        } finally {
+            returnCursor.close()
+        }
+        return file.path
     }
 
     /**
