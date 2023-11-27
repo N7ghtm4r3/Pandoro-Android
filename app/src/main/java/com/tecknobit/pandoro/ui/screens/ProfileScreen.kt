@@ -194,8 +194,6 @@ class ProfileScreen: Screen() {
                         .data(profilePic)
                         // TODO: CHANGE WITH THE APP ICON
                         .error(R.drawable.error)
-                        .diskCacheKey(profilePic)
-                        .memoryCacheKey(profilePic)
                         .crossfade(500)
                         .build()
                 ),
