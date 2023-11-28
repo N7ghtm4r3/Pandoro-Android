@@ -61,6 +61,7 @@ import com.tecknobit.pandoro.helpers.isEmailValid
 import com.tecknobit.pandoro.helpers.isNameValid
 import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.helpers.isServerAddressValid
+import com.tecknobit.pandoro.helpers.isServerSecretValid
 import com.tecknobit.pandoro.helpers.isSurnameValid
 import com.tecknobit.pandoro.helpers.ui.LocalUser
 import com.tecknobit.pandoro.records.users.User
@@ -215,6 +216,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                             verticalArrangement = Arrangement.Center
                         ) {
                             var serverAddress by remember { mutableStateOf("") }
+                            var serverSecret by remember { mutableStateOf("") }
                             var name by remember { mutableStateOf("") }
                             var surname by remember { mutableStateOf("") }
                             var email by remember { mutableStateOf("") }
@@ -233,6 +235,19 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                 }
                             )
                             if (!isIsSignIn) {
+                                PandoroTextField(
+                                    modifier = Modifier
+                                        .padding(10.dp)
+                                        .width(300.dp)
+                                        .height(60.dp),
+                                    textFieldModifier = Modifier.fillMaxWidth(),
+                                    label = getString(server_secret),
+                                    value = serverSecret,
+                                    isError = !isServerSecretValid(serverSecret),
+                                    onValueChange = {
+                                        serverSecret = it
+                                    }
+                                )
                                 PandoroTextField(
                                     modifier = Modifier
                                         .padding(10.dp)
@@ -313,19 +328,24 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     when (screenType) {
                                         SignUp -> {
                                             if (isServerAddressValid(serverAddress)) {
-                                                if (isNameValid(name)) {
-                                                    if (isSurnameValid(surname)) {
-                                                        checkCredentials(
-                                                            serverAddress,
-                                                            name,
-                                                            surname,
-                                                            email,
-                                                            password
-                                                        )
+                                                if(isServerSecretValid(serverSecret)) {
+                                                    if (isNameValid(name)) {
+                                                        if (isSurnameValid(surname)) {
+                                                            checkCredentials(
+                                                                serverAddress = serverAddress,
+                                                                serverSecret = serverSecret,
+                                                                name = name,
+                                                                surname = surname,
+                                                                email = email,
+                                                                password = password
+                                                            )
+                                                        } else
+                                                            showSnack(you_must_insert_a_correct_surname)
                                                     } else
-                                                        showSnack(you_must_insert_a_correct_surname)
-                                                } else
-                                                    showSnack(you_must_insert_a_correct_name)
+                                                        showSnack(you_must_insert_a_correct_name)
+                                                } else {
+                                                    showSnack(you_must_insert_a_correct_server_secret)
+                                                }
                                             } else
                                                 showSnack(you_must_insert_a_correct_server_address)
                                         }
@@ -425,13 +445,18 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
     }
 
     /**
-     * Function to check the credentials inserted
+     * Function to check the validity of the credentials
      *
-     * @param email: the email of the user
-     * @param password: the password of the user
+     * @param serverAddress: the address of the Pandoro's backend
+     * @param serverSecret: the secret of the Pandoro's backend
+     * @param name: the name of the user
+     * @param surname: the surname of the user
+     * @param email: email to check
+     * @param password: password to check
      */
     private fun checkCredentials(
         serverAddress: String,
+        serverSecret: String? = null,
         name: String = "",
         surname: String = "",
         email: String,
@@ -440,10 +465,10 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         when (areCredentialsValid(email, password)) {
             OK -> {
                 requester = AndroidRequester(serverAddress, null, null)
-                val response: JsonHelper = if(name.isNotEmpty())
-                    JsonHelper(requester!!.execSignUp(name, surname, email, password))
-                else
+                val response: JsonHelper = if(serverSecret.isNullOrBlank())
                     JsonHelper(requester!!.execSignIn(email, password))
+                else
+                    JsonHelper(requester!!.execSignUp(serverSecret, name, surname, email, password))
                 if(requester!!.successResponse()) {
                     localAuthHelper.initUserSession(
                         response,

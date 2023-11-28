@@ -133,4 +133,6 @@
     <string name="no_any_groups">No-any groups</string>
     <string name="no_any_personal_notes">No-any personal notes</string>
     <string name="no_any_changelogs">No-any changelogs</string>
+    <string name="server_secret">Server secret</string>
+    <string name="you_must_insert_a_correct_server_secret">You must insert a correct server secret</string>
 </resources>
