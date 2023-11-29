@@ -70,11 +70,13 @@ class ProjectDialogs : PandoroDialog() {
      */
     @Composable
     fun AddNewProject() {
-        CreateProjectDialog(
-            show = showAddProjectDialog,
-            title = stringResource(add_a_new_project),
-            confirmText = stringResource(add)
-        )
+        if(showAddProjectDialog.value) {
+            CreateProjectDialog(
+                show = showAddProjectDialog,
+                title = stringResource(add_a_new_project),
+                confirmText = stringResource(add)
+            )
+        }
     }
 
     /**
@@ -84,12 +86,14 @@ class ProjectDialogs : PandoroDialog() {
      */
     @Composable
     fun EditProject(project: Project) {
-        CreateProjectDialog(
-            project = project,
-            show = showEditProjectDialog,
-            title = stringResource(edit_caps) + " " + project.name + " " + stringResource(string.project),
-            confirmText = stringResource(edit)
-        )
+        if(showEditProjectDialog.value) {
+            CreateProjectDialog(
+                project = project,
+                show = showEditProjectDialog,
+                title = stringResource(edit_caps) + " " + project.name + " " + stringResource(string.project),
+                confirmText = stringResource(edit)
+            )
+        }
     }
 
     /**

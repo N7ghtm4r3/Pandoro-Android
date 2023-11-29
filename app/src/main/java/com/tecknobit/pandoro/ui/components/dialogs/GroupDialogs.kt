@@ -93,84 +93,86 @@ class GroupDialogs : PandoroDialog() {
     @SuppressLint("UnrememberedMutableState")
     @Composable
     fun CreateGroup() {
-        val members = mutableStateListOf("")
-        var name by remember { mutableStateOf("") }
-        var description by remember { mutableStateOf("") }
-        CreatePandoroDialog(
-            show = showCreateGroup,
-            title = stringResource(R.string.create_a_new_group),
-            confirmText = stringResource(R.string.create),
-            requestLogic = {
-                if (isGroupNameValid(name)) {
-                    if (isGroupDescriptionValid(description)) {
-                        if (members.isNotEmpty()) {
-                            if (checkMembersValidity(members)) {
-                                requester!!.execCreateGroup(
-                                    name = name,
-                                    groupDescription = description,
-                                    members = members
-                                )
-                                if(requester!!.successResponse()) {
-                                    showCreateGroup.value = false
-                                    name = ""
-                                    description = ""
+        if(showCreateGroup.value) {
+            val members = mutableStateListOf("")
+            var name by remember { mutableStateOf("") }
+            var description by remember { mutableStateOf("") }
+            CreatePandoroDialog(
+                show = showCreateGroup,
+                title = stringResource(R.string.create_a_new_group),
+                confirmText = stringResource(R.string.create),
+                requestLogic = {
+                    if (isGroupNameValid(name)) {
+                        if (isGroupDescriptionValid(description)) {
+                            if (members.isNotEmpty()) {
+                                if (checkMembersValidity(members)) {
+                                    requester!!.execCreateGroup(
+                                        name = name,
+                                        groupDescription = description,
+                                        members = members
+                                    )
+                                    if(requester!!.successResponse()) {
+                                        showCreateGroup.value = false
+                                        name = ""
+                                        description = ""
+                                    } else
+                                        showSnack(requester!!.errorMessage())
                                 } else
-                                    showSnack(requester!!.errorMessage())
+                                    showSnack(you_must_insert_a_correct_members_list)
                             } else
-                                showSnack(you_must_insert_a_correct_members_list)
+                                showSnack(you_must_insert_one_member_at_least)
                         } else
-                            showSnack(you_must_insert_one_member_at_least)
+                            showSnack(you_must_insert_a_correct_group_description)
                     } else
-                        showSnack(you_must_insert_a_correct_group_description)
-                } else
-                    showSnack(you_must_insert_a_correct_group_name)
-            },
-        ) {
-            Text(
-                modifier = Modifier.padding(
-                    top = 10.dp,
-                    bottom = 10.dp
-                ),
-                text = stringResource(R.string.details_of_the_group),
-                fontSize = 22.sp
-            )
-            PandoroTextField(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()
-                    .height(height = 60.dp),
-                textFieldModifier = Modifier.fillMaxWidth(),
-                label = stringResource(R.string.name),
-                value = name,
-                isError = !isGroupNameValid(name),
-                onValueChange = {
-                    name = it
-                }
-            )
-            PandoroTextField(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth()
-                    .height(height = 60.dp),
-                textFieldModifier = Modifier.fillMaxWidth(),
-                label = stringResource(R.string.description),
-                value = description,
-                isError = !isGroupDescriptionValid(description),
-                onValueChange = {
-                    description = it
-                }
-            )
-            Text(
-                modifier = Modifier.padding(
-                    top = 10.dp,
-                    bottom = 10.dp
-                ),
-                text = stringResource(R.string.members_of_the_group),
-                fontSize = 22.sp
-            )
-            CreateMembersSection(
-                members = members
-            )
+                        showSnack(you_must_insert_a_correct_group_name)
+                },
+            ) {
+                Text(
+                    modifier = Modifier.padding(
+                        top = 10.dp,
+                        bottom = 10.dp
+                    ),
+                    text = stringResource(R.string.details_of_the_group),
+                    fontSize = 22.sp
+                )
+                PandoroTextField(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+                        .height(height = 60.dp),
+                    textFieldModifier = Modifier.fillMaxWidth(),
+                    label = stringResource(R.string.name),
+                    value = name,
+                    isError = !isGroupNameValid(name),
+                    onValueChange = {
+                        name = it
+                    }
+                )
+                PandoroTextField(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .fillMaxWidth()
+                        .height(height = 60.dp),
+                    textFieldModifier = Modifier.fillMaxWidth(),
+                    label = stringResource(R.string.description),
+                    value = description,
+                    isError = !isGroupDescriptionValid(description),
+                    onValueChange = {
+                        description = it
+                    }
+                )
+                Text(
+                    modifier = Modifier.padding(
+                        top = 10.dp,
+                        bottom = 10.dp
+                    ),
+                    text = stringResource(R.string.members_of_the_group),
+                    fontSize = 22.sp
+                )
+                CreateMembersSection(
+                    members = members
+                )
+            }
         }
     }
 
