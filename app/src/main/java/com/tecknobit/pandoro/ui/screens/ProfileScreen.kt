@@ -192,8 +192,7 @@ class ProfileScreen: Screen() {
                 painter = rememberAsyncImagePainter(
                     Builder(LocalContext.current)
                         .data(profilePic)
-                        // TODO: CHANGE WITH THE APP ICON
-                        .error(R.drawable.error)
+                        .error(R.drawable.logo)
                         .crossfade(500)
                         .build()
                 ),

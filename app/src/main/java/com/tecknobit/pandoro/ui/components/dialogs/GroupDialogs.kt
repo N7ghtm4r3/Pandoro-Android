@@ -361,8 +361,7 @@ class GroupDialogs : PandoroDialog() {
                                             painter = rememberAsyncImagePainter(
                                                 ImageRequest.Builder(LocalContext.current)
                                                     .data(member.profilePic)
-                                                    // TODO: CHANGE WITH THE APP ICON
-                                                    .error(R.drawable.error)
+                                                    .error(R.drawable.logo)
                                                     .crossfade(500)
                                                     .build()
                                             ),

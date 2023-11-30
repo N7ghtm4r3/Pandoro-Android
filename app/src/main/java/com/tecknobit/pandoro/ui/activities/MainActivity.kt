@@ -153,8 +153,7 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
                                             painter = rememberAsyncImagePainter(
                                                 ImageRequest.Builder(LocalContext.current)
                                                     .data(user.profilePic)
-                                                    // TODO: CHANGE WITH THE APP ICON
-                                                    .error(R.drawable.error)
+                                                    .error(R.drawable.logo)
                                                     .crossfade(500)
                                                     .build()
                                             ),

@@ -274,8 +274,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                 painter = rememberAsyncImagePainter(
                                                     ImageRequest.Builder(LocalContext.current)
                                                         .data("${localAuthHelper.host}/${member.profilePic}")
-                                                        // TODO: CHANGE WITH THE APP ICON
-                                                        .error(R.drawable.error)
+                                                        .error(R.drawable.logo)
                                                         .crossfade(500)
                                                         .build()
                                                 ),
