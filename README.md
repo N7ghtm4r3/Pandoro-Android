@@ -16,14 +16,15 @@ use!
 
 ## Roadmap
 
-This project will be constantly developed to reach different platforms to work on, following the platforms releases steps:
+This project will be constantly developed to reach different platforms to work on, following the platforms releases
+steps:
 
 - Mobile
-    - <a href="https://github.com/N7ghtm4r3/Pandoro-Android#readme">Android</a> -> **available soon!**
-    - iOS -> planned
-- <a href="https://github.com/N7ghtm4r3/Pandoro-Desktop">Pandoro desktop version</a> -> **available soon!**
+  - <a href="https://github.com/N7ghtm4r3/Pandoro-Android#readme">Android</a> -> **available soon!**
+  - iOS -> planned
+- <a href="https://github.com/N7ghtm4r3/Pandoro-Desktop/releases/tag/1.0.0">Pandoro desktop version</a>
 - <a href="https://github.com/N7ghtm4r3/Pandoro-webapp">Pandoro webapp version</a> -> **available soon!**
-- <a href="https://github.com/N7ghtm4r3/Pandoro/">Backend service "out-of-the-box" (insert the correct path to the jar file)</a>
+- <a href="https://github.com/N7ghtm4r3/Pandoro/releases/tag/1.0.0">Backend service "out-of-the-box"</a>
 
 ## Usages
 
