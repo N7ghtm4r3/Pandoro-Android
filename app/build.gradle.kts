@@ -30,11 +30,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_19
-        targetCompatibility = JavaVersion.VERSION_19
+        sourceCompatibility = JavaVersion.VERSION_18
+        targetCompatibility = JavaVersion.VERSION_18
     }
     kotlinOptions {
-        jvmTarget = "19"
+        jvmTarget = "18"
     }
     buildFeatures {
         compose = true
@@ -74,7 +74,7 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("com.github.N7ghtm4r3:APIManager:2.1.8")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
-    implementation("com.tecknobit.pandoro:Pandoro:0.0.0.1")
+    implementation("com.tecknobit.pandoro:Pandoro:1.0.0")
     implementation("com.darkrockstudios:mpfilepicker:3.0.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")

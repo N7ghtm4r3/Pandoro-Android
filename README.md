@@ -31,6 +31,47 @@ See how to use the **Pandoro** service reading
 the <a href="https://github.com/N7ghtm4r3/Pandoro#readme">
 Pandoro backend procedures</a>
 
+## Customize the application
+
+To customize and create your own version of this application you need to have the <a href="https://github.com/N7ghtm4r3/Pandoro">
+Pandoro main library</a> implemented in your project and published into maven local system
+
+### Clone the main library and publish to maven local
+
+- Clone the repository or download the zip file of the current version available
+
+- Open the folder file in your development environment and publish to maven local with the
+  **publishMavenPublicationToMavenLocal** gradle task, take a look <a href="https://docs.gradle.org/current/userguide/publishing_maven.html">here</a>
+  for a help
+
+### Implement the main library to your application
+
+- #### Gradle (Short)
+
+```gradle
+repositories {
+  ...
+  mavenLocal()
+}
+
+dependencies {
+  implementation 'com.tecknobit.pandoro:Pandoro:1.0.0'
+}
+```
+
+#### Gradle (Kotlin)
+
+```gradle
+repositories {
+  ...
+  mavenLocal()
+}
+
+dependencies {
+  implementation("com.tecknobit.pandoro:Pandoro:1.0.0")
+}
+```
+
 ## Authors
 
 - [@N7ghtm4r3](https://www.github.com/N7ghtm4r3)

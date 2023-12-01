@@ -42,8 +42,14 @@ class AndroidRequester(
     override var userToken: String?
 ): BaseRequester(host, userId, userToken) {
 
+    /**
+     * **okHttpClient** -> the http client to execute the requests
+     */
     private val okHttpClient = OkHttpClient()
 
+    /**
+     * **headers** -> the headers for the requests
+     */
     private val headers = mutableMapOf<String, String>()
 
     init {
