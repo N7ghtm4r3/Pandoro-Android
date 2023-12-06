@@ -11,8 +11,8 @@ android {
         applicationId = "com.tecknobit.pandoro"
         minSdk = 30
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -72,9 +72,9 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("com.github.N7ghtm4r3:APIManager:2.1.8")
+    implementation("com.github.N7ghtm4r3:APIManager:2.2.1")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
-    implementation("com.tecknobit.pandoro:Pandoro:1.0.0")
+    implementation("com.tecknobit.pandoro:Pandoro:1.0.1")
     implementation("com.darkrockstudios:mpfilepicker:3.0.0")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")

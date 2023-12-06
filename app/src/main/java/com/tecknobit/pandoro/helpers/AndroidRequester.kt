@@ -1,27 +1,22 @@
 package com.tecknobit.pandoro.helpers
 
 import com.tecknobit.apimanager.annotations.RequestPath
+import com.tecknobit.apimanager.apis.APIRequest
 import com.tecknobit.apimanager.apis.APIRequest.RequestMethod
-import com.tecknobit.apimanager.apis.APIRequest.RequestMethod.PATCH
 import com.tecknobit.apimanager.formatters.JsonHelper
+import com.tecknobit.pandoro.controllers.PandoroController
 import com.tecknobit.pandoro.controllers.UsersController.BASE_ENDPOINT
 import com.tecknobit.pandoro.controllers.UsersController.CHANGE_PROFILE_PIC_ENDPOINT
-import com.tecknobit.pandoro.controllers.UsersController.IDENTIFIER_KEY
 import com.tecknobit.pandoro.controllers.UsersController.USERS_ENDPOINT
-import com.tecknobit.pandoro.records.users.GroupMember.Role
-import com.tecknobit.pandoro.services.GroupsHelper.MEMBER_ROLE_KEY
+import com.tecknobit.pandoro.services.UsersHelper
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
-import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import okhttp3.Call
-import okhttp3.FormBody
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
@@ -43,14 +38,14 @@ class AndroidRequester(
 ): BaseRequester(host, userId, userToken) {
 
     /**
-     * **okHttpClient** -> the http client to execute the requests
+     * **apiRequest** -> the instance to communicate and make the requests to the backend
      */
-    private val okHttpClient = OkHttpClient()
+    private val apiRequest: APIRequest = APIRequest()
 
     /**
-     * **headers** -> the headers for the requests
+     * **headers** -> the headers of the requests
      */
-    private val headers = mutableMapOf<String, String>()
+    private val headers: APIRequest.Headers = APIRequest.Headers()
 
     init {
         setAuthHeaders()
@@ -63,8 +58,8 @@ class AndroidRequester(
      */
     override fun setAuthHeaders() {
         if (userId != null && userToken != null) {
-            headers[IDENTIFIER_KEY] = userId!!
-            headers[TOKEN_KEY] = userToken!!
+            headers.addHeader(PandoroController.IDENTIFIER_KEY, userId)
+            headers.addHeader(UsersHelper.TOKEN_KEY, userToken)
         }
     }
 
@@ -85,8 +80,12 @@ class AndroidRequester(
                 profilePic.readBytes().toRequestBody("image/*".toMediaType())
             )
             .build()
+        val mHeaders = mutableMapOf<String, String>()
+        headers.headersKeys.forEach { headerKey ->
+            mHeaders[headerKey] = headers.getHeader(headerKey)
+        }
         val request: Request = Request.Builder()
-            .headers(headers.toHeaders())
+            .headers(mHeaders.toHeaders())
             .url("$host$BASE_ENDPOINT$USERS_ENDPOINT/$userId$CHANGE_PROFILE_PIC_ENDPOINT")
             .post(body)
             .build()
@@ -141,7 +140,28 @@ class AndroidRequester(
         payload: PandoroPayload?,
         jsonPayload: Boolean
     ): String {
-        headers["Content-Type"] = contentType
+        headers.addHeader("Content-Type", contentType)
+        if(host.startsWith("https"))
+            apiRequest.validateSelfSignedCertificate()
+        return try {
+            val requestUrl = host + BASE_ENDPOINT + endpoint
+            if (payload != null) {
+                if (jsonPayload)
+                    apiRequest.sendJSONPayloadedAPIRequest(requestUrl, requestMethod, headers, payload)
+                else
+                    apiRequest.sendPayloadedAPIRequest(requestUrl, requestMethod, headers, payload)
+            } else
+                apiRequest.sendAPIRequest(requestUrl, requestMethod, headers)
+            val response = apiRequest.response
+            lastResponse = JsonHelper(response)
+            response
+        } catch (e: Exception) {
+            lastResponse = JsonHelper(errorResponse)
+            errorResponse
+        }
+
+
+        /*headers["Content-Type"] = contentType
         return try {
             val requestUrl = host + BASE_ENDPOINT + endpoint
             var rPayload: RequestBody? = null
@@ -179,7 +199,7 @@ class AndroidRequester(
         } catch (e: Exception) {
             lastResponse = JsonHelper(errorResponse)
             errorResponse
-        }
+        }*/
     }
 
 }
