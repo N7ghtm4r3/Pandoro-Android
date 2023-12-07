@@ -18,6 +18,7 @@ import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 
@@ -146,6 +147,11 @@ class AndroidRequester(
         return try {
             val requestUrl = host + BASE_ENDPOINT + endpoint
             if (payload != null) {
+                payload.paramsKeys.forEach { key ->
+                    val param = payload.getParam<Any>(key)
+                    if(param is List<*>)
+                        payload.addParam(key, JSONArray(param))
+                }
                 if (jsonPayload)
                     apiRequest.sendJSONPayloadedAPIRequest(requestUrl, requestMethod, headers, payload)
                 else
@@ -156,6 +162,8 @@ class AndroidRequester(
             lastResponse = JsonHelper(response)
             response
         } catch (e: Exception) {
+            apiRequest.printErrorResponse()
+            e.printStackTrace()
             lastResponse = JsonHelper(errorResponse)
             errorResponse
         }

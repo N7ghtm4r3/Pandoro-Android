@@ -186,29 +186,32 @@ class NotesScreen: Screen(), AndroidListManager {
                                         horizontalArrangement = Arrangement.spacedBy(15.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(
-                                            modifier = Modifier
-                                                .weight(10f)
-                                                .fillMaxWidth(),
-                                            text = note.content,
-                                            textAlign = TextAlign.Justify,
-                                            textDecoration = if (markedAsDone) LineThrough else null
-                                        )
-                                        IconButton(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .size(24.dp),
-                                            onClick = {
-                                                requester!!.execDeleteNote(note.id)
-                                                if (!requester!!.successResponse())
-                                                    showSnack(requester!!.errorMessage())
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Delete,
-                                                contentDescription = null,
-                                                tint = ErrorLight
+                                        val content = note.content
+                                        if(content != null) {
+                                            Text(
+                                                modifier = Modifier
+                                                    .weight(10f)
+                                                    .fillMaxWidth(),
+                                                text = content,
+                                                textAlign = TextAlign.Justify,
+                                                textDecoration = if (markedAsDone) LineThrough else null
                                             )
+                                            IconButton(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .size(24.dp),
+                                                onClick = {
+                                                    requester!!.execDeleteNote(note.id)
+                                                    if (!requester!!.successResponse())
+                                                        showSnack(requester!!.errorMessage())
+                                                }
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Delete,
+                                                    contentDescription = null,
+                                                    tint = ErrorLight
+                                                )
+                                            }
                                         }
                                     }
                                 }
