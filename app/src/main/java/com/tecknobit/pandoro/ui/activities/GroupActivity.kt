@@ -54,24 +54,21 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LastBaseline
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_members_list
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.helpers.checkMembersValidity
+import com.tecknobit.pandoro.helpers.loadImageBitmap
 import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
 import com.tecknobit.pandoro.records.Group
 import com.tecknobit.pandoro.records.users.GroupMember
 import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
-import com.tecknobit.pandoro.records.users.GroupMember.Role.*
+import com.tecknobit.pandoro.records.users.GroupMember.Role.ADMIN
+import com.tecknobit.pandoro.records.users.GroupMember.Role.values
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
@@ -100,8 +97,14 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
      */
     lateinit var group: MutableState<Group>
 
+    /**
+     * **isAdmin** whether the user is an admin
+     */
     private var isAdmin: Boolean = false
 
+    /**
+     * **isMaintainer** whether the user is a maintainer
+     */
     private var isMaintainer: Boolean = false
 
     /**
@@ -271,13 +274,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                             modifier,
                                         leadingContent = {
                                             Image(
-                                                painter = rememberAsyncImagePainter(
-                                                    ImageRequest.Builder(LocalContext.current)
-                                                        .data("${localAuthHelper.host}/${member.profilePic}")
-                                                        .error(R.drawable.logo)
-                                                        .crossfade(500)
-                                                        .build()
-                                                ),
+                                                bitmap = loadImageBitmap(member.profilePic),
                                                 contentDescription = null,
                                                 contentScale = ContentScale.Crop,
                                                 modifier = Modifier

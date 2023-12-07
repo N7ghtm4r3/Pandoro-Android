@@ -52,15 +52,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest.*
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.R
@@ -80,7 +77,9 @@ import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.records.Changelog
 import com.tecknobit.pandoro.records.Changelog.ChangelogEvent.INVITED_GROUP
 import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.users.GroupMember.Role.*
+import com.tecknobit.pandoro.records.users.GroupMember.Role.ADMIN
+import com.tecknobit.pandoro.records.users.GroupMember.Role.DEVELOPER
+import com.tecknobit.pandoro.records.users.GroupMember.Role.MAINTAINER
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
@@ -88,6 +87,7 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelpe
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.userProfilePic
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
@@ -177,7 +177,6 @@ class ProfileScreen: Screen() {
                         if(requester!!.successResponse()) {
                             localAuthHelper.storeProfilePic(JsonHelper(response)
                                 .getString(PROFILE_PIC_KEY), true)
-                            profilePic = user.profilePic
                         } else
                             showSnack(requester!!.errorMessage())
                     }
@@ -189,13 +188,7 @@ class ProfileScreen: Screen() {
                     .fillMaxSize()
                     .padding(bottom = 475.dp)
                     .clickable { showImagePicker = true },
-                painter = rememberAsyncImagePainter(
-                    Builder(LocalContext.current)
-                        .data(profilePic)
-                        .error(R.drawable.logo)
-                        .crossfade(500)
-                        .build()
-                ),
+                bitmap = userProfilePic!!,
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )

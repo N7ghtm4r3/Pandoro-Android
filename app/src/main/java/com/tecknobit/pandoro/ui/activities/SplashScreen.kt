@@ -21,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,6 +92,8 @@ class SplashScreen : ComponentActivity() {
          * **pandoroModalSheet** the instance to manage the modal bottom sheets
          */
         val pandoroModalSheet = PandoroModalSheet()
+
+        var userProfilePic: ImageBitmap? = null
 
         /**
          * **context** the current context of the application

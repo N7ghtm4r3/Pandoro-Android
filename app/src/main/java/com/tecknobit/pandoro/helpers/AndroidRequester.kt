@@ -1,14 +1,11 @@
 package com.tecknobit.pandoro.helpers
 
 import com.tecknobit.apimanager.annotations.RequestPath
-import com.tecknobit.apimanager.apis.APIRequest
 import com.tecknobit.apimanager.apis.APIRequest.RequestMethod
 import com.tecknobit.apimanager.formatters.JsonHelper
-import com.tecknobit.pandoro.controllers.PandoroController
 import com.tecknobit.pandoro.controllers.UsersController.BASE_ENDPOINT
 import com.tecknobit.pandoro.controllers.UsersController.CHANGE_PROFILE_PIC_ENDPOINT
 import com.tecknobit.pandoro.controllers.UsersController.USERS_ENDPOINT
-import com.tecknobit.pandoro.services.UsersHelper
 import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -21,6 +18,12 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSession
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 
 /**
@@ -36,32 +39,10 @@ class AndroidRequester(
     private val host: String,
     override var userId: String?,
     override var userToken: String?
-): BaseRequester(host, userId, userToken) {
-
-    /**
-     * **apiRequest** -> the instance to communicate and make the requests to the backend
-     */
-    private val apiRequest: APIRequest = APIRequest()
-
-    /**
-     * **headers** -> the headers of the requests
-     */
-    private val headers: APIRequest.Headers = APIRequest.Headers()
+): Requester(host, userId, userToken) {
 
     init {
         setAuthHeaders()
-    }
-
-    /**
-     * Function to set the headers for the authentication of the user
-     *
-     * No-any params required
-     */
-    override fun setAuthHeaders() {
-        if (userId != null && userToken != null) {
-            headers.addHeader(PandoroController.IDENTIFIER_KEY, userId)
-            headers.addHeader(UsersHelper.TOKEN_KEY, userToken)
-        }
     }
 
     /**
@@ -90,7 +71,7 @@ class AndroidRequester(
             .url("$host$BASE_ENDPOINT$USERS_ENDPOINT/$userId$CHANGE_PROFILE_PIC_ENDPOINT")
             .post(body)
             .build()
-        val client = OkHttpClient()
+        val client = validateSelfSignedCertificate(OkHttpClient())
         var response: JSONObject? = null
         runBlocking {
             async {
@@ -99,6 +80,34 @@ class AndroidRequester(
             }.await()
         }
         return response!!
+    }
+
+    /**
+     * Method to validate a self-signed SLL certificate and bypass the checks of its validity<br></br>
+     * No-any params required
+     *
+     * @apiNote this method disable all checks on the SLL certificate validity, so is recommended to use for test only or
+     * in a private distribution on own infrastructure
+     */
+    private fun validateSelfSignedCertificate(okHttpClient: OkHttpClient): OkHttpClient {
+        val trustAllCerts = arrayOf<TrustManager>(object : X509TrustManager {
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
+
+            override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) {}
+        })
+        val builder = okHttpClient.newBuilder()
+        try {
+            val sslContext = SSLContext.getInstance("TLS")
+            sslContext.init(null, trustAllCerts, SecureRandom())
+            builder.sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
+            builder.hostnameVerifier({ hostname: String?, session: SSLSession? -> true })
+        } catch (ignored: java.lang.Exception) {
+        }finally {
+            return builder.build()
+        }
     }
 
     /**
@@ -162,52 +171,9 @@ class AndroidRequester(
             lastResponse = JsonHelper(response)
             response
         } catch (e: Exception) {
-            apiRequest.printErrorResponse()
-            e.printStackTrace()
             lastResponse = JsonHelper(errorResponse)
             errorResponse
         }
-
-
-        /*headers["Content-Type"] = contentType
-        return try {
-            val requestUrl = host + BASE_ENDPOINT + endpoint
-            var rPayload: RequestBody? = null
-            if(payload != null) {
-                val paramsMap = payload.getPayload()
-                rPayload = if(jsonPayload) {
-                    val jPayload = JSONObject(paramsMap)
-                    if(jPayload.has(MEMBER_ROLE_KEY))
-                        jPayload.put(MEMBER_ROLE_KEY, Role.valueOf(paramsMap[MEMBER_ROLE_KEY].toString()))
-                    jPayload.toString().toRequestBody(contentType.toMediaType())
-                } else {
-                    if(paramsMap.size == 1)
-                        paramsMap.keys.first().toRequestBody()
-                    else {
-                        val contentPayload = FormBody.Builder()
-                        paramsMap.keys.forEach { key ->
-                            contentPayload.add(key, paramsMap[key].toString())
-                        }
-                        contentPayload.build()
-                    }
-                }
-            }
-            val method = requestMethod.name
-            if(rPayload == null && method == PATCH.name)
-                rPayload = "".toRequestBody()
-            val request: Request = Request.Builder()
-                .headers(headers.toHeaders())
-                .url(requestUrl)
-                .method(method, rPayload)
-                .build()
-            val call: Call = okHttpClient.newCall(request)
-            val response: String = call.execute().body!!.string()
-            lastResponse = JsonHelper(response)
-            response
-        } catch (e: Exception) {
-            lastResponse = JsonHelper(errorResponse)
-            errorResponse
-        }*/
     }
 
 }
