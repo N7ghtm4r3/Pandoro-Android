@@ -41,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -66,6 +65,7 @@ import com.tecknobit.pandoro.ui.activities.MainActivity
 import com.tecknobit.pandoro.ui.activities.ProjectActivity
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
@@ -359,8 +359,8 @@ class GroupDialogs : PandoroDialog() {
                                     leadingContent = {
                                         Image(
                                             painter = rememberAsyncImagePainter(
-                                                ImageRequest.Builder(LocalContext.current)
-                                                    .data(member.profilePic)
+                                                ImageRequest.Builder(context)
+                                                    .data("${localAuthHelper.host}/${member.profilePic}")
                                                     .error(R.drawable.logo)
                                                     .crossfade(500)
                                                     .build()

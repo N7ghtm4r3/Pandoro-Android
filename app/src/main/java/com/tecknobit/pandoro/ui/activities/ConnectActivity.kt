@@ -63,7 +63,6 @@ import com.tecknobit.pandoro.helpers.isPasswordValid
 import com.tecknobit.pandoro.helpers.isServerAddressValid
 import com.tecknobit.pandoro.helpers.isServerSecretValid
 import com.tecknobit.pandoro.helpers.isSurnameValid
-import com.tecknobit.pandoro.helpers.loadImageBitmap
 import com.tecknobit.pandoro.helpers.ui.LocalUser
 import com.tecknobit.pandoro.records.users.User
 import com.tecknobit.pandoro.services.UsersHelper.EMAIL_KEY
@@ -79,7 +78,6 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelpe
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.userProfilePic
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.notes
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.changelogs
@@ -201,7 +199,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                             }
                                             Text(
                                                 modifier = Modifier.padding(end = 5.dp),
-                                                text = "v. 1.0.0",
+                                                text = "v. 1.0.1",
                                                 fontSize = 12.sp,
                                                 color = White,
                                             )
@@ -535,7 +533,6 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                         .put(PASSWORD_KEY, preferences.getString(PASSWORD_KEY, null))
                 )
                 requester = AndroidRequester(host!!, userId, userToken)
-                userProfilePic = loadImageBitmap()
             } else {
                 requester = null
                 user = User()
@@ -563,19 +560,6 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
             super.initUserSession(response, host, name, surname, email, password)
             activeScreen.value = Projects
             context.startActivity(Intent(context, MainActivity::class.java))
-        }
-
-        /**
-         * Function to store the profile pic value
-         *
-         * @param profilePic: the profile pic of the user
-         * @param refreshUser: whether refresh the user
-         * @return the user profile picture path
-         */
-        override fun storeProfilePic(profilePic: String?, refreshUser: Boolean): String {
-            val newProfilePic = super.storeProfilePic(profilePic, refreshUser)
-            userProfilePic = loadImageBitmap()
-            return newProfilePic
         }
 
         /**

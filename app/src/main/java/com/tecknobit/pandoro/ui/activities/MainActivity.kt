@@ -36,8 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
@@ -48,7 +52,6 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.userProfilePic
 import com.tecknobit.pandoro.ui.screens.NotesScreen
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.showAddNoteSheet
 import com.tecknobit.pandoro.ui.screens.OverviewScreen
@@ -147,7 +150,13 @@ class MainActivity : ComponentActivity(), SnackbarLauncher, AndroidListManager {
                                 actions = {
                                     Box {
                                         Image(
-                                            bitmap = userProfilePic!!,
+                                            painter = rememberAsyncImagePainter(
+                                                ImageRequest.Builder(LocalContext.current)
+                                                    .data(user.profilePic)
+                                                    .error(R.drawable.logo)
+                                                    .crossfade(500)
+                                                    .build()
+                                            ),
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier

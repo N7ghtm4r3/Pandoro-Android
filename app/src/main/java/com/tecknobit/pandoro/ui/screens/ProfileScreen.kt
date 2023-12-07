@@ -58,6 +58,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.darkrockstudios.libraries.mpfilepicker.FilePicker
 import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.R
@@ -87,7 +89,6 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelpe
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.userProfilePic
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
@@ -177,6 +178,7 @@ class ProfileScreen: Screen() {
                         if(requester!!.successResponse()) {
                             localAuthHelper.storeProfilePic(JsonHelper(response)
                                 .getString(PROFILE_PIC_KEY), true)
+                            profilePic = user.profilePic
                         } else
                             showSnack(requester!!.errorMessage())
                     }
@@ -188,7 +190,13 @@ class ProfileScreen: Screen() {
                     .fillMaxSize()
                     .padding(bottom = 475.dp)
                     .clickable { showImagePicker = true },
-                bitmap = userProfilePic!!,
+                painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(context)
+                        .data(profilePic)
+                        .error(R.drawable.logo)
+                        .crossfade(500)
+                        .build()
+                ),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )

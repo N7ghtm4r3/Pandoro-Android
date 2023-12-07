@@ -21,13 +21,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.net.toUri
+import coil.Coil
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import coil.request.CachePolicy
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.AndroidRequester
 import com.tecknobit.pandoro.records.users.User
@@ -40,6 +43,14 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
 import kotlinx.coroutines.delay
+import okhttp3.OkHttpClient
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSession
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 /**
  * The **SplashScreen** class is useful to create the first showable screen of the Pandoro's application
@@ -47,9 +58,10 @@ import kotlinx.coroutines.delay
  *
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
+ * @see ImageLoaderFactory
  */
 @SuppressLint("CustomSplashScreen")
-class SplashScreen : ComponentActivity() {
+class SplashScreen : ComponentActivity(), ImageLoaderFactory {
 
     companion object {
 
@@ -93,8 +105,6 @@ class SplashScreen : ComponentActivity() {
          */
         val pandoroModalSheet = PandoroModalSheet()
 
-        var userProfilePic: ImageBitmap? = null
-
         /**
          * **context** the current context of the application
          */
@@ -132,6 +142,8 @@ class SplashScreen : ComponentActivity() {
             activeScreen = remember { mutableStateOf(Projects) }
             PandoroTheme {
                 context = LocalContext.current
+                Coil.imageLoader(context)
+                Coil.setImageLoader(newImageLoader())
                 isRefreshing = rememberSaveable { mutableStateOf(false) }
                 localAuthHelper = ConnectActivity().LocalAuthHelper()
                 localAuthHelper.initUserCredentials()
@@ -168,6 +180,47 @@ class SplashScreen : ComponentActivity() {
                     startActivity(Intent(this@SplashScreen, ConnectActivity::class.java))
             }
         }
+    }
+
+    /**
+     * Return a new [ImageLoader].
+     */
+    override fun newImageLoader(): ImageLoader {
+        val sslContext = SSLContext.getInstance("TLS")
+        sslContext.init(null, validateSelfSignedCertificate(), SecureRandom())
+        return ImageLoader.Builder(context)
+            .okHttpClient {
+                OkHttpClient.Builder()
+                    .sslSocketFactory(sslContext.socketFactory,
+                        validateSelfSignedCertificate()[0] as X509TrustManager
+                    )
+                    .hostnameVerifier { _: String?, _: SSLSession? -> true }
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .build()
+            }
+            .addLastModifiedToFileCacheKey(true)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .networkCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .build()
+    }
+    /**
+     * Method to validate a self-signed SLL certificate and bypass the checks of its validity<br></br>
+     * No-any params required
+     *
+     * @return list of trust managers as [Array] of [TrustManager]
+     * @apiNote this method disable all checks on the SLL certificate validity, so is recommended to use for test only or
+     * in a private distribution on own infrastructure
+     */
+    private fun validateSelfSignedCertificate(): Array<TrustManager> {
+        return arrayOf(object : X509TrustManager {
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
+
+            override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) {}
+        })
     }
 
 }

@@ -103,11 +103,11 @@ class AndroidRequester(
             val sslContext = SSLContext.getInstance("TLS")
             sslContext.init(null, trustAllCerts, SecureRandom())
             builder.sslSocketFactory(sslContext.socketFactory, trustAllCerts[0] as X509TrustManager)
-            builder.hostnameVerifier({ hostname: String?, session: SSLSession? -> true })
-        } catch (ignored: java.lang.Exception) {
-        }finally {
+            builder.hostnameVerifier { _: String?, _: SSLSession? -> true }
             return builder.build()
+        } catch (ignored: java.lang.Exception) {
         }
+        return OkHttpClient()
     }
 
     /**
