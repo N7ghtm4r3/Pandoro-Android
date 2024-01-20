@@ -127,6 +127,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
         super.onCreate(savedInstanceState)
         setContent {
             group = remember { mutableStateOf(currentGroup.value!!) }
+            val authorId = group.value.author.id
             isAdmin = group.value.isUserAdmin(user)
             isMaintainer = group.value.isUserMaintainer(user)
             refreshItem()
@@ -262,13 +263,19 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                 shape = RoundedCornerShape(15.dp)
                             )
                         if (showMembersSection.value) {
-                            items(group.value.members) { member ->
+                            items(
+                                items = group.value.members,
+                                key = { member ->
+                                    member.id
+                                }
+                            ) { member ->
+                                val isNotTheAuthor = member.id != authorId
                                 val isLoggedUser = member.isLoggedUser(user)
                                 val changeRole = remember { mutableStateOf(false) }
                                 val isMemberPending = member.invitationStatus == PENDING
                                 if((isMemberPending && isMaintainer) || !isMemberPending) {
                                     ListItem(
-                                        modifier = if (isAdmin || isMaintainer) {
+                                        modifier = if (((isAdmin || isMaintainer) && isNotTheAuthor)) {
                                             if ((isAdmin || !member.isAdmin) && !isLoggedUser
                                                 && !isMemberPending) {
                                                 modifier.clickable { changeRole.value = true }
@@ -319,7 +326,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                             )
                                         },
                                         trailingContent = {
-                                            if (isAdmin || isMaintainer) {
+                                            if (((isAdmin || isMaintainer) && isNotTheAuthor)) {
                                                 if (!isLoggedUser) {
                                                     val removeUser = remember { mutableStateOf(false) }
                                                     IconButton(
@@ -359,7 +366,12 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                             projects.add(project.id)
                                         }
                                         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-                                            items(user.projects) { project ->
+                                            items(
+                                                items = user.projects,
+                                                key = { project ->
+                                                    project.id
+                                                }
+                                            ) { project ->
                                                 var inserted by remember {
                                                     mutableStateOf(projects.contains(project.id))
                                                 }

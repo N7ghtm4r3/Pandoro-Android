@@ -1,5 +1,6 @@
 package com.tecknobit.pandoro.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -119,7 +120,12 @@ class ProjectsScreen: Screen() {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(frequentProjects) { project ->
+                        items(
+                            items = frequentProjects,
+                            key = { project ->
+                                project.id
+                            }
+                        ) { project ->
                             ProjectCard(project = project)
                         }
                     }
@@ -151,7 +157,12 @@ class ProjectsScreen: Screen() {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(currentProjects) { project ->
+                        items(
+                            items = currentProjects,
+                            key = { project ->
+                                project.id
+                            }
+                        ) { project ->
                             ProjectCard(project = project)
                         }
                     }
@@ -213,6 +224,7 @@ class ProjectsScreen: Screen() {
      *
      * @param project: the project to create the card
      */
+    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun ProjectCard(project: Project) {
         var showOptions by remember { mutableStateOf(false) }
@@ -276,7 +288,7 @@ class ProjectsScreen: Screen() {
                             } else {
                                 Text(
                                     text = project.name,
-                                    fontSize = 18.sp,
+                                    fontSize = 17.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }

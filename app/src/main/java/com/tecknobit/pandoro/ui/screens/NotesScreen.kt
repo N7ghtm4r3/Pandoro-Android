@@ -115,7 +115,12 @@ class NotesScreen: Screen(), AndroidListManager {
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = 8.dp)
                 ) {
-                    items(notes) { note ->
+                    items(
+                        items = notes,
+                        key = { note ->
+                            note.id
+                        }
+                    ) { note ->
                         val showInfoNote = remember { mutableStateOf(false) }
                         var markedAsDone = note.isMarkedAsDone
                         pandoroModalSheet.PandoroModalSheet(

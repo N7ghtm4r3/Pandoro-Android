@@ -113,15 +113,6 @@ import me.saket.swipe.SwipeableActionsBox
  */
 class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
 
-    companion object {
-
-        /**
-         * **PROJECT_KEY** the project key
-         */
-        const val PROJECT_KEY = "project"
-
-    }
-
     /**
      * **project** the project to show its details
      */
@@ -284,7 +275,12 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             SpaceContent()
                         }
                         if (showUpdatesSection.value) {
-                            items(project.value.updates) { update ->
+                            items(
+                                items = project.value.updates,
+                                key = { update ->
+                                    update.id
+                                }
+                            ) { update ->
                                 val status = update.status
                                 val isScheduled = status == SCHEDULED
                                 val isInDevelopment = status == IN_DEVELOPMENT
@@ -405,7 +401,12 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                     }
                                                 }
                                             }
-                                            items(changeNotes) { note ->
+                                            items(
+                                                items = changeNotes,
+                                                key = { note ->
+                                                    note.id
+                                                }
+                                            ) { note ->
                                                 val markedAsDone = remember {
                                                     mutableStateOf(note.isMarkedAsDone)
                                                 }

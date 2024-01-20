@@ -240,7 +240,12 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(itemsList) { item ->
+                    items(
+                        items = itemsList,
+                        key = { item ->
+                            item.id
+                        }
+                    ) { item ->
                         PandoroCard(
                             modifier = Modifier.size(
                                 width = 130.dp,

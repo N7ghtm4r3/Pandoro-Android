@@ -262,7 +262,12 @@ class ProjectDialogs : PandoroDialog() {
                         )
                         Divider(thickness = 1.dp)
                         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
-                            items(user.adminGroups) { group ->
+                            items(
+                                items = user.adminGroups,
+                                key = { group ->
+                                    group.id
+                                }
+                            ) { group ->
                                 var inserted by remember { mutableStateOf(groups.contains(group)) }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
