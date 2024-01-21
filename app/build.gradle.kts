@@ -11,7 +11,7 @@ android {
         applicationId = "com.tecknobit.pandoro"
         minSdk = 30
         targetSdk = 34
-        versionCode = 3
+        versionCode = 12
         versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -72,7 +72,7 @@ dependencies {
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
-    implementation("com.github.N7ghtm4r3:APIManager:2.2.2")
+    implementation("com.github.N7ghtm4r3:APIManager:2.2.1")
     implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("com.tecknobit.pandoro:Pandoro:1.0.2")
     implementation("com.darkrockstudios:mpfilepicker:3.0.0")
@@ -84,8 +84,9 @@ dependencies {
     implementation("commons-validator:commons-validator:1.7")
     implementation("com.google.android.play:review:2.0.1")
     implementation("com.google.android.play:review-ktx:2.0.1")
+    implementation("com.google.android.play:app-update:2.1.0")
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
 }
-
 configurations.all {
     exclude("commons-logging", "commons-logging")
 }
