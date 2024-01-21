@@ -49,7 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.LastBaseline
@@ -72,6 +72,7 @@ import com.tecknobit.pandoro.R.string.*
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.helpers.areAllChangeNotesDone
+import com.tecknobit.pandoro.helpers.copyNote
 import com.tecknobit.pandoro.helpers.isContentNoteValid
 import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
 import com.tecknobit.pandoro.records.Note
@@ -83,6 +84,7 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.reviewManager
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
@@ -103,6 +105,7 @@ import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
+
 /**
  * The **ProjectActivity** class is useful to create the activity to show the [Project] details
  *
@@ -112,15 +115,6 @@ import me.saket.swipe.SwipeableActionsBox
  * @see AndroidSingleItemManager
  */
 class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
-
-    companion object {
-
-        /**
-         * **PROJECT_KEY** the project key
-         */
-        const val PROJECT_KEY = "project"
-
-    }
 
     /**
      * **project** the project to show its details
@@ -266,6 +260,18 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                     val showUpdatesSection = remember { mutableStateOf(true) }
                     val showGroupsSection = remember { mutableStateOf(true) }
                     val showChartSection = remember { mutableStateOf(true) }
+                    var currentUpdate: ProjectUpdate? by remember { mutableStateOf(null) }
+                    if(showDeleteDialog.value) {
+                        PandoroAlertDialog(
+                            show = showDeleteDialog,
+                            title = delete_update,
+                            extraTitle = currentUpdate!!.targetVersion,
+                            text = delete_update_text,
+                            requestLogic = {
+                                deleteUpdate(currentUpdate!!)
+                            }
+                        )
+                    }
                     ShowData {
                         item {
                             ShowDescription(
@@ -284,7 +290,12 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             SpaceContent()
                         }
                         if (showUpdatesSection.value) {
-                            items(project.value.updates) { update ->
+                            items(
+                                items = project.value.updates,
+                                key = { update ->
+                                    update.id
+                                }
+                            ) { update ->
                                 val status = update.status
                                 val isScheduled = status == SCHEDULED
                                 val isInDevelopment = status == IN_DEVELOPMENT
@@ -405,13 +416,19 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                     }
                                                 }
                                             }
-                                            items(changeNotes) { note ->
+                                            items(
+                                                items = changeNotes,
+                                                key = { note ->
+                                                    note.id
+                                                }
+                                            ) { note ->
                                                 val markedAsDone = remember {
                                                     mutableStateOf(note.isMarkedAsDone)
                                                 }
                                                 if (isInDevelopment) {
                                                     SwipeableActionsBox(
-                                                        swipeThreshold = 200.dp,
+                                                        swipeThreshold = 50.dp,
+                                                        backgroundUntilSwipeThreshold = Transparent,
                                                         startActions = listOf(
                                                             SwipeAction(
                                                                 icon = rememberVectorPainter(
@@ -474,13 +491,6 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                     onClick = { showUpdateInfo.value = true }
                                 ) {
                                     val showOptions = remember { mutableStateOf(false) }
-                                    PandoroAlertDialog(
-                                        show = showDeleteDialog,
-                                        title = delete_update,
-                                        extraTitle = update.targetVersion,
-                                        text = delete_update_text,
-                                        requestLogic = { deleteUpdate(update) }
-                                    )
                                     Row(
                                         modifier = Modifier.height(IntrinsicSize.Min)
                                     ) {
@@ -583,6 +593,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                                     )
                                                                 },
                                                                 onClick = {
+                                                                    currentUpdate = update
                                                                     showOptions.value = false
                                                                     showDeleteDialog.value = true
                                                                 }
@@ -592,9 +603,10 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                     IconButton(
                                                         modifier = Modifier.size(22.dp),
                                                         onClick = {
-                                                            if (isPublished)
+                                                            if (isPublished) {
+                                                                currentUpdate = update
                                                                 showDeleteDialog.value = true
-                                                            else
+                                                            } else
                                                                 showOptions.value = true
                                                         }
                                                     ) {
@@ -832,12 +844,28 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                 }
             },
             action = {
-                TextButton(
-                    onClick = { coroutine.launch { tooltipState.dismiss() } }
+                Row (
+                    verticalAlignment = CenterVertically
                 ) {
-                    Text(
-                        text = getString(dismiss)
-                    )
+                    TextButton(
+                        onClick = { coroutine.launch { tooltipState.dismiss() } }
+                    ) {
+                        Text(
+                            text = getString(dismiss)
+                        )
+                    }
+                    TextButton(
+                        onClick = {
+                            coroutine.launch {
+                                copyNote(note)
+                                tooltipState.dismiss()
+                            }
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(copy_note)
+                        )
+                    }
                 }
             },
             content = {}
@@ -931,8 +959,17 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
     ) {
         requester!!.execPublishUpdate(project.value.id, update.id)
         if(requester!!.successResponse()) {
+            val request = reviewManager.requestReviewFlow()
             showOptions.value = false
-            check.value = false
+            request.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val flow = reviewManager.launchReviewFlow(this, task.result)
+                    flow.addOnCompleteListener {
+                        check.value = false
+                    }
+                } else
+                    check.value = false
+            }
         } else
             showSnack(requester!!.errorMessage())
     }
@@ -977,7 +1014,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                 paddingBetweenBars = 20.dp,
                 barWidth = 25.dp,
                 selectionHighlightData = SelectionHighlightData(
-                    highlightTextBackgroundColor = Color.Transparent,
+                    highlightTextBackgroundColor = Transparent,
                     highlightTextTypeface = defTypeface,
                     popUpLabel = { _, y ->
                         val temporal = if(y > 0)

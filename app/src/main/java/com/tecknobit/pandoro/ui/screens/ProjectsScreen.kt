@@ -119,7 +119,12 @@ class ProjectsScreen: Screen() {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(frequentProjects) { project ->
+                        items(
+                            items = frequentProjects,
+                            key = { project ->
+                                project.id
+                            }
+                        ) { project ->
                             ProjectCard(project = project)
                         }
                     }
@@ -151,7 +156,12 @@ class ProjectsScreen: Screen() {
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(currentProjects) { project ->
+                        items(
+                            items = currentProjects,
+                            key = { project ->
+                                project.id
+                            }
+                        ) { project ->
                             ProjectCard(project = project)
                         }
                     }
@@ -276,7 +286,7 @@ class ProjectsScreen: Screen() {
                             } else {
                                 Text(
                                     text = project.name,
-                                    fontSize = 18.sp,
+                                    fontSize = 17.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             }

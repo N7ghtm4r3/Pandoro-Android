@@ -505,7 +505,12 @@ class ProfileScreen: Screen() {
                     ),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    items(changelogs) { changelog ->
+                    items(
+                        items = changelogs,
+                        key = { changelog ->
+                            changelog.id
+                        }
+                    ) { changelog ->
                         val isInviteToAGroup = changelog.changelogEvent == INVITED_GROUP
                         val showInvite = remember { mutableStateOf(false) }
                         val group = changelog.group
@@ -605,7 +610,7 @@ class ProfileScreen: Screen() {
                                         onClick = { showInvite.value = false },
                                         content = {
                                             Text(
-                                                text = stringResource(R.string.dismiss),
+                                                text = stringResource(string.dismiss),
                                             )
                                         }
                                     )
@@ -717,7 +722,12 @@ class ProfileScreen: Screen() {
                     ),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(groups) { group ->
+                    items(
+                        items = groups,
+                        key = { group ->
+                            group.id
+                        }
+                    ) { group ->
                         val role =
                             if (group.isUserAdmin(user))
                                 ADMIN

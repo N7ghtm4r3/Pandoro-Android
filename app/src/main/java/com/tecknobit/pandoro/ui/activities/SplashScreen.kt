@@ -7,13 +7,14 @@ import android.os.Bundle
 import android.os.StrictMode
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +32,14 @@ import coil.Coil
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.request.CachePolicy
+import com.google.android.play.core.appupdate.AppUpdateManager
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.appupdate.AppUpdateOptions
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability.UPDATE_AVAILABLE
+import com.google.android.play.core.ktx.isImmediateUpdateAllowed
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.AndroidRequester
 import com.tecknobit.pandoro.records.users.User
@@ -43,6 +52,7 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
@@ -112,6 +122,11 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         lateinit var context: Context
 
         /**
+         * **reviewManager** the manager to review the app during its flow
+         */
+        lateinit var reviewManager: ReviewManager
+
+        /**
          * Method to open a link in app
          *
          * @param url: the url to open
@@ -123,6 +138,19 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
             startActivity(context, intent, null)
         }
 
+    }
+
+    /**
+     * **appUpdateManager** the manager to check if there is an update available
+     */
+    private lateinit var appUpdateManager: AppUpdateManager
+
+    /**
+     * **launcher** the result registered for [appUpdateManager] and the action to execute if fails
+     */
+    private var launcher  = registerForActivityResult(StartIntentSenderForResult()) { result: ActivityResult ->
+        if (result.resultCode != RESULT_OK)
+            launchApp()
     }
 
     /**
@@ -138,10 +166,13 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().permitAll().build())
+        appUpdateManager = AppUpdateManagerFactory.create(applicationContext)
+        checkForUpdates()
         setContent {
             activeScreen = remember { mutableStateOf(Projects) }
             PandoroTheme {
                 context = LocalContext.current
+                reviewManager = ReviewManagerFactory.create(context)
                 Coil.imageLoader(context)
                 Coil.setImageLoader(newImageLoader())
                 isRefreshing = rememberSaveable { mutableStateOf(false) }
@@ -172,13 +203,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
                     }
                 }
             }
-            LaunchedEffect(key1 = true) {
-                delay(2000)
-                if(user.id != null)
-                    startActivity(Intent(this@SplashScreen, MainActivity::class.java))
-                else
-                    startActivity(Intent(this@SplashScreen, ConnectActivity::class.java))
-            }
         }
     }
 
@@ -204,13 +228,14 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
             .memoryCachePolicy(CachePolicy.ENABLED)
             .build()
     }
+
     /**
      * Method to validate a self-signed SLL certificate and bypass the checks of its validity<br></br>
      * No-any params required
      *
      * @return list of trust managers as [Array] of [TrustManager]
-     * @apiNote this method disable all checks on the SLL certificate validity, so is recommended to use for test only or
-     * in a private distribution on own infrastructure
+     * @apiNote this method disable all checks on the SLL certificate validity, so is recommended to
+     * use for test only or in a private distribution on own infrastructure
      */
     private fun validateSelfSignedCertificate(): Array<TrustManager> {
         return arrayOf(object : X509TrustManager {
@@ -221,6 +246,41 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
             override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) {}
             override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) {}
         })
+    }
+
+    /**
+     * Method to check if there are some update available to install
+     * No-any params required
+     *
+     */
+    private fun checkForUpdates() {
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
+            val isUpdateAvailable = info.updateAvailability() == UPDATE_AVAILABLE
+            val isUpdateSupported = info.isImmediateUpdateAllowed
+            if(isUpdateAvailable && isUpdateSupported) {
+                appUpdateManager.startUpdateFlowForResult(
+                    info,
+                    launcher,
+                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                )
+            } else
+                launchApp()
+        }
+    }
+
+    /**
+     * Method to launch the app and the user session
+     * No-any params required
+     *
+     */
+    private fun launchApp() {
+        runBlocking {
+            delay(1500)
+            if(user.id != null)
+                startActivity(Intent(this@SplashScreen, MainActivity::class.java))
+            else
+                startActivity(Intent(this@SplashScreen, ConnectActivity::class.java))
+        }
     }
 
 }

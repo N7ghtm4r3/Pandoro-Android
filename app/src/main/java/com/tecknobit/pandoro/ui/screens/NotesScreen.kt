@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.Icons.Default
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.twotone.Done
 import androidx.compose.material.icons.twotone.RemoveDone
@@ -26,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +42,7 @@ import com.tecknobit.pandoro.R.string.date_of_mark
 import com.tecknobit.pandoro.R.string.insert_a_correct_content
 import com.tecknobit.pandoro.R.string.no_any_personal_notes
 import com.tecknobit.pandoro.R.string.note_info
+import com.tecknobit.pandoro.helpers.copyNote
 import com.tecknobit.pandoro.helpers.isContentNoteValid
 import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
 import com.tecknobit.pandoro.records.Note
@@ -50,6 +54,7 @@ import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
+import com.tecknobit.pandoro.ui.theme.IceGrayColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -115,7 +120,12 @@ class NotesScreen: Screen(), AndroidListManager {
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(bottom = 8.dp)
                 ) {
-                    items(notes) { note ->
+                    items(
+                        items = notes,
+                        key = { note ->
+                            note.id
+                        }
+                    ) { note ->
                         val showInfoNote = remember { mutableStateOf(false) }
                         var markedAsDone = note.isMarkedAsDone
                         pandoroModalSheet.PandoroModalSheet(
@@ -146,7 +156,8 @@ class NotesScreen: Screen(), AndroidListManager {
                             }
                         }
                         SwipeableActionsBox(
-                            swipeThreshold = 200.dp,
+                            swipeThreshold = 50.dp,
+                            backgroundUntilSwipeThreshold = Color.Transparent,
                             startActions = listOf(
                                 SwipeAction(
                                     icon = rememberVectorPainter(
@@ -170,6 +181,13 @@ class NotesScreen: Screen(), AndroidListManager {
                                         else
                                             showSnack(requester!!.errorMessage())
                                     }
+                                )
+                            ),
+                            endActions = listOf(
+                                SwipeAction(
+                                    icon = rememberVectorPainter(Default.ContentCopy),
+                                    background = IceGrayColor,
+                                    onSwipe = { copyNote(note) }
                                 )
                             )
                         ) {
@@ -207,7 +225,7 @@ class NotesScreen: Screen(), AndroidListManager {
                                                 }
                                             ) {
                                                 Icon(
-                                                    imageVector = Icons.Default.Delete,
+                                                    imageVector = Default.Delete,
                                                     contentDescription = null,
                                                     tint = ErrorLight
                                                 )
