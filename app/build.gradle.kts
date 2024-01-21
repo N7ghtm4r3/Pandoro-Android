@@ -11,7 +11,7 @@ android {
         applicationId = "com.tecknobit.pandoro"
         minSdk = 30
         targetSdk = 34
-        versionCode = 12
+        versionCode = 13
         versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
