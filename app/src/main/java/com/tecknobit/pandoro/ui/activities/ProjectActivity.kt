@@ -1,6 +1,8 @@
 package com.tecknobit.pandoro.ui.activities
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -72,6 +74,7 @@ import com.tecknobit.pandoro.R.string.*
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.helpers.areAllChangeNotesDone
+import com.tecknobit.pandoro.helpers.copyNote
 import com.tecknobit.pandoro.helpers.isContentNoteValid
 import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
 import com.tecknobit.pandoro.records.Note
@@ -83,6 +86,7 @@ import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.reviewManager
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
@@ -102,6 +106,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
+
 
 /**
  * The **ProjectActivity** class is useful to create the activity to show the [Project] details
@@ -833,12 +838,28 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                 }
             },
             action = {
-                TextButton(
-                    onClick = { coroutine.launch { tooltipState.dismiss() } }
+                Row (
+                    verticalAlignment = CenterVertically
                 ) {
-                    Text(
-                        text = getString(dismiss)
-                    )
+                    TextButton(
+                        onClick = { coroutine.launch { tooltipState.dismiss() } }
+                    ) {
+                        Text(
+                            text = getString(dismiss)
+                        )
+                    }
+                    TextButton(
+                        onClick = {
+                            coroutine.launch {
+                                copyNote(note)
+                                tooltipState.dismiss()
+                            }
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(copy_note)
+                        )
+                    }
                 }
             },
             content = {}
@@ -932,8 +953,17 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
     ) {
         requester!!.execPublishUpdate(project.value.id, update.id)
         if(requester!!.successResponse()) {
+            val request = reviewManager.requestReviewFlow()
             showOptions.value = false
-            check.value = false
+            request.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val flow = reviewManager.launchReviewFlow(this, task.result)
+                    flow.addOnCompleteListener {
+                        check.value = false
+                    }
+                } else
+                    check.value = false
+            }
         } else
             showSnack(requester!!.errorMessage())
     }

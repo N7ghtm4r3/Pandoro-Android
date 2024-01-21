@@ -1,6 +1,5 @@
 package com.tecknobit.pandoro.ui.screens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -224,7 +223,6 @@ class ProjectsScreen: Screen() {
      *
      * @param project: the project to create the card
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     private fun ProjectCard(project: Project) {
         var showOptions by remember { mutableStateOf(false) }

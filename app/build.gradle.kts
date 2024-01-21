@@ -82,6 +82,8 @@ dependencies {
     implementation("co.yml:ycharts:2.1.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
     implementation("commons-validator:commons-validator:1.7")
+    implementation("com.google.android.play:review:2.0.1")
+    implementation("com.google.android.play:review-ktx:2.0.1")
 }
 
 configurations.all {

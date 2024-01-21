@@ -1,8 +1,12 @@
 package com.tecknobit.pandoro.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,6 +15,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.twotone.Done
 import androidx.compose.material.icons.twotone.RemoveDone
@@ -39,6 +44,7 @@ import com.tecknobit.pandoro.R.string.date_of_mark
 import com.tecknobit.pandoro.R.string.insert_a_correct_content
 import com.tecknobit.pandoro.R.string.no_any_personal_notes
 import com.tecknobit.pandoro.R.string.note_info
+import com.tecknobit.pandoro.helpers.copyNote
 import com.tecknobit.pandoro.helpers.isContentNoteValid
 import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
 import com.tecknobit.pandoro.records.Note
@@ -201,20 +207,52 @@ class NotesScreen: Screen(), AndroidListManager {
                                                 textAlign = TextAlign.Justify,
                                                 textDecoration = if (markedAsDone) LineThrough else null
                                             )
-                                            IconButton(
+                                            Column (
                                                 modifier = Modifier
                                                     .weight(1f)
-                                                    .size(24.dp),
-                                                onClick = {
-                                                    requester!!.execDeleteNote(note.id)
-                                                    if (!requester!!.successResponse())
-                                                        showSnack(requester!!.errorMessage())
-                                                }
+                                                    .fillMaxHeight(),
+                                                horizontalAlignment = Alignment.End
                                             ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Delete,
-                                                    contentDescription = null,
-                                                    tint = ErrorLight
+                                                Box(
+                                                    modifier = Modifier
+                                                        .background(GREEN_COLOR)
+                                                        .weight(1f),
+                                                        //.width(10.dp),
+                                                    content = {
+                                                        IconButton(
+                                                            modifier = Modifier
+                                                                .size(20.dp),
+                                                            onClick = { copyNote(note) }
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Default.ContentCopy,
+                                                                contentDescription = null
+                                                            )
+                                                        }
+                                                    }
+                                                )
+                                                Box(
+                                                    modifier = Modifier
+                                                        .background(ErrorLight)
+                                                        .weight(1f),
+                                                    //.width(10.dp),
+                                                    content = {
+                                                        IconButton(
+                                                            modifier = Modifier
+                                                                .size(20.dp),
+                                                            onClick = {
+                                                                requester!!.execDeleteNote(note.id)
+                                                                if (!requester!!.successResponse())
+                                                                    showSnack(requester!!.errorMessage())
+                                                            }
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Default.Delete,
+                                                                contentDescription = null,
+                                                                tint = ErrorLight
+                                                            )
+                                                        }
+                                                    }
                                                 )
                                             }
                                         }

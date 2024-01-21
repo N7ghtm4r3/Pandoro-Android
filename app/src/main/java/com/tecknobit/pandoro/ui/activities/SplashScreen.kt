@@ -31,6 +31,8 @@ import coil.Coil
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.request.CachePolicy
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.AndroidRequester
 import com.tecknobit.pandoro.records.users.User
@@ -112,6 +114,11 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         lateinit var context: Context
 
         /**
+         * **reviewManager** the manager to review the app during its flow
+         */
+        lateinit var reviewManager: ReviewManager
+
+        /**
          * Method to open a link in app
          *
          * @param url: the url to open
@@ -142,6 +149,7 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
             activeScreen = remember { mutableStateOf(Projects) }
             PandoroTheme {
                 context = LocalContext.current
+                reviewManager = ReviewManagerFactory.create(context)
                 Coil.imageLoader(context)
                 Coil.setImageLoader(newImageLoader())
                 isRefreshing = rememberSaveable { mutableStateOf(false) }

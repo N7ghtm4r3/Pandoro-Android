@@ -1,5 +1,8 @@
 package com.tecknobit.pandoro.helpers
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.tecknobit.pandoro.records.Note
+import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 
 /**
  * Method to create a [Divider] on the UI
@@ -58,5 +63,11 @@ fun ColoredBorder(color: Color) {
             )
         }
     )
+}
+
+fun copyNote(note: Note) {
+    val clipboard = context.getSystemService(ComponentActivity.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("Pandoro-Note", note.content)
+    clipboard.setPrimaryClip(clip)
 }
 
