@@ -43,9 +43,7 @@ import com.tecknobit.pandoro.R.string.insert_a_correct_content
 import com.tecknobit.pandoro.R.string.no_any_personal_notes
 import com.tecknobit.pandoro.R.string.note_info
 import com.tecknobit.pandoro.helpers.copyNote
-import com.tecknobit.pandoro.helpers.isContentNoteValid
 import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
-import com.tecknobit.pandoro.records.Note
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
@@ -55,6 +53,8 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.IceGrayColor
+import com.tecknobit.pandorocore.helpers.isContentNoteValid
+import com.tecknobit.pandorocore.records.Note
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

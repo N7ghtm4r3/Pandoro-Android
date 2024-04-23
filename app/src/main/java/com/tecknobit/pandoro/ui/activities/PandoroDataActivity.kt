@@ -50,9 +50,9 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.SpaceContent
-import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.Project
-import com.tecknobit.pandoro.records.structures.PandoroItem
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.Project
+import com.tecknobit.pandorocore.records.structures.PandoroItem
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroCard

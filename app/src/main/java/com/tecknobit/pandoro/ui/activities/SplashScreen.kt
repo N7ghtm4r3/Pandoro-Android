@@ -42,7 +42,6 @@ import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.AndroidRequester
-import com.tecknobit.pandoro.records.users.User
 import com.tecknobit.pandoro.ui.activities.ConnectActivity.LocalAuthHelper
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
@@ -51,6 +50,7 @@ import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
+import com.tecknobit.pandorocore.records.users.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -254,18 +254,22 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
      *
      */
     private fun checkForUpdates() {
-        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
-            val isUpdateAvailable = info.updateAvailability() == UPDATE_AVAILABLE
-            val isUpdateSupported = info.isImmediateUpdateAllowed
-            if(isUpdateAvailable && isUpdateSupported) {
-                appUpdateManager.startUpdateFlowForResult(
-                    info,
-                    launcher,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-                )
-            } else
+        appUpdateManager.appUpdateInfo
+            .addOnSuccessListener { info ->
+                val isUpdateAvailable = info.updateAvailability() == UPDATE_AVAILABLE
+                val isUpdateSupported = info.isImmediateUpdateAllowed
+                if(isUpdateAvailable && isUpdateSupported) {
+                    appUpdateManager.startUpdateFlowForResult(
+                        info,
+                        launcher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                    )
+                } else
+                    launchApp()
+            }
+            .addOnFailureListener {
                 launchApp()
-        }
+            }
     }
 
     /**
@@ -275,7 +279,7 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
      */
     private fun launchApp() {
         runBlocking {
-            delay(1500)
+            delay(500)
             if(user.id != null)
                 startActivity(Intent(this@SplashScreen, MainActivity::class.java))
             else

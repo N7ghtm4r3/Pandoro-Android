@@ -1,8 +1,8 @@
 package com.tecknobit.pandoro.helpers.refreshers
 
 import com.google.gson.Gson
-import com.tecknobit.pandoro.helpers.ui.ListManager
-import com.tecknobit.pandoro.records.structures.PandoroItemStructure
+import com.tecknobit.pandorocore.records.structures.PandoroItemStructure
+import com.tecknobit.pandorocore.ui.ListManager
 
 /**
  * The **AndroidListManager** interface is useful to manage a list of items in the UI

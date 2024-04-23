@@ -3,10 +3,11 @@ package com.tecknobit.pandoro.helpers
 import com.tecknobit.apimanager.annotations.RequestPath
 import com.tecknobit.apimanager.apis.APIRequest.RequestMethod
 import com.tecknobit.apimanager.formatters.JsonHelper
-import com.tecknobit.pandoro.controllers.UsersController.BASE_ENDPOINT
-import com.tecknobit.pandoro.controllers.UsersController.CHANGE_PROFILE_PIC_ENDPOINT
-import com.tecknobit.pandoro.controllers.UsersController.USERS_ENDPOINT
-import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
+import com.tecknobit.pandorocore.Endpoints.BASE_ENDPOINT
+import com.tecknobit.pandorocore.Endpoints.CHANGE_PROFILE_PIC_ENDPOINT
+import com.tecknobit.pandorocore.Endpoints.USERS_ENDPOINT
+import com.tecknobit.pandorocore.helpers.Requester
+import com.tecknobit.pandorocore.records.users.PublicUser.PROFILE_PIC_KEY
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import okhttp3.Headers.Companion.toHeaders

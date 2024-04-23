@@ -8,7 +8,7 @@
     <string name="notes">Notes</string>
     <string name="overview">Overview</string>
     <string name="profile">Profile</string>
-    <string name="delete_text_dialog">If you confirm this changelogEvent the project and its all information will be deleted and no more recoverable, confirm?</string>
+    <string name="delete_text_dialog">If you confirm this event the project and its all information will be deleted and no more recoverable, confirm?</string>
     <string name="dismiss">Dismiss</string>
     <string name="confirm">Confirm</string>
     <string name="no_projects_found">No projects found</string>

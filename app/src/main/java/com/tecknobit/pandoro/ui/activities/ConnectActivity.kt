@@ -1,7 +1,6 @@
 package com.tecknobit.pandoro.ui.activities
 
 import android.annotation.SuppressLint
-import android.content.Context.*
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -48,29 +47,22 @@ import androidx.compose.ui.unit.sp
 import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
-import com.tecknobit.pandoro.R.string.*
-import com.tecknobit.pandoro.controllers.PandoroController.IDENTIFIER_KEY
+import com.tecknobit.pandoro.R.string.are_you_new_to_pandoro
+import com.tecknobit.pandoro.R.string.have_an_account
+import com.tecknobit.pandoro.R.string.hello
+import com.tecknobit.pandoro.R.string.server_address
+import com.tecknobit.pandoro.R.string.server_secret
+import com.tecknobit.pandoro.R.string.sign_in
+import com.tecknobit.pandoro.R.string.sign_up
+import com.tecknobit.pandoro.R.string.welcome_back
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_name
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_server_address
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_server_secret
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_surname
 import com.tecknobit.pandoro.helpers.AndroidRequester
-import com.tecknobit.pandoro.helpers.InputStatus.*
-import com.tecknobit.pandoro.helpers.ScreenType
-import com.tecknobit.pandoro.helpers.ScreenType.SignIn
-import com.tecknobit.pandoro.helpers.ScreenType.SignUp
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
-import com.tecknobit.pandoro.helpers.areCredentialsValid
-import com.tecknobit.pandoro.helpers.isEmailValid
-import com.tecknobit.pandoro.helpers.isNameValid
-import com.tecknobit.pandoro.helpers.isPasswordValid
-import com.tecknobit.pandoro.helpers.isServerAddressValid
-import com.tecknobit.pandoro.helpers.isServerSecretValid
-import com.tecknobit.pandoro.helpers.isSurnameValid
-import com.tecknobit.pandoro.helpers.ui.LocalUser
-import com.tecknobit.pandoro.records.users.User
-import com.tecknobit.pandoro.services.UsersHelper.EMAIL_KEY
-import com.tecknobit.pandoro.services.UsersHelper.NAME_KEY
-import com.tecknobit.pandoro.services.UsersHelper.PASSWORD_KEY
-import com.tecknobit.pandoro.services.UsersHelper.PROFILE_PIC_KEY
-import com.tecknobit.pandoro.services.UsersHelper.SURNAME_KEY
-import com.tecknobit.pandoro.services.UsersHelper.TOKEN_KEY
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
@@ -88,6 +80,28 @@ import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.helpers.InputStatus
+import com.tecknobit.pandorocore.helpers.InputStatus.WRONG_EMAIL
+import com.tecknobit.pandorocore.helpers.InputStatus.WRONG_PASSWORD
+import com.tecknobit.pandorocore.helpers.ScreenType
+import com.tecknobit.pandorocore.helpers.ScreenType.SignIn
+import com.tecknobit.pandorocore.helpers.ScreenType.SignUp
+import com.tecknobit.pandorocore.helpers.areCredentialsValid
+import com.tecknobit.pandorocore.helpers.isEmailValid
+import com.tecknobit.pandorocore.helpers.isNameValid
+import com.tecknobit.pandorocore.helpers.isPasswordValid
+import com.tecknobit.pandorocore.helpers.isServerAddressValid
+import com.tecknobit.pandorocore.helpers.isServerSecretValid
+import com.tecknobit.pandorocore.helpers.isSurnameValid
+import com.tecknobit.pandorocore.records.structures.PandoroItem.IDENTIFIER_KEY
+import com.tecknobit.pandorocore.records.users.PublicUser.EMAIL_KEY
+import com.tecknobit.pandorocore.records.users.PublicUser.NAME_KEY
+import com.tecknobit.pandorocore.records.users.PublicUser.PASSWORD_KEY
+import com.tecknobit.pandorocore.records.users.PublicUser.PROFILE_PIC_KEY
+import com.tecknobit.pandorocore.records.users.PublicUser.SURNAME_KEY
+import com.tecknobit.pandorocore.records.users.PublicUser.TOKEN_KEY
+import com.tecknobit.pandorocore.records.users.User
+import com.tecknobit.pandorocore.ui.LocalUser
 import kotlinx.coroutines.CoroutineScope
 import org.json.JSONObject
 
@@ -463,7 +477,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         password: String
     ) {
         when (areCredentialsValid(email, password)) {
-            OK -> {
+            InputStatus.OK -> {
                 requester = AndroidRequester(serverAddress, null, null)
                 val response: JsonHelper = if(serverSecret.isNullOrBlank())
                     JsonHelper(requester!!.execSignIn(email, password))

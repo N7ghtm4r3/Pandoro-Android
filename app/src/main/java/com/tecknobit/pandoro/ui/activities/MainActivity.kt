@@ -2,8 +2,6 @@ package com.tecknobit.pandoro.ui.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.WindowManager.*
-import android.view.WindowManager.LayoutParams.*
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
@@ -45,9 +43,6 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
-import com.tecknobit.pandoro.records.Changelog
-import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
@@ -66,9 +61,15 @@ import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectD
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.scope
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
-import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.*
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.records.Changelog
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.Project
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
