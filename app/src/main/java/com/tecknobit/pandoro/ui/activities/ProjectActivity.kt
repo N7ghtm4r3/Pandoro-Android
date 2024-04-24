@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.MoreVert
@@ -42,6 +43,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.RichTooltipBox
 import androidx.compose.material3.RichTooltipState
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipDefaults
@@ -52,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -109,6 +112,7 @@ import com.tecknobit.pandoro.R.string.update_id
 import com.tecknobit.pandoro.R.string.updates
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
+import com.tecknobit.pandoro.helpers.copyContent
 import com.tecknobit.pandoro.helpers.copyNote
 import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
@@ -138,6 +142,7 @@ import com.tecknobit.pandorocore.records.ProjectUpdate
 import com.tecknobit.pandorocore.records.ProjectUpdate.Status.IN_DEVELOPMENT
 import com.tecknobit.pandorocore.records.ProjectUpdate.Status.PUBLISHED
 import com.tecknobit.pandorocore.records.ProjectUpdate.Status.SCHEDULED
+import com.tecknobit.pandorocore.ui.formatNotesAsMarkdown
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -198,12 +203,15 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
             refreshItem()
             showDeleteDialog = remember { mutableStateOf(false) }
             val showScheduleUpdate = remember { mutableStateOf(false) }
+            coroutine = rememberCoroutineScope()
+            snackbarHostState = remember { SnackbarHostState() }
             projectDialogs.ScheduleUpdate(
                 project = project.value,
                 show = showScheduleUpdate
             )
             PandoroTheme {
                 Scaffold(
+                    snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) },
                     topBar = {
                         LargeTopAppBar(
                             colors = TopAppBarDefaults.largeTopAppBarColors(
@@ -359,8 +367,8 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                             verticalArrangement = spacedBy(10.dp),
                                             contentPadding = PaddingValues(bottom = 10.dp)
                                         ) {
-                                            if (isScheduled || isInDevelopment) {
-                                                stickyHeader {
+                                            stickyHeader {
+                                                if(isScheduled || isInDevelopment) {
                                                     var addNote by remember {
                                                         mutableStateOf(false)
                                                     }
@@ -378,6 +386,10 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                                 content = {
                                                                     Icon(Filled.Add, null)
                                                                 }
+                                                            )
+                                                            Text(
+                                                                text = stringResource(string.total_change_notes)
+                                                                        + " ${update.notes.size}"
                                                             )
                                                         }
                                                         if (addNote) {
@@ -454,6 +466,11 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                             }
                                                         }
                                                     }
+                                                } else {
+                                                    Text(
+                                                        text = stringResource(string.total_change_notes)
+                                                                + " ${update.notes.size}"
+                                                    )
                                                 }
                                             }
                                             items(
@@ -571,44 +588,72 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                             val publishUpdate = remember {
                                                                 mutableStateOf(false)
                                                             }
-                                                            DropdownMenuItem(
-                                                                text = {
-                                                                    Text(
-                                                                        text =
-                                                                        if (isScheduled)
-                                                                            getString(start_update)
-                                                                        else
-                                                                            getString(publish)
-                                                                    )
-                                                                },
-                                                                trailingIcon = {
-                                                                    Icon(
-                                                                        imageVector =
-                                                                        if (isScheduled)
-                                                                            Default.PlayArrow
-                                                                        else
-                                                                            Default.Publish,
-                                                                        contentDescription = null,
-                                                                        tint =
-                                                                        if (isScheduled)
-                                                                            YELLOW_COLOR
-                                                                        else
-                                                                            GREEN_COLOR
-                                                                    )
-                                                                },
-                                                                onClick = {
-                                                                    if (isScheduled) {
-                                                                        requester!!.execStartUpdate(
-                                                                            project.value.id,
-                                                                            update.id
+                                                            if(update.notes.isNotEmpty()) {
+                                                                DropdownMenuItem(
+                                                                    text = {
+                                                                        Text(
+                                                                            text = stringResource(string.export_notes)
                                                                         )
-                                                                        if(!requester!!.successResponse())
-                                                                            showSnack(requester!!.errorMessage())
+                                                                    },
+                                                                    trailingIcon = {
+                                                                        Icon(
+                                                                            imageVector = Icons.Default.ContentPaste,
+                                                                            contentDescription = null
+                                                                        )
+                                                                    },
+                                                                    onClick = {
                                                                         showOptions.value = false
-                                                                    } else
-                                                                        publishUpdate.value = true
-                                                                }
-                                                            )
+                                                                        copyContent(
+                                                                            formatNotesAsMarkdown(
+                                                                                update = update
+                                                                            )
+                                                                        )
+                                                                        showSnack(
+                                                                            string.notes_formatted_in_markdown_copied
+                                                                        )
+                                                                    }
+                                                                )
+                                                            }
+                                                            if(!isPublished) {
+                                                                DropdownMenuItem(
+                                                                    text = {
+                                                                        Text(
+                                                                            text =
+                                                                            if (isScheduled)
+                                                                                getString(start_update)
+                                                                            else
+                                                                                getString(publish)
+                                                                        )
+                                                                    },
+                                                                    trailingIcon = {
+                                                                        Icon(
+                                                                            imageVector =
+                                                                            if (isScheduled)
+                                                                                Default.PlayArrow
+                                                                            else
+                                                                                Default.Publish,
+                                                                            contentDescription = null,
+                                                                            tint =
+                                                                            if (isScheduled)
+                                                                                YELLOW_COLOR
+                                                                            else
+                                                                                GREEN_COLOR
+                                                                        )
+                                                                    },
+                                                                    onClick = {
+                                                                        if (isScheduled) {
+                                                                            requester!!.execStartUpdate(
+                                                                                project.value.id,
+                                                                                update.id
+                                                                            )
+                                                                            if(!requester!!.successResponse())
+                                                                                showSnack(requester!!.errorMessage())
+                                                                            showOptions.value = false
+                                                                        } else
+                                                                            publishUpdate.value = true
+                                                                    }
+                                                                )
+                                                            }
                                                             if(publishUpdate.value) {
                                                                 PublishUpdate(
                                                                     showOptions,
@@ -642,24 +687,12 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                     }
                                                     IconButton(
                                                         modifier = Modifier.size(22.dp),
-                                                        onClick = {
-                                                            if (isPublished) {
-                                                                currentUpdate = update
-                                                                showDeleteDialog.value = true
-                                                            } else
-                                                                showOptions.value = true
-                                                        }
+                                                        onClick = { showOptions.value = true }
                                                     ) {
                                                         Icon(
-                                                            imageVector = if (isPublished)
-                                                                Default.Delete
-                                                            else
-                                                                Default.MoreVert,
+                                                            imageVector = Default.MoreVert,
                                                             contentDescription = null,
-                                                            tint = if (isPublished)
-                                                                ErrorLight
-                                                            else
-                                                                PrimaryLight,
+                                                            tint = PrimaryLight,
                                                         )
                                                     }
                                                 }
@@ -1097,8 +1130,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             publishUpdates.clear()
                             publishUpdates.addAll(project.value.publishedUpdates)
                         }
-                    } else
-                        showSnack(requester!!.errorMessage())
+                    }
                 } catch (_ : Exception){
                 }
                 delay(1000)

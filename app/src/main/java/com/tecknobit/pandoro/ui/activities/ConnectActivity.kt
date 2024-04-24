@@ -41,6 +41,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation.Companion.None
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -80,6 +81,7 @@ import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.helpers.DEFAULT_USER_LANGUAGE
 import com.tecknobit.pandorocore.helpers.InputStatus
 import com.tecknobit.pandorocore.helpers.InputStatus.WRONG_EMAIL
 import com.tecknobit.pandorocore.helpers.InputStatus.WRONG_PASSWORD
@@ -101,6 +103,7 @@ import com.tecknobit.pandorocore.records.users.PublicUser.PROFILE_PIC_KEY
 import com.tecknobit.pandorocore.records.users.PublicUser.SURNAME_KEY
 import com.tecknobit.pandorocore.records.users.PublicUser.TOKEN_KEY
 import com.tecknobit.pandorocore.records.users.User
+import com.tecknobit.pandorocore.records.users.User.LANGUAGE_KEY
 import com.tecknobit.pandorocore.ui.LocalUser
 import kotlinx.coroutines.CoroutineScope
 import org.json.JSONObject
@@ -476,13 +479,18 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         email: String,
         password: String
     ) {
+        val language: String?
         when (areCredentialsValid(email, password)) {
             InputStatus.OK -> {
                 requester = AndroidRequester(serverAddress, null, null)
-                val response: JsonHelper = if(serverSecret.isNullOrBlank())
+                val response: JsonHelper = if(serverSecret.isNullOrBlank()) {
+                    language = ""
                     JsonHelper(requester!!.execSignIn(email, password))
-                else
-                    JsonHelper(requester!!.execSignUp(serverSecret, name, surname, email, password))
+                } else {
+                    language = Locale.current.toLanguageTag().substringBefore("-")
+                    JsonHelper(requester!!.execSignUp(serverSecret, name, surname, email, password,
+                        language))
+                }
                 if(requester!!.successResponse()) {
                     localAuthHelper.initUserSession(
                         response,
@@ -490,7 +498,8 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                         name.ifEmpty { response.getString(NAME_KEY) },
                         surname.ifEmpty { response.getString(SURNAME_KEY) },
                         email,
-                        password
+                        password,
+                        language.ifEmpty { response.getString(LANGUAGE_KEY) }
                     )
                 } else
                     showSnack(requester!!.errorMessage())
@@ -545,6 +554,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                         .put(SURNAME_KEY, preferences.getString(SURNAME_KEY, null))
                         .put(EMAIL_KEY, preferences.getString(EMAIL_KEY, null))
                         .put(PASSWORD_KEY, preferences.getString(PASSWORD_KEY, null))
+                        .put(LANGUAGE_KEY, preferences.getString(LANGUAGE_KEY, DEFAULT_USER_LANGUAGE))
                 )
                 requester = AndroidRequester(host!!, userId, userToken)
             } else {
@@ -562,6 +572,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
          * @param surname: the surname of the user
          * @param email: the email of the user
          * @param password: the password of the user
+         * @param language: the language of the user
          */
         override fun initUserSession(
             response: JsonHelper,
@@ -569,9 +580,10 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
             name: String,
             surname: String,
             email: String?,
-            password: String?
+            password: String?,
+            language: String?
         ) {
-            super.initUserSession(response, host, name, surname, email, password)
+            super.initUserSession(response, host, name, surname, email, password, language)
             activeScreen.value = Projects
             context.startActivity(Intent(context, MainActivity::class.java))
         }

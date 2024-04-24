@@ -56,6 +56,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSession
@@ -178,6 +179,7 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
                 isRefreshing = rememberSaveable { mutableStateOf(false) }
                 localAuthHelper = ConnectActivity().LocalAuthHelper()
                 localAuthHelper.initUserCredentials()
+                setLocale()
                 defTypeface = ResourcesCompat.getFont(context, R.font.rem)!!
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -285,6 +287,20 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
             else
                 startActivity(Intent(this@SplashScreen, ConnectActivity::class.java))
         }
+    }
+
+    /**
+     * Function to set locale language for the application
+     *
+     * No-any params required
+     */
+    private fun setLocale() {
+        val locale = Locale.forLanguageTag(user.language)
+        Locale.setDefault(locale)
+        val resources = context.resources
+        val configuration = resources.configuration
+        configuration.locale = locale
+        resources.updateConfiguration(configuration, resources.displayMetrics)
     }
 
 }

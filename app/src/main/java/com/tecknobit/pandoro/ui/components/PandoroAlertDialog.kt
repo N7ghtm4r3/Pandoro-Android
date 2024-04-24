@@ -28,6 +28,32 @@ fun PandoroAlertDialog(
     text: Int,
     requestLogic: () -> Unit
 ) {
+    PandoroAlertDialog(
+        show = show,
+        title = title,
+        extraTitle = extraTitle,
+        text = { Text(text = stringResource(text)) },
+        requestLogic = requestLogic
+    )
+}
+
+/**
+ * Function to create a Pandoro's custom alert dialog
+ *
+ * @param show: whether show the alert dialog
+ * @param title: the title of the alert dialog
+ * @param extraTitle: the extra content for the title of the alert dialog
+ * @param text: the text of the alert dialog
+ * @param requestLogic: the request to execute when the confirm text has been pressed
+ */
+@Composable
+fun PandoroAlertDialog(
+    show: MutableState<Boolean>,
+    title: Int,
+    extraTitle: String? = null,
+    text: @Composable () -> Unit,
+    requestLogic: () -> Unit
+) {
     if(show.value) {
         AlertDialog(
             onDismissRequest = { show.value = false },
@@ -39,13 +65,13 @@ fun PandoroAlertDialog(
             },
             title = {
                 var titleText = stringResource(title)
-                    if (extraTitle != null)
-                        titleText += " $extraTitle"
+                if (extraTitle != null)
+                    titleText += " $extraTitle"
                 Text(
                     text = titleText
                 )
             },
-            text = { Text(text = stringResource(text)) },
+            text = text,
             dismissButton = {
                 TextButton(
                     onClick = { show.value = false },

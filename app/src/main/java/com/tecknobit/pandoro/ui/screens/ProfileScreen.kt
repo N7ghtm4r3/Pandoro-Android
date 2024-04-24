@@ -1,5 +1,6 @@
 package com.tecknobit.pandoro.ui.screens
 
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -36,6 +37,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -74,16 +76,19 @@ import com.tecknobit.pandoro.R.string.profile_details
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
 import com.tecknobit.pandoro.helpers.Divide
+import com.tecknobit.pandoro.ui.activities.SplashScreen
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.helpers.LANGUAGES_SUPPORTED
 import com.tecknobit.pandorocore.helpers.isEmailValid
 import com.tecknobit.pandorocore.helpers.isPasswordValid
 import com.tecknobit.pandorocore.records.Changelog
@@ -310,9 +315,11 @@ class ProfileScreen: Screen() {
     @Composable
     private fun ShowProfileDetails() {
         val showEditEmail = remember { mutableStateOf(false) }
-        val showEditPassword = remember { mutableStateOf(false) }
-        var passValue by remember { mutableStateOf(HIDE_PASS_VALUE) }
         var email by remember { mutableStateOf(user.email) }
+        var passValue by remember { mutableStateOf(HIDE_PASS_VALUE) }
+        val showEditPassword = remember { mutableStateOf(false) }
+        var language by remember { mutableStateOf(user.language) }
+        val showEditLanguage = remember { mutableStateOf(false) }
         ShowSubsection {
             CreateInputModalBottom(
                 show = showEditEmail,
@@ -427,6 +434,65 @@ class ProfileScreen: Screen() {
                     )
                 }
             }
+            Divide()
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(string.language)
+                    )
+                    ShowProfileData(profileData = LANGUAGES_SUPPORTED[language]!!)
+                }
+                IconButton(
+                    modifier = Modifier.padding(start = 10.dp),
+                    onClick = { showEditLanguage.value = true }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = ErrorLight
+                    )
+                }
+            }
+            var selectedLanguage by remember { mutableStateOf(language) }
+            PandoroAlertDialog(
+                show = showEditLanguage,
+                title = string.change_language,
+                text = {
+                    LazyColumn {
+                        items(LANGUAGES_SUPPORTED.keys.toList()) { language ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(
+                                    selected = selectedLanguage == language,
+                                    onClick = { selectedLanguage = language }
+                                )
+                                Text(
+                                    text = LANGUAGES_SUPPORTED[language]!!
+                                )
+                            }
+                            Divide()
+                        }
+                    }
+                },
+                requestLogic = {
+                    requester!!.execChangeLanguage(
+                        newLanguage = selectedLanguage
+                    )
+                    if(requester!!.successResponse()) {
+                        localAuthHelper.storeLanguage(
+                            language = selectedLanguage,
+                            refreshUser = true
+                        )
+                        context.startActivity(Intent(context, SplashScreen::class.java))
+                    }
+                }
+            )
             Divide()
             Button(
                 modifier = Modifier

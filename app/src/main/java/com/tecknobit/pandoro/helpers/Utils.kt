@@ -71,8 +71,16 @@ fun ColoredBorder(color: Color) {
  * @param note: the note to copy
  */
 fun copyNote(note: Note) {
-    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("Pandoro-Note", note.content)
-    clipboard.setPrimaryClip(clip)
+    copyContent(note.content)
 }
 
+/**
+ * Function to copy a content value
+ *
+ * @param content: the content to copy
+ */
+fun copyContent(content: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("Pandoro-Note", content)
+    clipboard.setPrimaryClip(clip)
+}

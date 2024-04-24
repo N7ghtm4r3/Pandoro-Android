@@ -495,8 +495,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             isAdmin = group.value.isUserAdmin(user)
                             isMaintainer = group.value.isUserMaintainer(user)
                         }
-                    } else
-                        showSnack(requester!!.errorMessage())
+                    }
                 } catch (_ : Exception){
                 }
                 delay(1000)

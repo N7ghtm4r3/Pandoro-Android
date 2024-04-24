@@ -43,7 +43,6 @@ import com.tecknobit.pandoro.R.string.add_a_new_project
 import com.tecknobit.pandoro.R.string.add_to_a_group
 import com.tecknobit.pandoro.R.string.change_notes
 import com.tecknobit.pandoro.R.string.edit
-import com.tecknobit.pandoro.R.string.edit_caps
 import com.tecknobit.pandoro.R.string.insert_a_correct_description
 import com.tecknobit.pandoro.R.string.insert_a_correct_name
 import com.tecknobit.pandoro.R.string.insert_a_correct_repository_url
@@ -109,7 +108,7 @@ class ProjectDialogs : PandoroDialog() {
             CreateProjectDialog(
                 project = project,
                 show = showEditProjectDialog,
-                title = stringResource(edit_caps) + " " + project.name + " " + stringResource(string.project),
+                title = stringResource(edit) + " " + project.name + " " + stringResource(string.project),
                 confirmText = stringResource(edit)
             )
         }
