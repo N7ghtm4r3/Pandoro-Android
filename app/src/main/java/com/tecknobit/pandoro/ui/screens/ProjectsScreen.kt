@@ -45,15 +45,15 @@ import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.delete_project
 import com.tecknobit.pandoro.R.string.delete_text_dialog
 import com.tecknobit.pandoro.R.string.no_projects_found
-import com.tecknobit.pandoro.helpers.ui.filterProjects
-import com.tecknobit.pandoro.helpers.ui.populateFrequentProjects
-import com.tecknobit.pandoro.records.Project
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.theme.ErrorLight
+import com.tecknobit.pandorocore.records.Project
+import com.tecknobit.pandorocore.ui.filterProjects
+import com.tecknobit.pandorocore.ui.populateFrequentProjects
 
 /**
  * The **ProjectsScreen** class is useful to show the projects of the user

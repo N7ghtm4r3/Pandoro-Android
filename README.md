@@ -1,5 +1,5 @@
 # Pandoro-Android
-**v1.0.2**
+**v1.0.3**
 
 This project, based on Java and the Spring Boot framework, is an open source management software useful in managing your personal projects and group projects.
 Create, develop and publish your projects with **Pandoro**!
@@ -22,9 +22,9 @@ steps:
 - Mobile
   - <a href="https://github.com/N7ghtm4r3/Pandoro-Android#readme">Android</a>
   - iOS -> planned
-- <a href="https://github.com/N7ghtm4r3/Pandoro-Desktop/releases/tag/1.0.2">Pandoro desktop version</a>
+- <a href="https://github.com/N7ghtm4r3/Pandoro-Desktop/releases/tag/1.0.3">Pandoro desktop version</a>
 - <a href="https://github.com/Rhythmss/pandoro-webapp">Pandoro webapp version</a>
-- <a href="https://github.com/N7ghtm4r3/Pandoro/releases/tag/1.0.2">Backend service "out-of-the-box"</a>
+- <a href="https://github.com/N7ghtm4r3/Pandoro/releases/tag/1.0.3">Backend service "out-of-the-box"</a>
 
 ## Usages
 
@@ -34,18 +34,20 @@ Pandoro backend procedures</a>
 
 ## Customize the application
 
-To customize and create your own version of this application you need to have the <a href="https://github.com/N7ghtm4r3/Pandoro">
-Pandoro main library</a> implemented in your project and published into maven local system
+To customize and create your own version of this application you need to have
+the <a href="https://github.com/N7ghtm4r3/Pandoro/tree/main/Pandoro-core">
+core library</a> implemented in your project and published into maven local system
 
-### Clone the main library and publish to maven local
+### Clone the core library and publish to maven local
 
 - Clone the repository or download the zip file of the current version available
 
 - Open the folder file in your development environment and publish to maven local with the
-  **publishMavenPublicationToMavenLocal** gradle task, take a look <a href="https://docs.gradle.org/current/userguide/publishing_maven.html">here</a>
+  **publishMavenPublicationToMavenLocal** gradle task, take a
+  look <a href="https://docs.gradle.org/current/userguide/publishing_maven.html">here</a>
   for a help
 
-### Implement the main library to your application
+### Implement the core library to your application
 
 - #### Gradle (Short)
 
@@ -56,7 +58,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'com.tecknobit.pandoro:Pandoro:1.0.2'
+  implementation 'com.tecknobit.pandorocore:Pandoro-core:1.0.3'
 }
 ```
 
@@ -69,8 +71,21 @@ repositories {
 }
 
 dependencies {
-  implementation("com.tecknobit.pandoro:Pandoro:1.0.2")
+  implementation("com.tecknobit.pandorocore:Pandoro-core:1.0.3")
 }
+```
+
+### Maven
+
+- Add the dependency
+
+```xml
+
+<dependency>
+  <groupId>com.tecknobit.pandorocore</groupId>
+  <artifactId>Pandoro-core</artifactId>
+  <version>1.0.3</version>
+</dependency>
 ```
 
 ## Authors

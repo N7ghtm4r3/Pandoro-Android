@@ -53,14 +53,6 @@ import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_group_descriptio
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_group_name
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_members_list
 import com.tecknobit.pandoro.R.string.you_must_insert_one_member_at_least
-import com.tecknobit.pandoro.helpers.checkMembersValidity
-import com.tecknobit.pandoro.helpers.isEmailValid
-import com.tecknobit.pandoro.helpers.isGroupDescriptionValid
-import com.tecknobit.pandoro.helpers.isGroupNameValid
-import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.users.GroupMember
-import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
-import com.tecknobit.pandoro.records.users.GroupMember.Role.*
 import com.tecknobit.pandoro.ui.activities.MainActivity
 import com.tecknobit.pandoro.ui.activities.ProjectActivity
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
@@ -76,6 +68,14 @@ import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.helpers.checkMembersValidity
+import com.tecknobit.pandorocore.helpers.isEmailValid
+import com.tecknobit.pandorocore.helpers.isGroupDescriptionValid
+import com.tecknobit.pandorocore.helpers.isGroupNameValid
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.users.GroupMember
+import com.tecknobit.pandorocore.records.users.GroupMember.InvitationStatus.PENDING
+import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
 
 /**
  * The **GroupDialogs** class is useful to create the groups dialogs

@@ -21,10 +21,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Default
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PersonRemove
 import androidx.compose.material3.Button
@@ -63,13 +64,7 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_members_list
 import com.tecknobit.pandoro.helpers.SpaceContent
-import com.tecknobit.pandoro.helpers.checkMembersValidity
 import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
-import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.users.GroupMember
-import com.tecknobit.pandoro.records.users.GroupMember.InvitationStatus.PENDING
-import com.tecknobit.pandoro.records.users.GroupMember.Role.ADMIN
-import com.tecknobit.pandoro.records.users.GroupMember.Role.values
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
@@ -81,6 +76,12 @@ import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
+import com.tecknobit.pandorocore.helpers.checkMembersValidity
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.users.GroupMember
+import com.tecknobit.pandorocore.records.users.GroupMember.InvitationStatus.PENDING
+import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
+import com.tecknobit.pandorocore.records.users.GroupMember.Role.values
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -146,7 +147,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                     onClick = { onBackPressedDispatcher.onBackPressed() }
                                 ) {
                                     Icon(
-                                        imageVector = Default.ArrowBack,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = null
                                     )
                                 }
@@ -179,7 +180,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                     onClick = { leaveGroup.value = true }
                                 ) {
                                     Icon(
-                                        imageVector = Default.ExitToApp,
+                                        imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                                         contentDescription = null,
                                         tint = ErrorLight
                                     )
@@ -494,8 +495,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             isAdmin = group.value.isUserAdmin(user)
                             isMaintainer = group.value.isUserMaintainer(user)
                         }
-                    } else
-                        showSnack(requester!!.errorMessage())
+                    }
                 } catch (_ : Exception){
                 }
                 delay(1000)

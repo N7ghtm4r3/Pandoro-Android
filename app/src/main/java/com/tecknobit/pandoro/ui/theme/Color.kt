@@ -1,11 +1,9 @@
 package com.tecknobit.pandoro.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import com.tecknobit.pandoro.helpers.ui.BACKGROUND_COLOR
-import com.tecknobit.pandoro.helpers.ui.GREEN_COLOR
-import com.tecknobit.pandoro.helpers.ui.PRIMARY_COLOR
-import com.tecknobit.pandoro.helpers.ui.RED_COLOR
-import com.tecknobit.pandoro.helpers.ui.YELLOW_COLOR
+import com.tecknobit.pandorocore.ui.BACKGROUND_COLOR
+import com.tecknobit.pandorocore.ui.PRIMARY_COLOR
+import com.tecknobit.pandorocore.ui.RED_COLOR
 
 /**
  * the primary color of the application
@@ -40,12 +38,12 @@ val CustomGrayColor = fromHexToColor("#e6e8e9")
 /**
  * the green color value
  */
-val GREEN_COLOR: Color = fromHexToColor(GREEN_COLOR)
+val GREEN_COLOR: Color = fromHexToColor(com.tecknobit.pandorocore.ui.GREEN_COLOR)
 
 /**
  * the yellow color value
  */
-val YELLOW_COLOR: Color = fromHexToColor(YELLOW_COLOR)
+val YELLOW_COLOR: Color = fromHexToColor(com.tecknobit.pandorocore.ui.YELLOW_COLOR)
 
 /**
  * Method to create a [Color] from an hex [String]

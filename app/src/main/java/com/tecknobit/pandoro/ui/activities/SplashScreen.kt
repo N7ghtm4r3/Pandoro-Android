@@ -42,7 +42,6 @@ import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.AndroidRequester
-import com.tecknobit.pandoro.records.users.User
 import com.tecknobit.pandoro.ui.activities.ConnectActivity.LocalAuthHelper
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
@@ -51,11 +50,13 @@ import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
+import com.tecknobit.pandorocore.records.users.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSession
@@ -178,6 +179,7 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
                 isRefreshing = rememberSaveable { mutableStateOf(false) }
                 localAuthHelper = ConnectActivity().LocalAuthHelper()
                 localAuthHelper.initUserCredentials()
+                setLocale()
                 defTypeface = ResourcesCompat.getFont(context, R.font.rem)!!
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -254,18 +256,22 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
      *
      */
     private fun checkForUpdates() {
-        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
-            val isUpdateAvailable = info.updateAvailability() == UPDATE_AVAILABLE
-            val isUpdateSupported = info.isImmediateUpdateAllowed
-            if(isUpdateAvailable && isUpdateSupported) {
-                appUpdateManager.startUpdateFlowForResult(
-                    info,
-                    launcher,
-                    AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-                )
-            } else
+        appUpdateManager.appUpdateInfo
+            .addOnSuccessListener { info ->
+                val isUpdateAvailable = info.updateAvailability() == UPDATE_AVAILABLE
+                val isUpdateSupported = info.isImmediateUpdateAllowed
+                if(isUpdateAvailable && isUpdateSupported) {
+                    appUpdateManager.startUpdateFlowForResult(
+                        info,
+                        launcher,
+                        AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
+                    )
+                } else
+                    launchApp()
+            }
+            .addOnFailureListener {
                 launchApp()
-        }
+            }
     }
 
     /**
@@ -275,12 +281,30 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
      */
     private fun launchApp() {
         runBlocking {
-            delay(1500)
+            delay(500)
             if(user.id != null)
                 startActivity(Intent(this@SplashScreen, MainActivity::class.java))
             else
                 startActivity(Intent(this@SplashScreen, ConnectActivity::class.java))
         }
+    }
+
+    /**
+     * Function to set locale language for the application
+     *
+     * No-any params required
+     */
+    private fun setLocale() {
+        val userLanguage = user.language
+        val locale = if(userLanguage != null)
+            Locale.forLanguageTag(userLanguage)
+        else
+            Locale.getDefault()
+        Locale.setDefault(locale)
+        val resources = context.resources
+        val configuration = resources.configuration
+        configuration.locale = locale
+        resources.updateConfiguration(configuration, resources.displayMetrics)
     }
 
 }

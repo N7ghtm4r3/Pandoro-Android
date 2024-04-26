@@ -34,13 +34,25 @@ import co.yml.charts.ui.piechart.models.PieChartConfig
 import co.yml.charts.ui.piechart.models.PieChartData
 import com.tecknobit.apimanager.trading.TradingTools.computeProportion
 import com.tecknobit.pandoro.R.string
-import com.tecknobit.pandoro.R.string.*
+import com.tecknobit.pandoro.R.string.average_development_days
+import com.tecknobit.pandoro.R.string.average_development_time
+import com.tecknobit.pandoro.R.string.best_performance
+import com.tecknobit.pandoro.R.string.by_me
+import com.tecknobit.pandoro.R.string.description
+import com.tecknobit.pandoro.R.string.development_days
+import com.tecknobit.pandoro.R.string.group
+import com.tecknobit.pandoro.R.string.in_development
+import com.tecknobit.pandoro.R.string.name
+import com.tecknobit.pandoro.R.string.no_projects_yet
+import com.tecknobit.pandoro.R.string.personal
+import com.tecknobit.pandoro.R.string.projects_performance
+import com.tecknobit.pandoro.R.string.published
+import com.tecknobit.pandoro.R.string.scheduled
+import com.tecknobit.pandoro.R.string.updates
+import com.tecknobit.pandoro.R.string.updates_number
+import com.tecknobit.pandoro.R.string.updates_status
+import com.tecknobit.pandoro.R.string.worst_performance
 import com.tecknobit.pandoro.helpers.ColoredBorder
-import com.tecknobit.pandoro.helpers.ui.OverviewUIHelper
-import com.tecknobit.pandoro.records.Project
-import com.tecknobit.pandoro.records.ProjectUpdate.Status
-import com.tecknobit.pandoro.records.ProjectUpdate.Status.*
-import com.tecknobit.pandoro.records.users.PublicUser
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroCard
@@ -48,6 +60,13 @@ import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
+import com.tecknobit.pandorocore.records.Project
+import com.tecknobit.pandorocore.records.ProjectUpdate.Status
+import com.tecknobit.pandorocore.records.ProjectUpdate.Status.IN_DEVELOPMENT
+import com.tecknobit.pandorocore.records.ProjectUpdate.Status.PUBLISHED
+import com.tecknobit.pandorocore.records.ProjectUpdate.Status.SCHEDULED
+import com.tecknobit.pandorocore.records.users.PublicUser
+import com.tecknobit.pandorocore.ui.OverviewUIHelper
 
 /**
  * The **OverviewScreen** class is useful to show the overview performance of the user

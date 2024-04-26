@@ -27,14 +27,12 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -50,16 +48,15 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.SpaceContent
-import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.Project
-import com.tecknobit.pandoro.records.structures.PandoroItem
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.Project
+import com.tecknobit.pandorocore.records.structures.PandoroItem
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -94,23 +91,17 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
     protected fun ShowData(
         content: LazyListScope.() -> Unit
     ) {
-        coroutine = rememberCoroutineScope()
-        snackbarHostState = remember { SnackbarHostState() }
-        Scaffold(
-            snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) }
-        ) {
-            LazyColumn(
-                modifier = Modifier.padding(
-                    top = 168.dp,
-                    bottom = 16.dp,
-                    end = 16.dp,
-                    start = 16.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(bottom = 10.dp),
-                content = content
-            )
-        }
+        LazyColumn(
+            modifier = Modifier.padding(
+                top = 168.dp,
+                bottom = 16.dp,
+                end = 16.dp,
+                start = 16.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(bottom = 10.dp),
+            content = content
+        )
     }
 
     /**
@@ -304,8 +295,8 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
      */
     override fun showSnack(message: String) {
         showSnack(
-            scope = Screen.scope,
-            snackbarHostState = Screen.snackbarHostState,
+            scope = coroutine,
+            snackbarHostState = snackbarHostState,
             message = message
         )
     }

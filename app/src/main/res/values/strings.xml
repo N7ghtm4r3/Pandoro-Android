@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">Pandoro</string>
-    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="app_name" translatable="false">Pandoro</string>
     <string name="frequent_projects">Frequent projects</string>
     <string name="current_projects">Current projects</string>
     <string name="delete_project">Delete project</string>
@@ -8,7 +7,7 @@
     <string name="notes">Notes</string>
     <string name="overview">Overview</string>
     <string name="profile">Profile</string>
-    <string name="delete_text_dialog">If you confirm this changelogEvent the project and its all information will be deleted and no more recoverable, confirm?</string>
+    <string name="delete_text_dialog">If you confirm this event the project and its all information will be deleted and no more recoverable, confirm?</string>
     <string name="dismiss">Dismiss</string>
     <string name="confirm">Confirm</string>
     <string name="no_projects_found">No projects found</string>
@@ -21,7 +20,6 @@
     <string name="project_repository">Project repository</string>
     <string name="add_to_a_group">Add to a group</string>
     <string name="edit">Edit</string>
-    <string name="edit_caps">Edit</string>
     <string name="project">project</string>
     <string name="to_a_group">to a group</string>
     <string name="creation_date">Creation date:</string>
@@ -65,7 +63,7 @@
     <string name="email_of_the_member">Email of the member</string>
     <string name="members_of_the_group">Members of the group</string>
     <string name="details_of_the_group">Details of the group</string>
-    <string name="author">"Author: "</string>
+    <string name="author">Author: </string>
     <string name="last_update">Last update:</string>
     <string name="update_id">Id:</string>
     <string name="started_by">Started by:</string>
@@ -88,7 +86,6 @@
     <string name="groups">Groups</string>
     <string name="stats">Stats</string>
     <string name="total_development_days">Total development days:</string>
-    <string name="title_activity_group">GroupActivity</string>
     <string name="members">Members</string>
     <string name="remove_the_user_from">Remove the user from</string>
     <string name="remove_user_text">If you confirm this event, the user will be removed from the group and will no longer have access to the contents of that group</string>
@@ -97,7 +94,6 @@
     <string name="delete_group_text">If you confirm this event, the group and all its information will be deleted and no more recoverable</string>
     <string name="delete_group">Delete group</string>
     <string name="add_new_members">Add new members</string>
-    <string name="title_activity_connect">ConnectActivity</string>
     <string name="server_address">Server address</string>
     <string name="have_an_account">Have an account?</string>
     <string name="are_you_new_to_pandoro">Are you new to Pandoro?</string>
@@ -136,4 +132,9 @@
     <string name="server_secret">Server secret</string>
     <string name="you_must_insert_a_correct_server_secret">You must insert a correct server secret</string>
     <string name="copy_note">Copy</string>
+    <string name="export_notes">Export notes</string>
+    <string name="notes_formatted_in_markdown_copied">Notes formatted in markdown copied!</string>
+    <string name="total_change_notes">Total change notes:</string>
+    <string name="language">Language</string>
+    <string name="change_language">Change language</string>
 </resources>

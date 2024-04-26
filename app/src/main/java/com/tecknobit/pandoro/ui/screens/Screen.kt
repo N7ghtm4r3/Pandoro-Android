@@ -35,16 +35,14 @@ import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
-import com.tecknobit.pandoro.helpers.isContentNoteValid
-import com.tecknobit.pandoro.helpers.isEmailValid
-import com.tecknobit.pandoro.helpers.isPasswordValid
-import com.tecknobit.pandoro.records.Group
-import com.tecknobit.pandoro.records.Project
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.Project
 import com.tecknobit.pandoro.ui.activities.GroupActivity
 import com.tecknobit.pandoro.ui.activities.ProjectActivity
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import com.tecknobit.pandorocore.helpers.*
 import kotlinx.coroutines.CoroutineScope
 
 /**
