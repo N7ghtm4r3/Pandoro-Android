@@ -332,7 +332,7 @@ class ProjectDialogs : PandoroDialog() {
         CreatePandoroDialog(
             show = show,
             title = stringResource(schedule_update),
-            customWeight = 2.5f,
+            customWeight = 2f,
             confirmText = stringResource(schedule),
             requestLogic = {
                 if (isValidVersion(targetVersion)) {

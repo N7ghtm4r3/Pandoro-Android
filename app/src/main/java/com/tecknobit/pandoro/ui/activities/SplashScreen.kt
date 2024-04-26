@@ -295,7 +295,11 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
      * No-any params required
      */
     private fun setLocale() {
-        val locale = Locale.forLanguageTag(user.language)
+        val userLanguage = user.language
+        val locale = if(userLanguage != null)
+            Locale.forLanguageTag(userLanguage)
+        else
+            Locale.getDefault()
         Locale.setDefault(locale)
         val resources = context.resources
         val configuration = resources.configuration

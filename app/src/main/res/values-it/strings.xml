@@ -11,11 +11,11 @@
     <string name="dismiss">Annulla</string>
     <string name="confirm">Conferma</string>
     <string name="no_projects_found">Nessun progetto trovato</string>
-    <string name="add_a_new_project">Aggiungi un nuovo progetto</string>
+    <string name="add_a_new_project">Aggiungi progetto</string>
     <string name="add">Aggiungi</string>
     <string name="name">Nome</string>
     <string name="description">Descrizione</string>
-    <string name="short_description">Breve descrizione</string>
+    <string name="short_description">Descrizione breve</string>
     <string name="version">Versione</string>
     <string name="project_repository">Repository del progetto</string>
     <string name="add_to_a_group">Aggiungi ad un gruppo</string>
@@ -48,7 +48,7 @@
     <string name="average_development_days">Giorni medi di sviluppo</string>
     <string name="surname">Cognome</string>
     <string name="email">E-mail</string>
-    <string name="password">Parola d\'ordine</string>
+    <string name="password">Password</string>
     <string name="logout">Logout</string>
     <string name="delete">Elimina</string>
     <string name="profile_details">Dettagli profilo</string>
@@ -70,7 +70,7 @@
     <string name="start_date">Data di inizio:</string>
     <string name="published_by">Pubblicato da:</string>
     <string name="publish_date">Data di pubblicazione:</string>
-    <string name="update_info">Aggiornamento info</string>
+    <string name="update_info">Info aggiornamento</string>
     <string name="change_notes">Change notes</string>
     <string name="development_duration">Durata dello sviluppo:</string>
     <string name="days">giorni</string>
@@ -79,7 +79,7 @@
     <string name="publish">Pubblica</string>
     <string name="delete_update">Cancella l\'aggiornamento</string>
     <string name="delete_update_text">Se confermi questo evento l\'aggiornamento e tutte le sue informazioni saranno cancellate e non più recuperabili, confermi\?</string>
-    <string name="marked_as_done_by">Contrassegnato come fatto da:</string>
+    <string name="marked_as_done_by">Contrassegnata come fatta da:</string>
     <string name="schedule_update">Nuovo\naggiornamento</string>
     <string name="schedule">Conferma</string>
     <string name="target_version">Versione target</string>
@@ -96,9 +96,9 @@
     <string name="add_new_members">Aggiungere nuovi membri</string>
     <string name="server_address">Indirizzo del server</string>
     <string name="have_an_account">Hai un account\?</string>
-    <string name="are_you_new_to_pandoro">Sei nuovo su Pandoro\?</string>
-    <string name="sign_up">Iscrizione</string>
-    <string name="sign_in">Registrazione</string>
+    <string name="are_you_new_to_pandoro">Sei nuov su Pandoro\?</string>
+    <string name="sign_up">Iscriviti</string>
+    <string name="sign_in">Login</string>
     <string name="welcome_back">Bentornat</string>
     <string name="hello">Ciao</string>
     <string name="edit_the_groups_projects">Modifica i progetti dei gruppi</string>

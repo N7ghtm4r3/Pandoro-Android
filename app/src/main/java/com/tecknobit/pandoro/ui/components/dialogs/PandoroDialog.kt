@@ -69,7 +69,7 @@ open class PandoroDialog : SnackbarLauncher {
     fun CreatePandoroDialog(
         show: MutableState<Boolean>,
         title: String,
-        customWeight: Float = 3f,
+        customWeight: Float = 2f,
         confirmText: String,
         requestLogic: () -> Unit,
         content: @Composable ColumnScope.() -> Unit
@@ -88,10 +88,12 @@ open class PandoroDialog : SnackbarLauncher {
                         snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) }
                     ) {
                         Surface(
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .fillMaxSize()
                         ) {
                             Column(
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier
+                                    .fillMaxSize()
                             ) {
                                 Row(
                                     modifier = Modifier

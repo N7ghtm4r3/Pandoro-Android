@@ -216,7 +216,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                             }
                                             Text(
                                                 modifier = Modifier.padding(end = 5.dp),
-                                                text = "v. 1.0.2",
+                                                text = "v. 1.0.3",
                                                 fontSize = 12.sp,
                                                 color = White,
                                             )
