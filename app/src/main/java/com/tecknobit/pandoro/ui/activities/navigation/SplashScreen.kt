@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -45,7 +46,9 @@ import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity
 import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity.LocalAuthHelper
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
+import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
 import com.tecknobit.pandoro.ui.screens.Screen
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
@@ -105,11 +108,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
          * **groupDialogs** the instance to manage the dialogs of the groups
          */
         //val groupDialogs = GroupDialogs()
-
-        /**
-         * **projectDialogs** the instance to manage the dialogs of the projects
-         */
-        //val projectDialogs = ProjectDialogs()
 
         /**
          * **pandoroModalSheet** the instance to manage the modal bottom sheets
@@ -172,6 +170,7 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         setContent {
             activeScreen = remember { mutableStateOf(Projects) }
             PandoroTheme {
+                snackbarHostState = remember { SnackbarHostState() }
                 context = LocalContext.current
                 reviewManager = ReviewManagerFactory.create(context)
                 Coil.imageLoader(context)

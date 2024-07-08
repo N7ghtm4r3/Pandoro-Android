@@ -72,13 +72,12 @@ import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.act
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.isRefreshing
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.openLink
-import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.requester
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.activities.viewmodels.ConnectViewModel
+import com.tecknobit.pandoro.ui.activities.viewmodels.PandoroViewModel.Companion.requester
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroTextField
-import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
-import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectsList
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
@@ -105,7 +104,7 @@ import org.json.JSONObject
  * @see ComponentActivity
  * @see SnackbarLauncher
  */
-class ConnectActivity : ComponentActivity(), SnackbarLauncher {
+class ConnectActivity : ComponentActivity() {
 
     /**
      * **scope** the coroutine to launch the snackbars
@@ -417,19 +416,6 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
     }
 
     /**
-     * Function to show a message with the [SnackbarHostState]
-     *
-     * @param message: the message to show
-     */
-    override fun showSnack(message: String) {
-        showSnack(
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            message = message
-        )
-    }
-
-    /**
      * This **LocalAuthHelper** class is useful to manage the credentials of the user in local
      *
      * @author Tecknobit - N7ghtm4r3
@@ -463,11 +449,13 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                         .put(PASSWORD_KEY, preferences.getString(PASSWORD_KEY, null))
                         .put(LANGUAGE_KEY, preferences.getString(LANGUAGE_KEY, DEFAULT_LANGUAGE))
                 )
-                requester = PandoroRequester(host!!, userId, userToken)
-            } else {
-                requester = null
+                requester = PandoroRequester(
+                    host = host!!,
+                    userId = userId,
+                    userToken = userToken
+                )
+            } else
                 user = User()
-            }
         }
 
         /**
@@ -518,10 +506,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
          */
         override fun logout() {
             preferences.edit().clear().apply()
-            projectsList.clear()
-            /*notes.clear()
-            changelogs.clear()*/
-            groups.clear()
+            /*notes.clear()*/
             isRefreshing.value = false
             context.startActivity(Intent(context, ConnectActivity::class.java))
         }

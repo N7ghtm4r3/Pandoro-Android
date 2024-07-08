@@ -39,6 +39,7 @@ import com.tecknobit.pandoro.R.string.confirm
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
 import com.tecknobit.pandorocore.records.Group
@@ -124,6 +125,8 @@ abstract class Screen: SnackbarLauncher {
      */
     protected var sheetInputValue = mutableStateOf("")
 
+    protected lateinit var keepsnackbarHostState: SnackbarHostState
+
     /**
      * Function to show the content screen
      *
@@ -168,7 +171,7 @@ abstract class Screen: SnackbarLauncher {
         scrollEnabled: Boolean
     ) {
         scope = rememberCoroutineScope()
-        snackbarHostState = remember { SnackbarHostState() }
+        keepsnackbarHostState = remember { SnackbarHostState() }
         var modifier = Modifier
             .fillMaxSize()
             .padding(
@@ -178,7 +181,8 @@ abstract class Screen: SnackbarLauncher {
                 start = 16.dp
             )
         if (scrollEnabled)
-            modifier = modifier.verticalScroll(rememberScrollState())
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
         Scaffold(
             snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) }
         ) {

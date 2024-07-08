@@ -43,6 +43,9 @@ import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.act
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.isRefreshing
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showAddGroupButton
+import com.tecknobit.pandoro.ui.screens.ProjectsScreen
+import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
@@ -64,11 +67,6 @@ import com.tecknobit.pandoro.ui.theme.PrimaryLight
 class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager*/ {
 
     /**
-     * **projectsScreen** -> the screen to show the projects
-     */
-    //private val projectsScreen = ProjectsScreen()
-
-    /**
      * **notesScreen** -> the screen to show the notes
      */
     //private val notesScreen = NotesScreen()
@@ -85,6 +83,13 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
 
     private val viewModel = MainActivityViewModel(
         snackbarHostState = snackbarHostState
+    )
+
+    /**
+     * **projectsScreen** -> the screen to show the projects
+     */
+    private val projectsScreen = ProjectsScreen(
+        viewModel = viewModel
     )
 
     /**
@@ -165,13 +170,13 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
                     bottomBar = navigationHelper.getNavigationBar(),
                     floatingActionButton = {
                         if (activeScreen.value != Overview) {
-                            if (activeScreen.value != Profile
-                                || (activeScreen.value == Profile /*&& showAddGroupButton.value*/)
+                            if (activeScreen.value != Profile ||
+                                (activeScreen.value == Profile && showAddGroupButton.value)
                             ) {
                                 FloatingActionButton(
                                     onClick = {
                                         when (activeScreen.value) {
-                                            // Projects -> showAddProjectDialog.value = true
+                                            Projects -> showAddProjectDialog.value = true
                                             //Notes -> showAddNoteSheet.value = true
                                             //Profile -> showCreateGroup.value = true
                                             else -> {}
@@ -189,11 +194,11 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
                 ) {
                     when(activeScreen.value) {
                         Projects -> {
+                            projectsScreen.ShowScreen()
                             if(!isRefreshing.value) {
                                 viewModel.refreshValues()
                                 isRefreshing.value = true
                             }
-                            //projectsScreen.ShowScreen()
                         }
                         Notes -> /*notesScreen.ShowScreen()*/ ""
                         Overview -> /*overviewScreen.ShowScreen()*/ ""

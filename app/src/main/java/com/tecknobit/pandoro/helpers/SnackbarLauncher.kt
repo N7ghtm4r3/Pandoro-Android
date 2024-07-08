@@ -17,21 +17,7 @@ import kotlinx.coroutines.launch
  */
 interface SnackbarLauncher {
 
-    /**
-     * Function to create an host to manage the snackbars
-     *
-     * @param hostState: the host to manage the launch of the snackbars
-     */
-    @Composable
-    fun CreateSnackbarHost(hostState: SnackbarHostState) {
-        SnackbarHost(hostState = hostState) {
-            Snackbar(
-                containerColor = BackgroundLight,
-                contentColor = PrimaryLight,
-                snackbarData = it
-            )
-        }
-    }
+
 
     /**
      * Function to show a message with the [SnackbarHostState]

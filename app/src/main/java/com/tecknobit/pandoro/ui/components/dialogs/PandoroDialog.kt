@@ -21,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
@@ -42,7 +42,7 @@ import kotlinx.coroutines.CoroutineScope
  * @author N7ghtm4r3 - Tecknobit
  * @see SnackbarLauncher
  */
-open class PandoroDialog : SnackbarLauncher {
+open class PandoroDialog {
 
     /**
      * **scope** the coroutine to launch the snackbars
@@ -52,7 +52,7 @@ open class PandoroDialog : SnackbarLauncher {
     /**
      * **snackbarHostState** the host to launch the snackbars
      */
-    private lateinit var snackbarHostState: SnackbarHostState
+    protected lateinit var snackbarHostState: SnackbarHostState
 
     /**
      * Function to create a Pandoro's custom dialog
@@ -77,7 +77,6 @@ open class PandoroDialog : SnackbarLauncher {
         if (show.value) {
             PandoroTheme {
                 scope = rememberCoroutineScope()
-                snackbarHostState = remember { SnackbarHostState() }
                 Dialog(
                     onDismissRequest = { show.value = false },
                     properties = DialogProperties(
@@ -148,19 +147,6 @@ open class PandoroDialog : SnackbarLauncher {
                 }
             }
         }
-    }
-
-    /**
-     * Function to show a message with the [SnackbarHostState]
-     *
-     * @param message: the message to show
-     */
-    override fun showSnack(message: String) {
-        showSnack(
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            message = message
-        )
     }
 
 }

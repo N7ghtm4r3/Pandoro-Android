@@ -16,6 +16,9 @@ import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,7 +35,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecknobit.pandoro.R
+import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.CustomGrayColor
+import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.fontFamily
 
 /**
@@ -255,6 +260,24 @@ fun PandoroAlertDialog(
                     }
                 )
             }
+        )
+    }
+}
+
+/**
+ * Function to create an host to manage the snackbars
+ *
+ * @param hostState: the host to manage the launch of the snackbars
+ */
+@Composable
+fun CreateSnackbarHost(
+    hostState: SnackbarHostState
+) {
+    SnackbarHost(hostState = hostState) {
+        Snackbar(
+            containerColor = BackgroundLight,
+            contentColor = PrimaryLight,
+            snackbarData = it
         )
     }
 }

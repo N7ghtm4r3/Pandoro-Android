@@ -1,10 +1,60 @@
 package com.tecknobit.pandoro.ui.screens
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tecknobit.pandoro.R.string.current_projects
+import com.tecknobit.pandoro.R.string.delete_project
+import com.tecknobit.pandoro.R.string.delete_text_dialog
+import com.tecknobit.pandoro.R.string.frequent_projects
+import com.tecknobit.pandoro.R.string.no_projects_found
+import com.tecknobit.pandoro.R.string.search
+import com.tecknobit.pandoro.ui.activities.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
+import com.tecknobit.pandoro.ui.components.PandoroCard
+import com.tecknobit.pandoro.ui.components.PandoroTextField
+import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
+import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandorocore.records.Project
+import com.tecknobit.pandorocore.ui.filterProjects
+import com.tecknobit.pandorocore.ui.populateFrequentProjects
 
 /**
  * The **ProjectsScreen** class is useful to show the projects of the user
@@ -12,14 +62,12 @@ import com.tecknobit.pandorocore.records.Project
  * @author N7ghtm4r3 - Tecknobit
  * @see Screen
  */
-class ProjectsScreen: Screen() {
+// TODO: TO COMMENT
+class ProjectsScreen(
+    val viewModel: MainActivityViewModel
+): Screen() {
 
     companion object {
-
-        /**
-         * **projectsList** -> the list of the projects
-         */
-        val projectsList: SnapshotStateList<Project> = mutableStateListOf()
 
         /**
          * **showAddProjectDialog** -> the flag to show the dialog to create a new project
@@ -34,17 +82,10 @@ class ProjectsScreen: Screen() {
     }
 
     /**
-     * Function to show the content screen
-     *
-     * No any params required
+     * **projectDialogs** the instance to manage the dialogs of the projects
      */
-    @Composable
-    override fun ShowScreen() {
-        TODO("TO REMOVE")
-    }
+    private lateinit var projectDialogs: ProjectDialogs
 
-}
-    /*
     /**
      * Function to show the content screen
      *
@@ -54,7 +95,9 @@ class ProjectsScreen: Screen() {
     override fun ShowScreen() {
         showAddProjectDialog = rememberSaveable { mutableStateOf(false) }
         showEditProjectDialog = rememberSaveable { mutableStateOf(false) }
+        val projectsList = viewModel.projects.collectAsState()
         SetScreen {
+            projectDialogs = ProjectDialogs()
             projectDialogs.AddNewProject()
             Column(
                 modifier = Modifier
@@ -62,16 +105,16 @@ class ProjectsScreen: Screen() {
                     .fillMaxSize()
             ) {
                 Text(
-                    text = stringResource(string.frequent_projects),
+                    text = stringResource(frequent_projects),
                     fontSize = 20.sp
                 )
-                var filterFrequentQuery by remember { mutableStateOf("") }
-                val frequentProjects = filterProjects(filterFrequentQuery,
-                    populateFrequentProjects(projectsList)).toMutableStateList()
+                val filterFrequentQuery = remember { mutableStateOf("") }
+                val frequentProjects = filterProjects(
+                    query = filterFrequentQuery.value,
+                    list = populateFrequentProjects(projectsList.value)
+                ).toMutableStateList()
                 SearchField(
-                    query = filterFrequentQuery,
-                    onValueChange = { filterFrequentQuery = it },
-                    onClear = { filterFrequentQuery = "" }
+                    query = filterFrequentQuery
                 )
                 if (frequentProjects.isEmpty())
                     NoProjectsFound()
@@ -99,16 +142,17 @@ class ProjectsScreen: Screen() {
                     .fillMaxSize()
                     .padding(top = 10.dp)
             ) {
-                var filterQuery by remember { mutableStateOf("") }
-                val currentProjects = filterProjects(filterQuery, projectsList).toMutableStateList()
+                val filterQuery = remember { mutableStateOf("") }
+                val currentProjects = filterProjects(
+                    filterQuery.value,
+                    projectsList.value
+                ).toMutableStateList()
                 Text(
-                    text = stringResource(string.current_projects),
+                    text = stringResource(current_projects),
                     fontSize = 20.sp
                 )
                 SearchField(
-                    query = filterQuery,
-                    onValueChange = { filterQuery = it },
-                    onClear = { filterQuery = "" }
+                    query = filterQuery
                 )
                 if (currentProjects.isEmpty())
                     NoProjectsFound()
@@ -137,14 +181,10 @@ class ProjectsScreen: Screen() {
      * Function to create the search field to filter the projects list
      *
      * @param query: the query to filter the projects list
-     * @param onValueChange: the action to execute when the query value change
-     * @param onClear: the action to execute to clear the query value
      */
     @Composable
     private fun SearchField(
-        query: String,
-        onValueChange: (String) -> Unit,
-        onClear: () -> Unit
+        query: MutableState<String>
     ) {
         PandoroTextField(
             modifier = Modifier
@@ -156,15 +196,20 @@ class ProjectsScreen: Screen() {
                     width = 250.dp,
                     height = 55.dp
                 ),
-            label = stringResource(string.search),
-            onValueChange = onValueChange,
+            label = stringResource(search),
             value = query,
             trailingIcon = {
                 Icon(
-                    modifier = if (query.isNotEmpty()) {
-                        Modifier.clickable { onClear.invoke() }
-                    } else Modifier,
-                    imageVector = if (query.isEmpty()) Default.Search else Default.Clear,
+                    modifier = Modifier
+                        .clickable(
+                            enabled = query.value.isNotEmpty()
+                        ) {
+                            query.value = ""
+                        },
+                    imageVector = if (query.value.isEmpty())
+                        Icons.Default.Search
+                    else
+                        Icons.Default.Clear,
                     contentDescription = null,
                 )
             }
@@ -202,7 +247,8 @@ class ProjectsScreen: Screen() {
                         .padding(15.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
@@ -219,7 +265,7 @@ class ProjectsScreen: Screen() {
                                         onClick = { showEditProjectDialog.value = true }
                                     ) {
                                         Icon(
-                                            imageVector = Default.Edit,
+                                            imageVector = Icons.Default.Edit,
                                             contentDescription = null
                                         )
                                     }
@@ -229,7 +275,7 @@ class ProjectsScreen: Screen() {
                                         onClick = { showDeleteDialog.value = true }
                                     ) {
                                         Icon(
-                                            imageVector = Default.Delete,
+                                            imageVector = Icons.Default.Delete,
                                             contentDescription = null,
                                             tint = ErrorLight
                                         )
@@ -240,10 +286,12 @@ class ProjectsScreen: Screen() {
                                     title = delete_project,
                                     text = delete_text_dialog,
                                     requestLogic = {
-                                        showDeleteDialog.value = false
-                                        requester!!.execDeleteProject(project.id)
-                                        if(!requester!!.successResponse())
-                                            showSnack(requester!!.errorMessage())
+                                        viewModel.deleteProject(
+                                            project = project,
+                                            onSuccess = {
+                                                showDeleteDialog.value = false
+                                            }
+                                        )
                                     }
                                 )
                             } else {
@@ -265,7 +313,7 @@ class ProjectsScreen: Screen() {
                                 onClick = { showOptions = !showOptions }
                             ) {
                                 Icon(
-                                    imageVector = Default.MoreVert,
+                                    imageVector = Icons.Default.MoreVert,
                                     contentDescription = null
                                 )
                             }
@@ -299,7 +347,7 @@ class ProjectsScreen: Screen() {
                             ) {
                                 Icon(
                                     modifier = Modifier.size(24.dp),
-                                    imageVector = Default.Group,
+                                    imageVector = Icons.Default.Group,
                                     contentDescription = null
                                 )
                             }
@@ -310,4 +358,4 @@ class ProjectsScreen: Screen() {
         )
     }
 
-}*/
+}

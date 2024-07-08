@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.tecknobit.pandorocore.records.Changelog
 import com.tecknobit.pandorocore.records.Group
 
 /**
@@ -36,11 +35,6 @@ class ProfileScreen: Screen() {
          * **showCreateGroup** -> whether show the add group dialog
          */
         lateinit var showCreateGroup: MutableState<Boolean>
-
-        /**
-         * **changelogs** -> the list of the changelogs
-         */
-        val changelogs = mutableStateListOf<Changelog>()
 
         /**
          * **groups** -> the list of the groups
