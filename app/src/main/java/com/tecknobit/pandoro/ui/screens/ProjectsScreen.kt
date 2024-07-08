@@ -1,59 +1,10 @@
 package com.tecknobit.pandoro.ui.screens
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons.Default
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.tecknobit.pandoro.R.string
-import com.tecknobit.pandoro.R.string.delete_project
-import com.tecknobit.pandoro.R.string.delete_text_dialog
-import com.tecknobit.pandoro.R.string.no_projects_found
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
-import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.components.PandoroTextField
-import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandorocore.records.Project
-import com.tecknobit.pandorocore.ui.filterProjects
-import com.tecknobit.pandorocore.ui.populateFrequentProjects
 
 /**
  * The **ProjectsScreen** class is useful to show the projects of the user
@@ -82,6 +33,18 @@ class ProjectsScreen: Screen() {
 
     }
 
+    /**
+     * Function to show the content screen
+     *
+     * No any params required
+     */
+    @Composable
+    override fun ShowScreen() {
+        TODO("TO REMOVE")
+    }
+
+}
+    /*
     /**
      * Function to show the content screen
      *
@@ -347,4 +310,4 @@ class ProjectsScreen: Screen() {
         )
     }
 
-}
+}*/

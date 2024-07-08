@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities
+package com.tecknobit.pandoro.ui.activities.navigation
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -41,15 +41,15 @@ import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.tecknobit.pandoro.R
-import com.tecknobit.pandoro.helpers.AndroidRequester
-import com.tecknobit.pandoro.ui.activities.ConnectActivity.LocalAuthHelper
-import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
+import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity
+import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity.LocalAuthHelper
+import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
-import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
 import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
+import com.tecknobit.pandorocore.helpers.PandoroRequester
 import com.tecknobit.pandorocore.records.users.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -94,7 +94,7 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         /**
          * **requester** -> the stance to manage the requests with the backend
          */
-        var requester: AndroidRequester? = null
+        var requester: PandoroRequester? = null
 
         /**
          * **activeScreen** -> the active screen to show
@@ -104,12 +104,12 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         /**
          * **groupDialogs** the instance to manage the dialogs of the groups
          */
-        val groupDialogs = GroupDialogs()
+        //val groupDialogs = GroupDialogs()
 
         /**
          * **projectDialogs** the instance to manage the dialogs of the projects
          */
-        val projectDialogs = ProjectDialogs()
+        //val projectDialogs = ProjectDialogs()
 
         /**
          * **pandoroModalSheet** the instance to manage the modal bottom sheets

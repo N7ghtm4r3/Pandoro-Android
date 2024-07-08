@@ -32,17 +32,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.tecknobit.apimanager.annotations.Structure
+import com.tecknobit.equinox.inputs.InputValidator.isEmailValid
+import com.tecknobit.equinox.inputs.InputValidator.isPasswordValid
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
 import com.tecknobit.pandorocore.records.Group
 import com.tecknobit.pandorocore.records.Project
-import com.tecknobit.pandoro.ui.activities.GroupActivity
-import com.tecknobit.pandoro.ui.activities.ProjectActivity
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
-import com.tecknobit.pandorocore.helpers.*
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -288,7 +288,7 @@ abstract class Screen: SnackbarLauncher {
      */
     fun navToProject(project: Project) {
         currentProject.value = project
-        navTo(ProjectActivity::class.java)
+        //navTo(ProjectActivity::class.java)
     }
 
     /**
@@ -298,7 +298,7 @@ abstract class Screen: SnackbarLauncher {
      */
     fun navToGroup(group: Group) {
         currentGroup.value = group
-        navTo(GroupActivity::class.java)
+        //navTo(GroupActivity::class.java)
     }
 
     /**

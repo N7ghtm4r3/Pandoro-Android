@@ -1,82 +1,6 @@
 package com.tecknobit.pandoro.ui.components.dialogs
 
-import android.annotation.SuppressLint
-import android.content.Intent
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.tecknobit.pandoro.R
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_group_description
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_group_name
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_members_list
-import com.tecknobit.pandoro.R.string.you_must_insert_one_member_at_least
-import com.tecknobit.pandoro.ui.activities.MainActivity
-import com.tecknobit.pandoro.ui.activities.ProjectActivity
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
-import com.tecknobit.pandoro.ui.components.PandoroTextField
-import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
-import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
-import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
-import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
-import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandoro.ui.theme.PrimaryLight
-import com.tecknobit.pandorocore.helpers.checkMembersValidity
-import com.tecknobit.pandorocore.helpers.isEmailValid
-import com.tecknobit.pandorocore.helpers.isGroupDescriptionValid
-import com.tecknobit.pandorocore.helpers.isGroupNameValid
-import com.tecknobit.pandorocore.records.Group
-import com.tecknobit.pandorocore.records.users.GroupMember
-import com.tecknobit.pandorocore.records.users.GroupMember.InvitationStatus.PENDING
-import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
-
+/*
 /**
  * The **GroupDialogs** class is useful to create the groups dialogs
  *
@@ -481,4 +405,4 @@ class GroupDialogs : PandoroDialog() {
         )
     }
 
-}
+}*/

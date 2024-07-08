@@ -1,9 +1,6 @@
 package com.tecknobit.pandoro.helpers.refreshers
 
-import com.google.gson.Gson
-import com.tecknobit.pandorocore.records.structures.PandoroItemStructure
-import com.tecknobit.pandorocore.ui.SingleItemManager
-
+/*
 /**
  * The **AndroidSingleItemManager** interface is useful to manage a single item in the UI
  *
@@ -34,4 +31,4 @@ interface AndroidSingleItemManager: SingleItemManager {
         return gson.toJson(currentItem) != gson.toJson(newItem)
     }
 
-}
+}*/

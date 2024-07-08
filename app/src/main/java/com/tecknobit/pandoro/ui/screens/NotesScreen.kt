@@ -1,69 +1,6 @@
 package com.tecknobit.pandoro.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.Icons.Default
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.twotone.Done
-import androidx.compose.material.icons.twotone.RemoveDone
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration.Companion.LineThrough
-import androidx.compose.ui.unit.dp
-import com.tecknobit.pandoro.R.string.content
-import com.tecknobit.pandoro.R.string.create
-import com.tecknobit.pandoro.R.string.create_a_new_note
-import com.tecknobit.pandoro.R.string.creation_date
-import com.tecknobit.pandoro.R.string.date_of_mark
-import com.tecknobit.pandoro.R.string.insert_a_correct_content
-import com.tecknobit.pandoro.R.string.no_any_personal_notes
-import com.tecknobit.pandoro.R.string.note_info
-import com.tecknobit.pandoro.helpers.copyNote
-import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
-import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
-import com.tecknobit.pandoro.ui.theme.IceGrayColor
-import com.tecknobit.pandorocore.helpers.isContentNoteValid
-import com.tecknobit.pandorocore.records.Note
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import me.saket.swipe.SwipeAction
-import me.saket.swipe.SwipeableActionsBox
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
-
+/*
 /**
  * The **NotesScreen** class is useful to show the notes of the user
  *
@@ -270,4 +207,4 @@ class NotesScreen: Screen(), AndroidListManager {
         }
     }
 
-}
+}*/

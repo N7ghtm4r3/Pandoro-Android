@@ -1,73 +1,6 @@
 package com.tecknobit.pandoro.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import co.yml.charts.common.model.PlotType
-import co.yml.charts.ui.piechart.charts.DonutPieChart
-import co.yml.charts.ui.piechart.models.PieChartConfig
-import co.yml.charts.ui.piechart.models.PieChartData
-import com.tecknobit.apimanager.trading.TradingTools.computeProportion
-import com.tecknobit.pandoro.R.string
-import com.tecknobit.pandoro.R.string.average_development_days
-import com.tecknobit.pandoro.R.string.average_development_time
-import com.tecknobit.pandoro.R.string.best_performance
-import com.tecknobit.pandoro.R.string.by_me
-import com.tecknobit.pandoro.R.string.description
-import com.tecknobit.pandoro.R.string.development_days
-import com.tecknobit.pandoro.R.string.group
-import com.tecknobit.pandoro.R.string.in_development
-import com.tecknobit.pandoro.R.string.name
-import com.tecknobit.pandoro.R.string.no_projects_yet
-import com.tecknobit.pandoro.R.string.personal
-import com.tecknobit.pandoro.R.string.projects_performance
-import com.tecknobit.pandoro.R.string.published
-import com.tecknobit.pandoro.R.string.scheduled
-import com.tecknobit.pandoro.R.string.updates
-import com.tecknobit.pandoro.R.string.updates_number
-import com.tecknobit.pandoro.R.string.updates_status
-import com.tecknobit.pandoro.R.string.worst_performance
-import com.tecknobit.pandoro.helpers.ColoredBorder
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
-import com.tecknobit.pandoro.ui.theme.PrimaryLight
-import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
-import com.tecknobit.pandorocore.records.Project
-import com.tecknobit.pandorocore.records.ProjectUpdate.Status
-import com.tecknobit.pandorocore.records.ProjectUpdate.Status.IN_DEVELOPMENT
-import com.tecknobit.pandorocore.records.ProjectUpdate.Status.PUBLISHED
-import com.tecknobit.pandorocore.records.ProjectUpdate.Status.SCHEDULED
-import com.tecknobit.pandorocore.records.users.PublicUser
-import com.tecknobit.pandorocore.ui.OverviewUIHelper
-
+/*
 /**
  * The **OverviewScreen** class is useful to show the overview performance of the user
  *
@@ -587,4 +520,4 @@ class OverviewScreen: Screen() {
         return "%.${decimals}f".format(this).replace(",", ".").toDouble()
     }
 
-}
+}*/

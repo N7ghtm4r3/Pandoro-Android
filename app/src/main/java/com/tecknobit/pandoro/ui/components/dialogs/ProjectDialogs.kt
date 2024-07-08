@@ -1,78 +1,6 @@
 package com.tecknobit.pandoro.ui.components.dialogs
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.tecknobit.pandoro.R.string
-import com.tecknobit.pandoro.R.string.add
-import com.tecknobit.pandoro.R.string.add_a_new_project
-import com.tecknobit.pandoro.R.string.add_to_a_group
-import com.tecknobit.pandoro.R.string.change_notes
-import com.tecknobit.pandoro.R.string.edit
-import com.tecknobit.pandoro.R.string.insert_a_correct_description
-import com.tecknobit.pandoro.R.string.insert_a_correct_name
-import com.tecknobit.pandoro.R.string.insert_a_correct_repository_url
-import com.tecknobit.pandoro.R.string.insert_a_correct_short_description
-import com.tecknobit.pandoro.R.string.insert_a_correct_target_version
-import com.tecknobit.pandoro.R.string.insert_a_correct_version
-import com.tecknobit.pandoro.R.string.project_repository
-import com.tecknobit.pandoro.R.string.schedule
-import com.tecknobit.pandoro.R.string.schedule_update
-import com.tecknobit.pandoro.R.string.short_description
-import com.tecknobit.pandoro.R.string.target_version
-import com.tecknobit.pandoro.R.string.to_a_group
-import com.tecknobit.pandoro.R.string.you_must_insert_correct_notes
-import com.tecknobit.pandoro.R.string.you_must_insert_one_note_at_least
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.components.PandoroTextField
-import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
-import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showEditProjectDialog
-import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandorocore.helpers.areNotesValid
-import com.tecknobit.pandorocore.helpers.isContentNoteValid
-import com.tecknobit.pandorocore.helpers.isValidProjectDescription
-import com.tecknobit.pandorocore.helpers.isValidProjectName
-import com.tecknobit.pandorocore.helpers.isValidProjectShortDescription
-import com.tecknobit.pandorocore.helpers.isValidRepository
-import com.tecknobit.pandorocore.helpers.isValidVersion
-import com.tecknobit.pandorocore.records.Group
-import com.tecknobit.pandorocore.records.Project
-
+/*
 /**
  * The **ProjectDialogs** class is useful to create the projects dialogs
  *
@@ -440,4 +368,4 @@ class ProjectDialogs : PandoroDialog() {
         }
     }
 
-}
+}*/

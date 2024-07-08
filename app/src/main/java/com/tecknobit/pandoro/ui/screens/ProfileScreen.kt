@@ -1,110 +1,11 @@
 package com.tecknobit.pandoro.ui.screens
 
-import android.content.Intent
-import android.net.Uri
-import android.provider.OpenableColumns
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Badge
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.BottomCenter
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.darkrockstudios.libraries.mpfilepicker.FilePicker
-import com.tecknobit.apimanager.formatters.JsonHelper
-import com.tecknobit.pandoro.R
-import com.tecknobit.pandoro.R.string
-import com.tecknobit.pandoro.R.string.change_email
-import com.tecknobit.pandoro.R.string.change_password
-import com.tecknobit.pandoro.R.string.new_email
-import com.tecknobit.pandoro.R.string.new_password
-import com.tecknobit.pandoro.R.string.no_any_changelogs
-import com.tecknobit.pandoro.R.string.no_any_groups
-import com.tecknobit.pandoro.R.string.profile_details
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
-import com.tecknobit.pandoro.helpers.Divide
-import com.tecknobit.pandoro.ui.activities.SplashScreen
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
-import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
-import com.tecknobit.pandoro.ui.theme.PrimaryLight
-import com.tecknobit.pandorocore.helpers.LANGUAGES_SUPPORTED
-import com.tecknobit.pandorocore.helpers.isEmailValid
-import com.tecknobit.pandorocore.helpers.isPasswordValid
 import com.tecknobit.pandorocore.records.Changelog
-import com.tecknobit.pandorocore.records.Changelog.ChangelogEvent.INVITED_GROUP
 import com.tecknobit.pandorocore.records.Group
-import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
-import com.tecknobit.pandorocore.records.users.GroupMember.Role.DEVELOPER
-import com.tecknobit.pandorocore.records.users.GroupMember.Role.MAINTAINER
-import com.tecknobit.pandorocore.records.users.PublicUser.PROFILE_PIC_KEY
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import kotlin.math.min
-
 
 /**
  * The **ProfileScreen** class is useful to show the profile of the user
@@ -148,6 +49,18 @@ class ProfileScreen: Screen() {
 
     }
 
+    /**
+     * Function to show the content screen
+     *
+     * No any params required
+     */
+    @Composable
+    override fun ShowScreen() {
+        TODO("TO REMOVE")
+    }
+
+}
+/*
     /**
      * Function to show the content screen
      *
@@ -889,4 +802,4 @@ class ProfileScreen: Screen() {
             showSnack(requester!!.errorMessage())
     }
 
-}
+}*/
