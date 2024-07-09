@@ -243,6 +243,7 @@ class ProjectsScreen(
                 height = 120.dp
             ),
             onClick = {
+                // TODO: FIX THE BACK FROM GROUPACTIVITY NAVIGATION STOPS REFRESHER 
                 navToProject(
                     project = project
                 )

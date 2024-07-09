@@ -431,6 +431,7 @@ class GroupDialogs : PandoroDialog() {
             group = group,
             nextAdmin = nextAdmin,
             onSuccess = {
+                // TODO: TO FIX BACK NAVIGATION 
                 currentGroup.value = null
                 if(currentProject.value != null)
                     ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)

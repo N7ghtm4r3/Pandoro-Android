@@ -183,6 +183,7 @@ fun PandoroOutlinedTextField(
  * Function to create a Pandoro's custom alert dialog
  *
  * @param show: whether show the alert dialog
+ * @param onDismissRequest: the action to execute when the alert dialog has been dismissed
  * @param title: the title of the alert dialog
  * @param extraTitle: the extra content for the title of the alert dialog
  * @param text: the text of the alert dialog
@@ -191,6 +192,7 @@ fun PandoroOutlinedTextField(
 @Composable
 fun PandoroAlertDialog(
     show: MutableState<Boolean>,
+    onDismissRequest: () -> Unit = { show.value = false },
     title: Int,
     extraTitle: String? = null,
     text: Int,
@@ -198,6 +200,7 @@ fun PandoroAlertDialog(
 ) {
     PandoroAlertDialog(
         show = show,
+        onDismissRequest = onDismissRequest,
         title = title,
         extraTitle = extraTitle,
         text = { Text(text = stringResource(text)) },
@@ -209,6 +212,7 @@ fun PandoroAlertDialog(
  * Function to create a Pandoro's custom alert dialog
  *
  * @param show: whether show the alert dialog
+ * @param onDismissRequest: the action to execute when the alert dialog has been dismissed
  * @param title: the title of the alert dialog
  * @param extraTitle: the extra content for the title of the alert dialog
  * @param text: the text of the alert dialog
@@ -217,6 +221,7 @@ fun PandoroAlertDialog(
 @Composable
 fun PandoroAlertDialog(
     show: MutableState<Boolean>,
+    onDismissRequest: () -> Unit = { show.value = false },
     title: Int,
     extraTitle: String? = null,
     text: @Composable () -> Unit,
@@ -224,7 +229,7 @@ fun PandoroAlertDialog(
 ) {
     if(show.value) {
         AlertDialog(
-            onDismissRequest = { show.value = false },
+            onDismissRequest = onDismissRequest,
             icon = {
                 Icon(
                     imageVector = Icons.Default.Info,
