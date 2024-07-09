@@ -76,6 +76,7 @@ import co.yml.charts.ui.barchart.models.BarChartData
 import co.yml.charts.ui.barchart.models.BarData
 import co.yml.charts.ui.barchart.models.BarStyle
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
+import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.drawable.github
 import com.tecknobit.pandoro.R.drawable.gitlab
 import com.tecknobit.pandoro.R.string
@@ -120,6 +121,7 @@ import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
@@ -798,13 +800,12 @@ class ProjectActivity : PandoroDataActivity() {
                             }
                         }
                         item {
-                            // TODO: TO UNCOMMENT
-                            /*ShowItemsList(
+                            ShowItemsList(
                                 show = showGroupsSection,
-                                headerTitle = groups,
+                                headerTitle = R.string.groups,
                                 itemsList = project.groups,
                                 clazz = GroupActivity::class.java
-                            )*/
+                            )
                         }
                         if (project.publishedUpdates.isNotEmpty()) {
                             item {

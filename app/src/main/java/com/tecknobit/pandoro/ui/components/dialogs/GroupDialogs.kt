@@ -54,6 +54,7 @@ import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.con
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
+import com.tecknobit.pandoro.ui.activities.session.ProjectActivity
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
@@ -432,8 +433,7 @@ class GroupDialogs : PandoroDialog() {
             onSuccess = {
                 currentGroup.value = null
                 if(currentProject.value != null)
-                // TODO: TO UNCOMMENT
-                    //ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
+                    ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
                 else {
                     activeScreen.value = Profile
                     ContextCompat.startActivity(context, Intent(context, MainActivity::class.java), null)

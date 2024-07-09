@@ -37,6 +37,7 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.session.GroupActivity
 import com.tecknobit.pandoro.ui.activities.session.ProjectActivity
 import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
@@ -286,7 +287,7 @@ abstract class Screen {
      */
     fun navToGroup(group: Group) {
         currentGroup.value = group
-        //navTo(GroupActivity::class.java)
+        navTo(GroupActivity::class.java)
     }
 
     /**
