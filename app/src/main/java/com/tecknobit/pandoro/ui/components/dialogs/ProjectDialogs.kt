@@ -24,7 +24,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -54,11 +53,12 @@ import com.tecknobit.pandoro.R.string.target_version
 import com.tecknobit.pandoro.R.string.to_a_group
 import com.tecknobit.pandoro.R.string.version
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showEditProjectDialog
 import com.tecknobit.pandoro.ui.theme.ErrorLight
+import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.viewmodels.ProjectActivityViewModel
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectDescription
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectName
@@ -91,7 +91,8 @@ class ProjectDialogs(
                 title = stringResource(add_a_new_project),
                 confirmText = stringResource(add)
             )
-        }
+        } else
+            viewModel.restartRefresher()
     }
 
     /**
@@ -110,7 +111,8 @@ class ProjectDialogs(
                 title = stringResource(edit) + " " + project.name + " " + stringResource(string.project),
                 confirmText = stringResource(edit)
             )
-        }
+        } else
+            viewModel.restartRefresher()
     }
 
     /**
@@ -129,7 +131,6 @@ class ProjectDialogs(
         title: String,
         confirmText: String
     ) {
-        snackbarHostState = remember { SnackbarHostState() }
         viewModel.snackbarHostState = snackbarHostState
         viewModel.name = remember {
             mutableStateOf(if (project == null) "" else project.name)
@@ -280,18 +281,23 @@ class ProjectDialogs(
      *
      * @param project: the project where schedule the update
      * @param show: whether show the dialog
+     * @param dismissDialog: the action to execute when the dialog has been dismissed
      */
     @OptIn(ExperimentalFoundationApi::class)
     @SuppressLint("UnrememberedMutableState")
     @Composable
     fun ScheduleUpdate(
         project: Project,
-        show: MutableState<Boolean>
+        show: MutableState<Boolean>,
+        dismissDialog: () -> Unit,
+        viewModel: ProjectActivityViewModel
     ) {
         val notes = mutableStateListOf("")
         viewModel.targetVersion = remember { mutableStateOf("") }
+        viewModel.snackbarHostState = snackbarHostState
         CreatePandoroDialog(
             show = show,
+            onDismissRequest = dismissDialog,
             title = stringResource(schedule_update),
             customWeight = 2f,
             confirmText = stringResource(schedule),
@@ -299,7 +305,7 @@ class ProjectDialogs(
                 viewModel.scheduleUpdate(
                     project = project,
                     notes = notes,
-                    onSuccess = { show.value = false }
+                    onSuccess = dismissDialog
                 )
             }
         ) {

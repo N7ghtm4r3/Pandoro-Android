@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +37,7 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.session.ProjectActivity
 import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
@@ -102,11 +102,6 @@ abstract class Screen {
         lateinit var scope: CoroutineScope
 
         /**
-         * **snackbarHostState** the host to launch the snackbars
-         */
-        lateinit var snackbarHostState: SnackbarHostState
-
-        /**
          * **currentProject** the current project currently displayed
          */
         var currentProject = mutableStateOf<Project?>(null)
@@ -123,7 +118,12 @@ abstract class Screen {
      */
     protected var sheetInputValue = mutableStateOf("")
 
-    protected lateinit var keepsnackbarHostState: SnackbarHostState
+    /**
+     * *snackbarHostState* -> the host to launch the snackbar messages
+     */
+    protected val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
 
     /**
      * Function to show the content screen
@@ -169,7 +169,6 @@ abstract class Screen {
         scrollEnabled: Boolean
     ) {
         scope = rememberCoroutineScope()
-        keepsnackbarHostState = remember { SnackbarHostState() }
         var modifier = Modifier
             .fillMaxSize()
             .padding(
@@ -182,7 +181,7 @@ abstract class Screen {
             modifier = modifier
                 .verticalScroll(rememberScrollState())
         Scaffold(
-            snackbarHost = { CreateSnackbarHost(hostState = keepsnackbarHostState) }
+            snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) }
         ) {
             Column(
                 modifier = modifier,
@@ -277,7 +276,7 @@ abstract class Screen {
      */
     fun navToProject(project: Project) {
         currentProject.value = project
-        //navTo(ProjectActivity::class.java)
+        navTo(ProjectActivity::class.java)
     }
 
     /**
@@ -295,7 +294,9 @@ abstract class Screen {
      *
      * @param clazz: the class to display
      */
-    private fun <T> navTo(clazz: Class<T>) {
+    private fun <T> navTo(
+        clazz: Class<T>
+    ) {
         startActivity(context, Intent(context, clazz), null)
     }
 

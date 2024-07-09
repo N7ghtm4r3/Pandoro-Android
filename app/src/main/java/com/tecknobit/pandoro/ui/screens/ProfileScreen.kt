@@ -37,7 +37,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -153,7 +152,9 @@ class ProfileScreen: Screen() {
         lateinit var changelogs: StateFlow<List<Changelog>>
     }
 
-    private lateinit var viewModel: ProfileScreenViewModel
+    private val viewModel = ProfileScreenViewModel(
+        snackbarHostState = snackbarHostState
+    )
 
     /**
      * Function to show the content screen
@@ -168,10 +169,6 @@ class ProfileScreen: Screen() {
             stringResource(profile_details),
             stringResource(string.changelogs),
             stringResource(my_groups)
-        )
-        keepsnackbarHostState = remember { SnackbarHostState() }
-        viewModel = ProfileScreenViewModel(
-            snackbarHostState = keepsnackbarHostState
         )
         groupDialogs.CreateGroup()
         Box(

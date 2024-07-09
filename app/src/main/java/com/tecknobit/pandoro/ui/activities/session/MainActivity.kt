@@ -64,6 +64,7 @@ import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  */
+// TODO: TO COMMENT
 class MainActivity : ComponentActivity() {
 
     /**
@@ -174,7 +175,10 @@ class MainActivity : ComponentActivity() {
                                 FloatingActionButton(
                                     onClick = {
                                         when (activeScreen.value) {
-                                            Projects -> showAddProjectDialog.value = true
+                                            Projects -> {
+                                                viewModel.suspendRefresher()
+                                                showAddProjectDialog.value = true
+                                            }
                                             Notes -> showAddNoteSheet.value = true
                                             Profile -> showCreateGroup.value = true
                                             else -> {}
@@ -237,6 +241,12 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.setActiveContext(this::class.java)
+        viewModel.refreshValues()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.suspendRefresher()
     }
 
 }

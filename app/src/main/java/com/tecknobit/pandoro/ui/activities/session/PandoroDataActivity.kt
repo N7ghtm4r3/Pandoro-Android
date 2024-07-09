@@ -1,6 +1,64 @@
 package com.tecknobit.pandoro.ui.activities.session
 
-/*
+import android.annotation.SuppressLint
+import android.content.Intent
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons.Default
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import com.tecknobit.apimanager.annotations.Structure
+import com.tecknobit.pandoro.R
+import com.tecknobit.pandoro.helpers.ColoredBorder
+import com.tecknobit.pandoro.helpers.SnackbarLauncher
+import com.tecknobit.pandoro.helpers.SpaceContent
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.components.PandoroCard
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
+import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.Project
+import com.tecknobit.pandorocore.records.structures.PandoroItem
+import kotlinx.coroutines.CoroutineScope
+
 /**
  * The **PandoroDataActivity** class is useful to create an activity with the behavior to show the UI
  * data
@@ -18,10 +76,11 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
     protected lateinit var coroutine: CoroutineScope
 
     /**
-     * **snackbarHostState** the host to launch the snackbars
+     * *snackbarHostState* -> the host to launch the snackbar messages
      */
-    protected lateinit var snackbarHostState: SnackbarHostState
-
+    protected val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
 
     /**
      * Function to show the data
@@ -34,14 +93,17 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         content: LazyListScope.() -> Unit
     ) {
         LazyColumn(
-            modifier = Modifier.padding(
-                top = 168.dp,
-                bottom = 16.dp,
-                end = 16.dp,
-                start = 16.dp
-            ),
+            modifier = Modifier
+                .padding(
+                    top = 168.dp,
+                    bottom = 16.dp,
+                    end = 16.dp,
+                    start = 16.dp
+                ),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(bottom = 10.dp),
+            contentPadding = PaddingValues(
+                bottom = 10.dp
+            ),
             content = content
         )
     }
@@ -62,7 +124,8 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         showArrow: Boolean = true
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -75,7 +138,10 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                     onClick = { show.value = !show.value }
                 ) {
                     Icon(
-                        imageVector = if (show.value) Default.ArrowDropUp else Default.ArrowDropDown,
+                        imageVector = if (show.value)
+                            Default.ArrowDropUp
+                        else
+                            Default.ArrowDropDown,
                         contentDescription = null
                     )
                 }
@@ -99,7 +165,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
      * @param description: the description to show
      */
     @Composable
-    protected open fun ShowDescription(description: String) {
+    protected open fun ShowDescription(
+        description: String
+    ) {
         val showDescription = remember { mutableStateOf(false) }
         val showDescriptionSection = remember { mutableStateOf(true) }
         pandoroModalSheet.PandoroModalSheet(
@@ -108,7 +176,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         ) {
             Text(
                 modifier = Modifier
-                    .padding(top = 16.dp)
+                    .padding(
+                        top = 16.dp
+                    )
                     .verticalScroll(rememberScrollState()),
                 text = description,
                 textAlign = TextAlign.Justify,
@@ -121,7 +191,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         if (showDescriptionSection.value) {
             Text(
                 modifier = Modifier
-                    .padding(top = 5.dp)
+                    .padding(
+                        top = 5.dp
+                    )
                     .clickable { showDescription.value = true },
                 text = description,
                 textAlign = TextAlign.Justify,
@@ -180,10 +252,11 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                         }
                     ) { item ->
                         PandoroCard(
-                            modifier = Modifier.size(
-                                width = 130.dp,
-                                height = 65.dp
-                            ),
+                            modifier = Modifier
+                                .size(
+                                    width = 130.dp,
+                                    height = 65.dp
+                                ),
                             onClick = {
                                 if(item is Group)
                                     currentGroup.value = item
@@ -212,7 +285,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                                         .fillMaxHeight(),
                                     horizontalAlignment = Alignment.End
                                 ) {
-                                    ColoredBorder(color = PrimaryLight)
+                                    ColoredBorder(
+                                        color = PrimaryLight
+                                    )
                                 }
                             }
                         }
@@ -244,4 +319,3 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
     }
 
 }
-*/

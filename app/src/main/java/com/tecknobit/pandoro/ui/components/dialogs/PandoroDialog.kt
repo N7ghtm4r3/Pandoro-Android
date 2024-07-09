@@ -48,14 +48,17 @@ open class PandoroDialog {
     private lateinit var scope: CoroutineScope
 
     /**
-     * **snackbarHostState** the host to launch the snackbars
+     * *snackbarHostState* -> the host to launch the snackbar messages
      */
-    protected lateinit var snackbarHostState: SnackbarHostState
+    protected val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
 
     /**
      * Function to create a Pandoro's custom dialog
      *
      * @param show: whether show the dialog
+     * @param onDismissRequest: the action to execute when the dialog has been dismissed
      * @param title: the title of the dialog
      * @param customWeight: the custom weight of the dialog
      * @param confirmText: the text to confirm an action
@@ -66,6 +69,7 @@ open class PandoroDialog {
     @Composable
     fun CreatePandoroDialog(
         show: MutableState<Boolean>,
+        onDismissRequest: () -> Unit = { show.value = false },
         title: String,
         customWeight: Float = 2f,
         confirmText: String,
@@ -76,7 +80,7 @@ open class PandoroDialog {
             PandoroTheme {
                 scope = rememberCoroutineScope()
                 Dialog(
-                    onDismissRequest = { show.value = false },
+                    onDismissRequest = onDismissRequest,
                     properties = DialogProperties(
                         usePlatformDefaultWidth = false
                     )
@@ -103,7 +107,7 @@ open class PandoroDialog {
                                         modifier = Modifier
                                             .size(50.dp)
                                             .weight(1f),
-                                        onClick = { show.value = false }
+                                        onClick = onDismissRequest
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Close,

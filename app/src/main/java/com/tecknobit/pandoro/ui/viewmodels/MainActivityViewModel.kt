@@ -8,10 +8,7 @@ import com.tecknobit.pandoro.R.string.insert_a_correct_description
 import com.tecknobit.pandoro.R.string.insert_a_correct_name
 import com.tecknobit.pandoro.R.string.insert_a_correct_repository_url
 import com.tecknobit.pandoro.R.string.insert_a_correct_short_description
-import com.tecknobit.pandoro.R.string.insert_a_correct_target_version
 import com.tecknobit.pandoro.R.string.insert_a_correct_version
-import com.tecknobit.pandoro.R.string.you_must_insert_correct_notes
-import com.tecknobit.pandoro.R.string.you_must_insert_one_note_at_least
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
@@ -23,7 +20,6 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
-import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.areNotesValid
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectDescription
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectName
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectShortDescription
@@ -71,8 +67,6 @@ class MainActivityViewModel(
     lateinit var version: MutableState<String>
 
     lateinit var projectRepository: MutableState<String>
-
-    lateinit var targetVersion: MutableState<String>
 
     lateinit var projectGroups: MutableList<Group>
 
@@ -213,36 +207,6 @@ class MainActivityViewModel(
             onSuccess = { onSuccess.invoke() },
             onFailure = { showSnack(it) }
         )
-    }
-
-    fun scheduleUpdate(
-        project: Project,
-        notes: List<String>,
-        onSuccess: () -> Unit
-    ) {
-        if (isValidVersion(targetVersion.value)) {
-            if (notes.isNotEmpty()) {
-                if (areNotesValid(notes)) {
-                    requester.sendRequest(
-                        request = {
-                            requester.scheduleUpdate(
-                                projectId = project.id,
-                                targetVersion = targetVersion.value,
-                                updateChangeNotes = notes
-                            )
-                        },
-                        onSuccess = {
-                            targetVersion.value = ""
-                            onSuccess.invoke()
-                        },
-                        onFailure = { showSnack(it) }
-                    )
-                } else
-                    showSnack(you_must_insert_correct_notes)
-            } else
-                showSnack(you_must_insert_one_note_at_least)
-        } else
-            showSnack(insert_a_correct_target_version)
     }
 
     fun deleteProject(

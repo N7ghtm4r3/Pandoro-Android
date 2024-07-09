@@ -18,7 +18,6 @@ import androidx.compose.material.icons.twotone.RemoveDone
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -75,7 +74,9 @@ class NotesScreen: Screen() {
 
     }
 
-    private lateinit var viewModel: NotesScreenViewModel
+    private var viewModel = NotesScreenViewModel(
+        snackbarHostState = snackbarHostState
+    )
 
     /**
      * Function to show the content screen
@@ -85,10 +86,6 @@ class NotesScreen: Screen() {
     @Composable
     override fun ShowScreen() {
         showAddNoteSheet = remember { mutableStateOf(false) }
-        keepsnackbarHostState = remember { SnackbarHostState() }
-        viewModel = NotesScreenViewModel(
-            snackbarHostState = keepsnackbarHostState
-        )
         val myNotes = notes.collectAsState().value
         SetScreen {
             CreateInputModalBottom(

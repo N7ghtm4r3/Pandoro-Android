@@ -46,12 +46,12 @@ import com.tecknobit.pandoro.R.string.delete_text_dialog
 import com.tecknobit.pandoro.R.string.frequent_projects
 import com.tecknobit.pandoro.R.string.no_projects_found
 import com.tecknobit.pandoro.R.string.search
-import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
 import com.tecknobit.pandoro.ui.theme.ErrorLight
+import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
 import com.tecknobit.pandorocore.records.Project
 import com.tecknobit.pandorocore.ui.filterProjects
 import com.tecknobit.pandorocore.ui.populateFrequentProjects
@@ -79,12 +79,12 @@ class ProjectsScreen(
          */
         lateinit var showEditProjectDialog: MutableState<Boolean>
 
-    }
+        /**
+         * **projectDialogs** the instance to manage the dialogs of the projects
+         */
+        lateinit var projectDialogs: ProjectDialogs
 
-    /**
-     * **projectDialogs** the instance to manage the dialogs of the projects
-     */
-    private lateinit var projectDialogs: ProjectDialogs
+    }
 
     /**
      * Function to show the content screen
@@ -96,8 +96,7 @@ class ProjectsScreen(
         showAddProjectDialog = rememberSaveable { mutableStateOf(false) }
         showEditProjectDialog = rememberSaveable { mutableStateOf(false) }
         SetScreen {
-            viewModel.snackbarHostState = keepsnackbarHostState
-            viewModel.refreshValues()
+            viewModel.snackbarHostState = snackbarHostState
             val projectsList = viewModel.projects.collectAsState()
             projectDialogs = ProjectDialogs(
                 viewModel = viewModel
@@ -243,7 +242,11 @@ class ProjectsScreen(
                 width = 200.dp,
                 height = 120.dp
             ),
-            onClick = { navToProject(project = project) },
+            onClick = {
+                navToProject(
+                    project = project
+                )
+            },
             content = {
                 Column(
                     modifier = Modifier
@@ -266,7 +269,10 @@ class ProjectsScreen(
                                 Row {
                                     IconButton(
                                         modifier = Modifier.size(24.dp),
-                                        onClick = { showEditProjectDialog.value = true }
+                                        onClick = {
+                                            viewModel.suspendRefresher()
+                                            showEditProjectDialog.value = true
+                                        }
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Edit,

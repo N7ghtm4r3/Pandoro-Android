@@ -26,7 +26,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -80,7 +79,9 @@ import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
 // TODO: TO COMMENT
 class GroupDialogs : PandoroDialog() {
 
-    private lateinit var viewModel: GroupDialogsViewModel
+    private val viewModel = GroupDialogsViewModel(
+        snackbarHostState = snackbarHostState
+    )
 
     /**
      * Function to create a Pandoro's custom dialog to create a new [Group]
@@ -92,7 +93,6 @@ class GroupDialogs : PandoroDialog() {
     fun CreateGroup() {
         if(showCreateGroup.value) {
             val members = mutableStateListOf("")
-            InitViewModel()
             viewModel.name = remember { mutableStateOf("") }
             viewModel.description = remember { mutableStateOf("") }
             CreatePandoroDialog(
@@ -254,7 +254,6 @@ class GroupDialogs : PandoroDialog() {
         group: Group,
         member: GroupMember
     ) {
-        InitViewModel()
         PandoroAlertDialog(
             show = show,
             title = R.string.remove_the_user_from,
@@ -281,7 +280,6 @@ class GroupDialogs : PandoroDialog() {
         show: MutableState<Boolean>,
         group: Group,
     ) {
-        InitViewModel()
         val showAdminChoseDialog = remember { mutableStateOf(false) }
         val members = group.members
         PandoroAlertDialog(
@@ -456,7 +454,6 @@ class GroupDialogs : PandoroDialog() {
         show: MutableState<Boolean>,
         group: Group
     ) {
-        InitViewModel()
         PandoroAlertDialog(
             show = show,
             title = R.string.delete_group,
@@ -468,14 +465,6 @@ class GroupDialogs : PandoroDialog() {
                     group = group
                 )
             }
-        )
-    }
-
-    @Composable
-    private fun InitViewModel() {
-        snackbarHostState = remember { SnackbarHostState() }
-        viewModel = GroupDialogsViewModel(
-            snackbarHostState = snackbarHostState
         )
     }
 
