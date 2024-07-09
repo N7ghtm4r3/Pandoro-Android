@@ -31,7 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -40,10 +39,12 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
-import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.isRefreshing
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.screens.ProfileScreen
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showAddGroupButton
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
@@ -79,7 +80,7 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
     /**
      * **profileScreen** -> the screen to show the profile
      */
-    //private val profileScreen = ProfileScreen()
+    private val profileScreen = ProfileScreen()
 
     private val viewModel = MainActivityViewModel(
         snackbarHostState = snackbarHostState
@@ -108,6 +109,7 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
         super.onCreate(savedInstanceState)
         val navigationHelper = NavigationHelper()
         setContent {
+            viewModel.snackbarHostState = snackbarHostState
             viewModel.unreadChangelogsNumber = remember { mutableIntStateOf(user.unreadChangelogsNumber) }
             PandoroTheme {
                 Scaffold(
@@ -131,7 +133,7 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
                                     Box {
                                         Image(
                                             painter = rememberAsyncImagePainter(
-                                                ImageRequest.Builder(LocalContext.current)
+                                                ImageRequest.Builder(context)
                                                     .data(user.profilePic)
                                                     .error(R.drawable.logo)
                                                     .crossfade(500)
@@ -178,7 +180,7 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
                                         when (activeScreen.value) {
                                             Projects -> showAddProjectDialog.value = true
                                             //Notes -> showAddNoteSheet.value = true
-                                            //Profile -> showCreateGroup.value = true
+                                            Profile -> showCreateGroup.value = true
                                             else -> {}
                                         }
                                     }
@@ -193,16 +195,10 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
                     }
                 ) {
                     when(activeScreen.value) {
-                        Projects -> {
-                            projectsScreen.ShowScreen()
-                            if(!isRefreshing.value) {
-                                viewModel.refreshValues()
-                                isRefreshing.value = true
-                            }
-                        }
+                        Projects -> projectsScreen.ShowScreen()
                         Notes -> /*notesScreen.ShowScreen()*/ ""
                         Overview -> /*overviewScreen.ShowScreen()*/ ""
-                        Profile -> /*profileScreen.ShowScreen()*/ ""
+                        Profile -> profileScreen.ShowScreen()
                     }
                 }
             }

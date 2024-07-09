@@ -15,6 +15,8 @@ import com.tecknobit.pandoro.R.string.you_must_insert_one_note_at_least
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.changelogs
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
@@ -32,7 +34,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class MainActivityViewModel(
-    snackbarHostState: SnackbarHostState
+    override var snackbarHostState: SnackbarHostState
 ) : PandoroViewModel(
     snackbarHostState = snackbarHostState
 ) {
@@ -41,10 +43,13 @@ class MainActivityViewModel(
     val projects: StateFlow<MutableList<Project>> = _projects
 
     private val _groups = MutableStateFlow<MutableList<Group>>(mutableListOf())
-    val groups: StateFlow<MutableList<Group>> = _groups
 
     private val _changelogs = MutableStateFlow<MutableList<Changelog>>(mutableListOf())
-    val changelogs: StateFlow<MutableList<Changelog>> = _changelogs
+
+    init {
+        groups = _groups
+        changelogs = _changelogs
+    }
 
     /**
      * **unreadChangelogsNumber** -> the number of the changelogs yet to read
@@ -106,7 +111,11 @@ class MainActivityViewModel(
                                 unreadChangelogsNumber.intValue++
                         }
                     },
-                    onFailure = { showSnack(it) }
+                    onFailure = { showSnack(it) },
+                    onConnectionError = {
+                        // TODO: MANAGE HERE WRONG CREDENTIALS OR SERVER OFFLINE
+                        showSnack(it)
+                    }
                 )
             }
         )

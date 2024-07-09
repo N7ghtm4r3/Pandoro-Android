@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 abstract class PandoroViewModel(
-    val snackbarHostState: SnackbarHostState
+    open var snackbarHostState: SnackbarHostState
 ): ViewModel(), FetcherManager.FetcherManagerWrapper {
 
     companion object {

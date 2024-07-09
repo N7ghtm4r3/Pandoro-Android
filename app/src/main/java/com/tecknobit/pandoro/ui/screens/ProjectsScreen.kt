@@ -95,9 +95,13 @@ class ProjectsScreen(
     override fun ShowScreen() {
         showAddProjectDialog = rememberSaveable { mutableStateOf(false) }
         showEditProjectDialog = rememberSaveable { mutableStateOf(false) }
-        val projectsList = viewModel.projects.collectAsState()
         SetScreen {
-            projectDialogs = ProjectDialogs()
+            viewModel.snackbarHostState = keepsnackbarHostState
+            viewModel.refreshValues()
+            val projectsList = viewModel.projects.collectAsState()
+            projectDialogs = ProjectDialogs(
+                viewModel = viewModel
+            )
             projectDialogs.AddNewProject()
             Column(
                 modifier = Modifier

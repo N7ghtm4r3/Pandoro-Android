@@ -45,8 +45,8 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity
 import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity.LocalAuthHelper
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
+import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
-import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
 import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
@@ -107,7 +107,7 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         /**
          * **groupDialogs** the instance to manage the dialogs of the groups
          */
-        //val groupDialogs = GroupDialogs()
+        val groupDialogs = GroupDialogs()
 
         /**
          * **pandoroModalSheet** the instance to manage the modal bottom sheets

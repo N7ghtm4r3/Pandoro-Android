@@ -74,9 +74,9 @@ import com.tecknobit.pandorocore.records.Project
  * @see PandoroDialog
  */
 // TODO: TO COMMENT
-class ProjectDialogs : PandoroDialog() {
-    
-    private lateinit var viewModel: MainActivityViewModel
+class ProjectDialogs(
+    val viewModel: MainActivityViewModel
+) : PandoroDialog() {
 
     /**
      * Function to create a Pandoro's custom dialog to add a new [Project]
@@ -130,9 +130,7 @@ class ProjectDialogs : PandoroDialog() {
         confirmText: String
     ) {
         snackbarHostState = remember { SnackbarHostState() }
-        viewModel = MainActivityViewModel(
-            snackbarHostState = snackbarHostState
-        )
+        viewModel.snackbarHostState = snackbarHostState
         viewModel.name = remember {
             mutableStateOf(if (project == null) "" else project.name)
         }

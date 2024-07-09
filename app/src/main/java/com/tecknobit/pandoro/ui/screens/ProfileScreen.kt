@@ -1,10 +1,119 @@
 package com.tecknobit.pandoro.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.BottomCenter
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.darkrockstudios.libraries.mpfilepicker.FilePicker
+import com.tecknobit.equinox.Requester.Companion.RESPONSE_MESSAGE_KEY
+import com.tecknobit.equinox.environment.records.EquinoxUser.PROFILE_PIC_KEY
+import com.tecknobit.equinox.inputs.InputValidator.LANGUAGES_SUPPORTED
+import com.tecknobit.equinox.inputs.InputValidator.isEmailValid
+import com.tecknobit.equinox.inputs.InputValidator.isPasswordValid
+import com.tecknobit.pandoro.R
+import com.tecknobit.pandoro.R.string
+import com.tecknobit.pandoro.R.string.accept_invite
+import com.tecknobit.pandoro.R.string.change_email
+import com.tecknobit.pandoro.R.string.change_language
+import com.tecknobit.pandoro.R.string.change_password
+import com.tecknobit.pandoro.R.string.decline
+import com.tecknobit.pandoro.R.string.delete
+import com.tecknobit.pandoro.R.string.dismiss
+import com.tecknobit.pandoro.R.string.join
+import com.tecknobit.pandoro.R.string.logout
+import com.tecknobit.pandoro.R.string.my_groups
+import com.tecknobit.pandoro.R.string.name
+import com.tecknobit.pandoro.R.string.new_email
+import com.tecknobit.pandoro.R.string.new_password
+import com.tecknobit.pandoro.R.string.no_any_changelogs
+import com.tecknobit.pandoro.R.string.no_any_groups
+import com.tecknobit.pandoro.R.string.password
+import com.tecknobit.pandoro.R.string.profile_details
+import com.tecknobit.pandoro.R.string.surname
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
+import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
+import com.tecknobit.pandoro.helpers.Divide
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.groupDialogs
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.localAuthHelper
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.viewmodels.ProfileScreenViewModel
+import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
+import com.tecknobit.pandoro.ui.components.PandoroCard
+import com.tecknobit.pandoro.ui.theme.ErrorLight
+import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
+import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.records.Changelog
+import com.tecknobit.pandorocore.records.Changelog.ChangelogEvent.INVITED_GROUP
 import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
+import com.tecknobit.pandorocore.records.users.GroupMember.Role.DEVELOPER
+import com.tecknobit.pandorocore.records.users.GroupMember.Role.MAINTAINER
+import kotlinx.coroutines.flow.StateFlow
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import kotlin.math.min
 
 /**
  * The **ProfileScreen** class is useful to show the profile of the user
@@ -39,22 +148,13 @@ class ProfileScreen: Screen() {
         /**
          * **groups** -> the list of the groups
          */
-        val groups = mutableStateListOf<Group>()
+        lateinit var groups: StateFlow<List<Group>>
 
+        lateinit var changelogs: StateFlow<List<Changelog>>
     }
 
-    /**
-     * Function to show the content screen
-     *
-     * No any params required
-     */
-    @Composable
-    override fun ShowScreen() {
-        TODO("TO REMOVE")
-    }
+    private lateinit var viewModel: ProfileScreenViewModel
 
-}
-/*
     /**
      * Function to show the content screen
      *
@@ -67,11 +167,16 @@ class ProfileScreen: Screen() {
         titles = listOf(
             stringResource(profile_details),
             stringResource(string.changelogs),
-            stringResource(string.my_groups)
+            stringResource(my_groups)
+        )
+        keepsnackbarHostState = remember { SnackbarHostState() }
+        viewModel = ProfileScreenViewModel(
+            snackbarHostState = keepsnackbarHostState
         )
         groupDialogs.CreateGroup()
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             var showImagePicker by remember { mutableStateOf(false) }
@@ -81,18 +186,16 @@ class ProfileScreen: Screen() {
                 fileExtensions = listOf("jpeg", "jpg", "png")
             ) { file ->
                 if(file != null) {
-                    var imagePath: String? = null
-                    runBlocking {
-                        async { imagePath = getImagePath(file.path.toUri()) }.await()
-                    }
+                    val imagePath: String? = getImagePath(file.path.toUri())
                     if(imagePath != null) {
-                        val response = requester!!.execChangeProfilePic(File(imagePath!!))
-                        if(requester!!.successResponse()) {
-                            localAuthHelper.storeProfilePic(JsonHelper(response)
-                                .getString(PROFILE_PIC_KEY), true)
-                            profilePic = user.profilePic
-                        } else
-                            showSnack(requester!!.errorMessage())
+                        viewModel.changeProfilePic(
+                            imagePath = imagePath,
+                            onSuccess = { response ->
+                                localAuthHelper.storeProfilePic(response.getString(PROFILE_PIC_KEY),
+                                    true)
+                                profilePic = user.profilePic
+                            }
+                        )
                     }
                     showImagePicker = false
                 }
@@ -117,11 +220,17 @@ class ProfileScreen: Screen() {
                     .align(BottomCenter)
                     .fillMaxWidth()
                     .fillMaxHeight(.75f),
-                elevation = CardDefaults.cardElevation(20.dp),
-                shape = RoundedCornerShape(topEnd = 80.dp)
+                elevation = CardDefaults
+                    .cardElevation(
+                        defaultElevation = 20.dp
+                    ),
+                shape = RoundedCornerShape(
+                    topEnd = 80.dp
+                )
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier
+                        .padding(all = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     val pageCount = 3
@@ -140,7 +249,9 @@ class ProfileScreen: Screen() {
                                 )
                                 Row(
                                     modifier = Modifier
-                                        .padding(end = 10.dp)
+                                        .padding(
+                                            end = 10.dp
+                                        )
                                         .height(24.dp)
                                         .width(100.dp),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -225,7 +336,7 @@ class ProfileScreen: Screen() {
         var email by remember { mutableStateOf(user.email) }
         var passValue by remember { mutableStateOf(HIDE_PASS_VALUE) }
         val showEditPassword = remember { mutableStateOf(false) }
-        var language by remember { mutableStateOf(user.language) }
+        val language by remember { mutableStateOf(user.language) }
         val showEditLanguage = remember { mutableStateOf(false) }
         ShowSubsection {
             CreateInputModalBottom(
@@ -234,14 +345,20 @@ class ProfileScreen: Screen() {
                 label = new_email,
                 requestLogic = {
                     if (isEmailValid(sheetInputValue.value)) {
-                        requester!!.execChangeEmail(sheetInputValue.value)
-                        if(requester!!.successResponse()) {
-                            localAuthHelper.storeEmail(sheetInputValue.value, true)
-                            email = user.email
-                            sheetInputValue.value = ""
-                            showEditEmail.value = false
-                        } else
-                            pandoroModalSheet.showSnack(requester!!.errorMessage())
+                        viewModel.changeEmail(
+                            newEmail = sheetInputValue.value,
+                            onSuccess = {
+                                localAuthHelper.storeEmail(sheetInputValue.value, true)
+                                email = user.email
+                                sheetInputValue.value = ""
+                                showEditEmail.value = false
+                            },
+                            onFailure = { response ->
+                                pandoroModalSheet.showSnack(
+                                    response.getString(RESPONSE_MESSAGE_KEY)
+                                )
+                            }
+                        )
                     } else
                         pandoroModalSheet.showSnack(you_must_insert_a_correct_email)
                 }
@@ -252,15 +369,21 @@ class ProfileScreen: Screen() {
                 label = new_password,
                 requestLogic = {
                     if (isPasswordValid(sheetInputValue.value)) {
-                        requester!!.execChangePassword(sheetInputValue.value)
-                        if(requester!!.successResponse()) {
-                            localAuthHelper.storePassword(sheetInputValue.value, true)
-                            if(passValue != HIDE_PASS_VALUE)
-                                passValue = user.password
-                            sheetInputValue.value = ""
-                            showEditPassword.value = false
-                        } else
-                            pandoroModalSheet.showSnack(requester!!.errorMessage())
+                        viewModel.changePassword(
+                            newPassword = sheetInputValue.value,
+                            onSuccess = {
+                                localAuthHelper.storePassword(sheetInputValue.value, true)
+                                if(passValue != HIDE_PASS_VALUE)
+                                    passValue = user.password
+                                sheetInputValue.value = ""
+                                showEditPassword.value = false
+                            },
+                            onFailure = { response ->
+                                pandoroModalSheet.showSnack(
+                                    response.getString(RESPONSE_MESSAGE_KEY)
+                                )
+                            }
+                        )
                     } else
                         pandoroModalSheet.showSnack(you_must_insert_a_correct_password)
                 }
@@ -272,25 +395,27 @@ class ProfileScreen: Screen() {
             ) {
                 Column {
                     Text(
-                        text = stringResource(id = string.name)
+                        text = stringResource(id = name)
                     )
                     ShowProfileData(profileData = user.name)
                 }
             }
             Divide()
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 Column {
                     Text(
-                        text = stringResource(string.surname)
+                        text = stringResource(surname)
                     )
                     ShowProfileData(profileData = user.surname)
                 }
             }
             Divide()
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
@@ -300,7 +425,10 @@ class ProfileScreen: Screen() {
                     ShowProfileData(profileData = email)
                 }
                 IconButton(
-                    modifier = Modifier.padding(start = 10.dp),
+                    modifier = Modifier
+                        .padding(
+                            start = 10.dp
+                        ),
                     onClick = { showEditEmail.value = true }
                 ) {
                     Icon(
@@ -312,12 +440,13 @@ class ProfileScreen: Screen() {
             }
             Divide()
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
                     Text(
-                        text = stringResource(string.password),
+                        text = stringResource(password),
                     )
                     ShowProfileData(
                         profileData = passValue,
@@ -343,7 +472,8 @@ class ProfileScreen: Screen() {
             }
             Divide()
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
@@ -353,7 +483,10 @@ class ProfileScreen: Screen() {
                     ShowProfileData(profileData = LANGUAGES_SUPPORTED[language]!!)
                 }
                 IconButton(
-                    modifier = Modifier.padding(start = 10.dp),
+                    modifier = Modifier
+                        .padding(
+                            start = 10.dp
+                        ),
                     onClick = { showEditLanguage.value = true }
                 ) {
                     Icon(
@@ -366,7 +499,7 @@ class ProfileScreen: Screen() {
             var selectedLanguage by remember { mutableStateOf(language) }
             PandoroAlertDialog(
                 show = showEditLanguage,
-                title = string.change_language,
+                title = change_language,
                 text = {
                     LazyColumn {
                         items(LANGUAGES_SUPPORTED.keys.toList()) { language ->
@@ -388,29 +521,31 @@ class ProfileScreen: Screen() {
                     }
                 },
                 requestLogic = {
-                    requester!!.execChangeLanguage(
-                        newLanguage = selectedLanguage
+                    viewModel.changeLanguage(
+                        newLanguage = selectedLanguage!!,
+                        onSuccess = {
+                            localAuthHelper.storeLanguage(
+                                language = selectedLanguage,
+                                refreshUser = true
+                            )
+                            context.startActivity(Intent(context, SplashScreen::class.java))
+                        }
                     )
-                    if(requester!!.successResponse()) {
-                        localAuthHelper.storeLanguage(
-                            language = selectedLanguage,
-                            refreshUser = true
-                        )
-                        context.startActivity(Intent(context, SplashScreen::class.java))
-                    }
                 }
             )
             Divide()
             Button(
                 modifier = Modifier
-                    .padding(top = 5.dp)
+                    .padding(
+                        top = 5.dp
+                    )
                     .height(50.dp)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(10.dp),
                 onClick = { localAuthHelper.logout() },
                 content = {
                     Text(
-                        text = stringResource(string.logout),
+                        text = stringResource(logout),
                         color = Color.White,
                         fontSize = 20.sp
                     )
@@ -424,16 +559,10 @@ class ProfileScreen: Screen() {
                 colors = ButtonDefaults.buttonColors(
                     containerColor = ErrorLight
                 ),
-                onClick = {
-                    requester!!.execDeleteAccount()
-                    if(requester!!.successResponse())
-                        localAuthHelper.logout()
-                    else
-                        showSnack(requester!!.errorMessage())
-                },
+                onClick = { viewModel.deleteAccount() },
                 content = {
                     Text(
-                        text = stringResource(string.delete),
+                        text = stringResource(delete),
                         color = Color.White,
                         fontSize = 20.sp
                     )
@@ -466,11 +595,11 @@ class ProfileScreen: Screen() {
      *
      * No any params required
      */
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun ShowChangelogs() {
+        val myChangelogs = changelogs.collectAsState().value
         ShowSubsection {
-            if(changelogs.isNotEmpty()) {
+            if(myChangelogs.isNotEmpty()) {
                 LazyColumn(
                     contentPadding = PaddingValues(
                         bottom = 55.dp,
@@ -479,7 +608,7 @@ class ProfileScreen: Screen() {
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     items(
-                        items = changelogs,
+                        items = myChangelogs,
                         key = { changelog ->
                             changelog.id
                         }
@@ -504,7 +633,7 @@ class ProfileScreen: Screen() {
                                 },
                                 title = {
                                     Text(
-                                        text = stringResource(id = string.accept_invite)
+                                        text = stringResource(id = accept_invite)
                                     )
                                 },
                                 text = {
@@ -519,7 +648,9 @@ class ProfileScreen: Screen() {
                                         Row (
                                             modifier = Modifier
                                                 .fillMaxSize()
-                                                .padding(top = 5.dp),
+                                                .padding(
+                                                    top = 5.dp
+                                                ),
                                             horizontalArrangement = Arrangement.spacedBy(10.dp)
                                         ) {
                                             Button(
@@ -529,21 +660,18 @@ class ProfileScreen: Screen() {
                                                     .height(40.dp),
                                                 shape = RoundedCornerShape(10.dp),
                                                 onClick = {
-                                                    requester!!.execDeclineInvitation(
-                                                        groupId = group.id,
-                                                        changelogId = changelog.id
+                                                    viewModel.declineInvitation(
+                                                        group = group,
+                                                        changelog = changelog,
+                                                        onSuccess = { showInvite.value = false }
                                                     )
-                                                    if(requester!!.successResponse())
-                                                        showInvite.value = false
-                                                    else
-                                                        showSnack(requester!!.errorMessage())
                                                 },
                                                 colors = ButtonDefaults.buttonColors(
                                                     containerColor = ErrorLight
                                                 ),
                                                 content = {
                                                     Text(
-                                                        text = stringResource(string.decline),
+                                                        text = stringResource(decline),
                                                         color = Color.White
                                                     )
                                                 }
@@ -555,21 +683,18 @@ class ProfileScreen: Screen() {
                                                     .height(40.dp),
                                                 shape = RoundedCornerShape(10.dp),
                                                 onClick = {
-                                                    requester!!.execAcceptInvitation(
-                                                        groupId = group.id,
-                                                        changelogId = changelog.id
+                                                    viewModel.acceptInvitation(
+                                                        group = group,
+                                                        changelog = changelog,
+                                                        onSuccess = { showInvite.value = false }
                                                     )
-                                                    if(requester!!.successResponse())
-                                                        showInvite.value = false
-                                                    else
-                                                        showSnack(requester!!.errorMessage())
                                                 },
                                                 colors = ButtonDefaults.buttonColors(
                                                     containerColor = GREEN_COLOR
                                                 ),
                                                 content = {
                                                     Text(
-                                                        text = stringResource(string.join),
+                                                        text = stringResource(join),
                                                         color = Color.White
                                                     )
                                                 }
@@ -583,7 +708,7 @@ class ProfileScreen: Screen() {
                                         onClick = { showInvite.value = false },
                                         content = {
                                             Text(
-                                                text = stringResource(string.dismiss),
+                                                text = stringResource(dismiss),
                                             )
                                         }
                                     )
@@ -622,21 +747,29 @@ class ProfileScreen: Screen() {
                                     if (!isRed) {
                                         Badge(
                                             modifier = Modifier
-                                                .padding(end = 5.dp)
+                                                .padding(
+                                                    end = 5.dp
+                                                )
                                                 .size(10.dp)
-                                                .clickable { readChangelog(changelog) }
+                                                .clickable {
+                                                    viewModel.readChangelog(
+                                                        changelog = changelog
+                                                    )
+                                                }
                                         ) {
                                             Text(text = "")
                                         }
                                     }
-                                    var modifier = Modifier.weight(10f)
-                                    if (!isRed) {
-                                        modifier = modifier.clickable {
-                                            readChangelog(changelog)
-                                        }
-                                    }
                                     Text(
-                                        modifier = modifier,
+                                        modifier = Modifier
+                                            .weight(10f)
+                                            .clickable(
+                                                enabled = !isRed
+                                            ) {
+                                                viewModel.readChangelog(
+                                                    changelog = changelog
+                                                )
+                                            },
                                         text = changelog.title,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -652,16 +785,9 @@ class ProfileScreen: Screen() {
                                     .weight(1f)
                                     .size(24.dp),
                                 onClick = {
-                                    val groupId = if (changelog.group != null)
-                                        changelog.group.id
-                                    else
-                                        null
-                                    requester!!.execDeleteChangelog(
-                                        changelogId = changelog.id,
-                                        groupId = groupId
+                                    viewModel.deleteChangelog(
+                                        changelog = changelog
                                     )
-                                    if(!requester!!.successResponse())
-                                        showSnack(requester!!.errorMessage())
                                 }
                             ) {
                                 Icon(
@@ -686,8 +812,9 @@ class ProfileScreen: Screen() {
      */
     @Composable
     private fun ShowMyGroups() {
+        val myGroups = groups.collectAsState().value
         ShowSubsection {
-            if(groups.isNotEmpty()) {
+            if(myGroups.isNotEmpty()) {
                 LazyColumn(
                     contentPadding = PaddingValues(
                         bottom = 55.dp,
@@ -696,7 +823,7 @@ class ProfileScreen: Screen() {
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(
-                        items = groups,
+                        items = myGroups,
                         key = { group ->
                             group.id
                         }
@@ -738,7 +865,10 @@ class ProfileScreen: Screen() {
                                     )
                                     Text(
                                         text = role.toString(),
-                                        color = if (role == ADMIN) ErrorLight else PrimaryLight,
+                                        color = if (role == ADMIN)
+                                            ErrorLight
+                                        else
+                                            PrimaryLight,
                                     )
                                 }
                             }
@@ -756,10 +886,11 @@ class ProfileScreen: Screen() {
                                         tint = ErrorLight
                                     )
                                 }
-                                groupDialogs.DeleteGroup(
+                                // TODO: TO UNCOMMENT
+                                /*groupDialogs.DeleteGroup(
                                     show = deleteGroup,
                                     group = group
-                                )
+                                )*/
                             }
                         }
                         Divide()
@@ -776,7 +907,9 @@ class ProfileScreen: Screen() {
      * @param content: content of the subsection to show
      */
     @Composable
-    private fun ShowSubsection(content: @Composable ColumnScope.() -> Unit) {
+    private fun ShowSubsection(
+        content: @Composable ColumnScope.() -> Unit
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -784,16 +917,4 @@ class ProfileScreen: Screen() {
         )
     }
 
-
-    /**
-     * Function to make request to read a changelog
-     *
-     * @param changelog: the changelog to read
-     */
-    private fun readChangelog(changelog: Changelog) {
-        requester!!.execReadChangelog(changelog.id)
-        if(!requester!!.successResponse())
-            showSnack(requester!!.errorMessage())
-    }
-
-}*/
+}

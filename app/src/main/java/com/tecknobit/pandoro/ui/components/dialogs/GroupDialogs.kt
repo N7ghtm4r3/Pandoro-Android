@@ -1,6 +1,74 @@
 package com.tecknobit.pandoro.ui.components.dialogs
 
-/*
+import android.annotation.SuppressLint
+import android.content.Intent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.tecknobit.equinox.inputs.InputValidator.isEmailValid
+import com.tecknobit.pandoro.R
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.localAuthHelper
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.session.MainActivity
+import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
+import com.tecknobit.pandoro.ui.components.PandoroTextField
+import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
+import com.tecknobit.pandoro.ui.screens.Screen
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
+import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
+import com.tecknobit.pandoro.ui.theme.ErrorLight
+import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isGroupDescriptionValid
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isGroupNameValid
+import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.users.GroupMember
+import com.tecknobit.pandorocore.records.users.GroupMember.InvitationStatus.PENDING
+import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
+
 /**
  * The **GroupDialogs** class is useful to create the groups dialogs
  *
@@ -19,15 +87,15 @@ class GroupDialogs : PandoroDialog() {
     fun CreateGroup() {
         if(showCreateGroup.value) {
             val members = mutableStateListOf("")
-            var name by remember { mutableStateOf("") }
-            var description by remember { mutableStateOf("") }
+            var name = remember { mutableStateOf("") }
+            var description = remember { mutableStateOf("") }
             CreatePandoroDialog(
                 show = showCreateGroup,
                 title = stringResource(R.string.create_a_new_group),
                 confirmText = stringResource(R.string.create),
                 requestLogic = {
-                    if (isGroupNameValid(name)) {
-                        if (isGroupDescriptionValid(description)) {
+                    /*if (isGroupNameValid(name.value)) {
+                        if (isGroupDescriptionValid(description.value)) {
                             if (members.isNotEmpty()) {
                                 if (checkMembersValidity(members)) {
                                     requester!!.execCreateGroup(
@@ -48,48 +116,50 @@ class GroupDialogs : PandoroDialog() {
                         } else
                             showSnack(you_must_insert_a_correct_group_description)
                     } else
-                        showSnack(you_must_insert_a_correct_group_name)
+                        showSnack(you_must_insert_a_correct_group_name)*/
                 },
             ) {
                 Text(
-                    modifier = Modifier.padding(
-                        top = 10.dp,
-                        bottom = 10.dp
-                    ),
+                    modifier = Modifier
+                        .padding(
+                            top = 10.dp,
+                            bottom = 10.dp
+                        ),
                     text = stringResource(R.string.details_of_the_group),
                     fontSize = 22.sp
                 )
                 PandoroTextField(
                     modifier = Modifier
-                        .padding(10.dp)
+                        .padding(
+                            all = 10.dp
+                        )
                         .fillMaxWidth()
-                        .height(height = 60.dp),
-                    textFieldModifier = Modifier.fillMaxWidth(),
+                        .height(60.dp),
+                    textFieldModifier = Modifier
+                        .fillMaxWidth(),
                     label = stringResource(R.string.name),
                     value = name,
-                    isError = !isGroupNameValid(name),
-                    onValueChange = {
-                        name = it
-                    }
+                    isError = !isGroupNameValid(name.value)
                 )
                 PandoroTextField(
                     modifier = Modifier
-                        .padding(10.dp)
+                        .padding(
+                            all = 10.dp
+                        )
                         .fillMaxWidth()
-                        .height(height = 60.dp),
-                    textFieldModifier = Modifier.fillMaxWidth(),
+                        .height(60.dp),
+                    textFieldModifier = Modifier
+                        .fillMaxWidth(),
                     label = stringResource(R.string.description),
                     value = description,
-                    isError = !isGroupDescriptionValid(description),
-                    onValueChange = {
-                        description = it
-                    }
+                    isError = !isGroupDescriptionValid(description.value)
                 )
                 Text(
-                    modifier = Modifier.padding(
-                        top = 10.dp,
-                        bottom = 10.dp
-                    ),
+                    modifier = Modifier
+                        .padding(
+                            top = 10.dp,
+                            bottom = 10.dp
+                        ),
                     text = stringResource(R.string.members_of_the_group),
                     fontSize = 22.sp
                 )
@@ -123,9 +193,15 @@ class GroupDialogs : PandoroDialog() {
                         )
                 ) {
                     FloatingActionButton(
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier
+                            .size(40.dp),
                         onClick = { members.add("") },
-                        content = { Icon(Icons.Filled.Add, null) }
+                        content = { 
+                            Icon(
+                                imageVector = Icons.Filled.Add,
+                                contentDescription = null
+                            )
+                        }
                     )
                 }
             }
@@ -156,7 +232,7 @@ class GroupDialogs : PandoroDialog() {
                                 members.add(index, it)
                             }
                         },
-                        value = member.value,
+                        value = member,
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next
                         )
@@ -195,14 +271,14 @@ class GroupDialogs : PandoroDialog() {
             extraTitle = group.name,
             text = R.string.remove_user_text,
             requestLogic = {
-                requester!!.execRemoveMember(
+                /*requester!!.execRemoveMember(
                     groupId = group.id,
                     memberId = member.id
                 )
                 if(requester!!.successResponse())
                     show.value = false
                 else
-                    showSnack(requester!!.errorMessage())
+                    showSnack(requester!!.errorMessage())*/
             }
         )
     }
@@ -275,7 +351,8 @@ class GroupDialogs : PandoroDialog() {
                 },
                 text = {
                     Column (
-                        modifier = Modifier.verticalScroll(rememberScrollState())
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
                     ) {
                         members.forEach { member ->
                             if(!member.isLoggedUser(user) && member.invitationStatus != PENDING) {
@@ -310,7 +387,8 @@ class GroupDialogs : PandoroDialog() {
                                     },
                                     trailingContent = {
                                         RadioButton(
-                                            modifier = Modifier.size(15.dp),
+                                            modifier = Modifier
+                                                .size(15.dp),
                                             selected = member == nextAdmin,
                                             onClick = { nextAdmin = member }
                                         )
@@ -362,21 +440,21 @@ class GroupDialogs : PandoroDialog() {
         group: Group,
         nextAdmin: GroupMember? = null
     ) {
-        requester!!.execLeaveGroup(
+        /*requester!!.execLeaveGroup(
             groupId = group.id,
             nextAdminId = nextAdmin?.id
-        )
-        if(requester!!.successResponse()) {
+        )*/
+        //if(requester!!.successResponse()) {
             currentGroup.value = null
             if(currentProject.value != null)
-                ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
+                //ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
             else {
-                activeScreen.value = Profile
+                activeScreen.value = Screen.ScreenType.Profile
                 ContextCompat.startActivity(context, Intent(context, MainActivity::class.java), null)
             }
             show.value = false
-        } else
-            showSnack(requester!!.errorMessage())
+        /*} else
+            showSnack(requester!!.errorMessage())*/
     }
 
     /**
@@ -396,13 +474,13 @@ class GroupDialogs : PandoroDialog() {
             extraTitle = group.name,
             text = R.string.delete_group_text,
             requestLogic = {
-                requester!!.execDeleteGroup(group.id)
+                /*requester!!.execDeleteGroup(group.id)
                 if(requester!!.successResponse())
                     show.value = false
                 else
-                    showSnack(requester!!.errorMessage())
+                    showSnack(requester!!.errorMessage())*/
             }
         )
     }
 
-}*/
+}
