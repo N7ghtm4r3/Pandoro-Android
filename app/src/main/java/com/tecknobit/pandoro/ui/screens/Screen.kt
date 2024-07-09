@@ -36,7 +36,6 @@ import com.tecknobit.equinox.inputs.InputValidator.isEmailValid
 import com.tecknobit.equinox.inputs.InputValidator.isPasswordValid
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
@@ -50,10 +49,9 @@ import kotlinx.coroutines.CoroutineScope
  * The **Screen** class is useful to give the base behaviour of the other screens of the
  * Pandoro's application
  * @author N7ghtm4r3 - Tecknobit
- * @see SnackbarLauncher
  */
 @Structure
-abstract class Screen: SnackbarLauncher {
+abstract class Screen {
 
     /**
      * **ScreenType** the list of available screen types
@@ -184,7 +182,7 @@ abstract class Screen: SnackbarLauncher {
             modifier = modifier
                 .verticalScroll(rememberScrollState())
         Scaffold(
-            snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) }
+            snackbarHost = { CreateSnackbarHost(hostState = keepsnackbarHostState) }
         ) {
             Column(
                 modifier = modifier,
@@ -250,19 +248,6 @@ abstract class Screen: SnackbarLauncher {
                 )
             }
         }
-    }
-
-    /**
-     * Function to show a message with the [SnackbarHostState]
-     *
-     * @param message: the message to show
-     */
-    override fun showSnack(message: String) {
-        showSnack(
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            message = message
-        )
     }
 
     /**

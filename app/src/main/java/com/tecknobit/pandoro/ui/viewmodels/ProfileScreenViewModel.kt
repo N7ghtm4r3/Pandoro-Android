@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities.viewmodels
+package com.tecknobit.pandoro.ui.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
 import com.tecknobit.apimanager.formatters.JsonHelper
@@ -8,7 +8,7 @@ import com.tecknobit.pandorocore.records.Group
 import java.io.File
 
 class ProfileScreenViewModel(
-    override var snackbarHostState: SnackbarHostState
+    override var snackbarHostState: SnackbarHostState?
 ): PandoroViewModel(
     snackbarHostState = snackbarHostState
 ) {

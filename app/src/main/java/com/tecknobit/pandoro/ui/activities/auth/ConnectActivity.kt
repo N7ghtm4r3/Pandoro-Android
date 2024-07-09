@@ -67,15 +67,11 @@ import com.tecknobit.pandoro.R.string.server_secret
 import com.tecknobit.pandoro.R.string.sign_in
 import com.tecknobit.pandoro.R.string.sign_up
 import com.tecknobit.pandoro.R.string.welcome_back
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.isRefreshing
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.openLink
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
-import com.tecknobit.pandoro.ui.activities.viewmodels.ConnectViewModel
-import com.tecknobit.pandoro.ui.activities.viewmodels.PandoroViewModel.Companion.requester
 import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
@@ -83,6 +79,8 @@ import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.viewmodels.ConnectViewModel
+import com.tecknobit.pandoro.ui.viewmodels.PandoroViewModel.Companion.requester
 import com.tecknobit.pandorocore.helpers.InputsValidator
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isServerAddressValid
 import com.tecknobit.pandorocore.helpers.InputsValidator.ScreenType.SignIn
@@ -102,7 +100,6 @@ import org.json.JSONObject
  * @author N7ghtm4r3 - Tecknobit
  *
  * @see ComponentActivity
- * @see SnackbarLauncher
  */
 class ConnectActivity : ComponentActivity() {
 
@@ -506,8 +503,6 @@ class ConnectActivity : ComponentActivity() {
          */
         override fun logout() {
             preferences.edit().clear().apply()
-            /*notes.clear()*/
-            isRefreshing.value = false
             context.startActivity(Intent(context, ConnectActivity::class.java))
         }
 

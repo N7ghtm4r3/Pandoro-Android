@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -57,11 +58,12 @@ import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
-import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.viewmodels.GroupDialogsViewModel
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isGroupDescriptionValid
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isGroupNameValid
 import com.tecknobit.pandorocore.records.Group
@@ -75,7 +77,10 @@ import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
  * @author N7ghtm4r3 - Tecknobit
  * @see PandoroDialog
  */
+// TODO: TO COMMENT
 class GroupDialogs : PandoroDialog() {
+
+    private lateinit var viewModel: GroupDialogsViewModel
 
     /**
      * Function to create a Pandoro's custom dialog to create a new [Group]
@@ -87,36 +92,18 @@ class GroupDialogs : PandoroDialog() {
     fun CreateGroup() {
         if(showCreateGroup.value) {
             val members = mutableStateListOf("")
-            var name = remember { mutableStateOf("") }
-            var description = remember { mutableStateOf("") }
+            InitViewModel()
+            viewModel.name = remember { mutableStateOf("") }
+            viewModel.description = remember { mutableStateOf("") }
             CreatePandoroDialog(
                 show = showCreateGroup,
                 title = stringResource(R.string.create_a_new_group),
                 confirmText = stringResource(R.string.create),
                 requestLogic = {
-                    /*if (isGroupNameValid(name.value)) {
-                        if (isGroupDescriptionValid(description.value)) {
-                            if (members.isNotEmpty()) {
-                                if (checkMembersValidity(members)) {
-                                    requester!!.execCreateGroup(
-                                        name = name,
-                                        groupDescription = description,
-                                        members = members
-                                    )
-                                    if(requester!!.successResponse()) {
-                                        showCreateGroup.value = false
-                                        name = ""
-                                        description = ""
-                                    } else
-                                        showSnack(requester!!.errorMessage())
-                                } else
-                                    showSnack(you_must_insert_a_correct_members_list)
-                            } else
-                                showSnack(you_must_insert_one_member_at_least)
-                        } else
-                            showSnack(you_must_insert_a_correct_group_description)
-                    } else
-                        showSnack(you_must_insert_a_correct_group_name)*/
+                    viewModel.createGroup(
+                        members = members,
+                        showCreateGroup = showCreateGroup
+                    )
                 },
             ) {
                 Text(
@@ -126,7 +113,8 @@ class GroupDialogs : PandoroDialog() {
                             bottom = 10.dp
                         ),
                     text = stringResource(R.string.details_of_the_group),
-                    fontSize = 22.sp
+                    fontSize = 22.sp,
+                    color = PrimaryLight
                 )
                 PandoroTextField(
                     modifier = Modifier
@@ -138,8 +126,8 @@ class GroupDialogs : PandoroDialog() {
                     textFieldModifier = Modifier
                         .fillMaxWidth(),
                     label = stringResource(R.string.name),
-                    value = name,
-                    isError = !isGroupNameValid(name.value)
+                    value = viewModel.name,
+                    isError = !isGroupNameValid(viewModel.name.value)
                 )
                 PandoroTextField(
                     modifier = Modifier
@@ -151,8 +139,8 @@ class GroupDialogs : PandoroDialog() {
                     textFieldModifier = Modifier
                         .fillMaxWidth(),
                     label = stringResource(R.string.description),
-                    value = description,
-                    isError = !isGroupDescriptionValid(description.value)
+                    value = viewModel.description,
+                    isError = !isGroupDescriptionValid(viewModel.description.value)
                 )
                 Text(
                     modifier = Modifier
@@ -161,7 +149,8 @@ class GroupDialogs : PandoroDialog() {
                             bottom = 10.dp
                         ),
                     text = stringResource(R.string.members_of_the_group),
-                    fontSize = 22.sp
+                    fontSize = 22.sp,
+                    color = PrimaryLight
                 )
                 CreateMembersSection(
                     members = members
@@ -265,20 +254,18 @@ class GroupDialogs : PandoroDialog() {
         group: Group,
         member: GroupMember
     ) {
+        InitViewModel()
         PandoroAlertDialog(
             show = show,
             title = R.string.remove_the_user_from,
             extraTitle = group.name,
             text = R.string.remove_user_text,
             requestLogic = {
-                /*requester!!.execRemoveMember(
-                    groupId = group.id,
-                    memberId = member.id
+                viewModel.removeMember(
+                    show = show,
+                    group = group,
+                    member = member
                 )
-                if(requester!!.successResponse())
-                    show.value = false
-                else
-                    showSnack(requester!!.errorMessage())*/
             }
         )
     }
@@ -294,6 +281,7 @@ class GroupDialogs : PandoroDialog() {
         show: MutableState<Boolean>,
         group: Group,
     ) {
+        InitViewModel()
         val showAdminChoseDialog = remember { mutableStateOf(false) }
         val members = group.members
         PandoroAlertDialog(
@@ -440,21 +428,21 @@ class GroupDialogs : PandoroDialog() {
         group: Group,
         nextAdmin: GroupMember? = null
     ) {
-        /*requester!!.execLeaveGroup(
-            groupId = group.id,
-            nextAdminId = nextAdmin?.id
-        )*/
-        //if(requester!!.successResponse()) {
-            currentGroup.value = null
-            if(currentProject.value != null)
-                //ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
-            else {
-                activeScreen.value = Screen.ScreenType.Profile
-                ContextCompat.startActivity(context, Intent(context, MainActivity::class.java), null)
+        viewModel.leaveFromGroup(
+            group = group,
+            nextAdmin = nextAdmin,
+            onSuccess = {
+                currentGroup.value = null
+                if(currentProject.value != null)
+                // TODO: TO UNCOMMENT
+                    //ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
+                else {
+                    activeScreen.value = Profile
+                    ContextCompat.startActivity(context, Intent(context, MainActivity::class.java), null)
+                }
+                show.value = false
             }
-            show.value = false
-        /*} else
-            showSnack(requester!!.errorMessage())*/
+        )
     }
 
     /**
@@ -468,18 +456,26 @@ class GroupDialogs : PandoroDialog() {
         show: MutableState<Boolean>,
         group: Group
     ) {
+        InitViewModel()
         PandoroAlertDialog(
             show = show,
             title = R.string.delete_group,
             extraTitle = group.name,
             text = R.string.delete_group_text,
             requestLogic = {
-                /*requester!!.execDeleteGroup(group.id)
-                if(requester!!.successResponse())
-                    show.value = false
-                else
-                    showSnack(requester!!.errorMessage())*/
+                viewModel.deleteGroup(
+                    show = show,
+                    group = group
+                )
             }
+        )
+    }
+
+    @Composable
+    private fun InitViewModel() {
+        snackbarHostState = remember { SnackbarHostState() }
+        viewModel = GroupDialogsViewModel(
+            snackbarHostState = snackbarHostState
         )
     }
 

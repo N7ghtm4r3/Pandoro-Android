@@ -97,12 +97,12 @@ import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.gro
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.activities.viewmodels.ProfileScreenViewModel
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.viewmodels.ProfileScreenViewModel
 import com.tecknobit.pandorocore.records.Changelog
 import com.tecknobit.pandorocore.records.Changelog.ChangelogEvent.INVITED_GROUP
 import com.tecknobit.pandorocore.records.Group
@@ -886,11 +886,10 @@ class ProfileScreen: Screen() {
                                         tint = ErrorLight
                                     )
                                 }
-                                // TODO: TO UNCOMMENT
-                                /*groupDialogs.DeleteGroup(
+                                groupDialogs.DeleteGroup(
                                     show = deleteGroup,
                                     group = group
-                                )*/
+                                )
                             }
                         }
                         Divide()

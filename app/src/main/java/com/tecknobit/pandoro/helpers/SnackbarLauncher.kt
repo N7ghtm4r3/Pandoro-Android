@@ -1,13 +1,8 @@
 package com.tecknobit.pandoro.helpers
 
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.Composable
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.theme.BackgroundLight
-import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -16,8 +11,6 @@ import kotlinx.coroutines.launch
  * @author N7ghtm4r3 - Tecknobit
  */
 interface SnackbarLauncher {
-
-
 
     /**
      * Function to show a message with the [SnackbarHostState]

@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities.viewmodels
+package com.tecknobit.pandoro.ui.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.MutableIntState
@@ -15,9 +15,11 @@ import com.tecknobit.pandoro.R.string.you_must_insert_one_note_at_least
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
+import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.notes
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.changelogs
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
+import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
@@ -29,12 +31,13 @@ import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidReposi
 import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidVersion
 import com.tecknobit.pandorocore.records.Changelog
 import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandorocore.records.Note
 import com.tecknobit.pandorocore.records.Project
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class MainActivityViewModel(
-    override var snackbarHostState: SnackbarHostState
+    override var snackbarHostState: SnackbarHostState? = null
 ) : PandoroViewModel(
     snackbarHostState = snackbarHostState
 ) {
@@ -46,9 +49,12 @@ class MainActivityViewModel(
 
     private val _changelogs = MutableStateFlow<MutableList<Changelog>>(mutableListOf())
 
+    private val _notes = MutableStateFlow<MutableList<Note>>(mutableListOf())
+
     init {
         groups = _groups
         changelogs = _changelogs
+        notes = _notes
     }
 
     /**
@@ -86,8 +92,7 @@ class MainActivityViewModel(
                         },
                         onFailure = { showSnack(it) }
                     )
-                }
-                if(activeScreen.value == Profile || activeScreen.value == Projects) {
+                } else if(activeScreen.value == Profile || activeScreen.value == Projects) {
                     requester.sendRequest(
                         request = { requester.getGroupsList() },
                         onSuccess = { response ->
@@ -95,6 +100,16 @@ class MainActivityViewModel(
                                 response.getJSONArray(RESPONSE_MESSAGE_KEY)
                             )
                             user.setGroups(_groups.value)
+                        },
+                        onFailure = { showSnack(it) }
+                    )
+                } else if(activeScreen.value == Notes) {
+                    requester.sendRequest(
+                        request = { requester.getNotesList() },
+                        onSuccess = { response ->
+                            _notes.value = Note.getInstances(
+                                response.getJSONArray(RESPONSE_MESSAGE_KEY)
+                            )
                         },
                         onFailure = { showSnack(it) }
                     )

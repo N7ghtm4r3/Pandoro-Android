@@ -46,7 +46,7 @@ import com.tecknobit.pandoro.R.string.delete_text_dialog
 import com.tecknobit.pandoro.R.string.frequent_projects
 import com.tecknobit.pandoro.R.string.no_projects_found
 import com.tecknobit.pandoro.R.string.search
-import com.tecknobit.pandoro.ui.activities.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroTextField

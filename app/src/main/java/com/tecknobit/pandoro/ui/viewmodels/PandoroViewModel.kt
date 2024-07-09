@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities.viewmodels
+package com.tecknobit.pandoro.ui.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 abstract class PandoroViewModel(
-    open var snackbarHostState: SnackbarHostState
+    open var snackbarHostState: SnackbarHostState?
 ): ViewModel(), FetcherManager.FetcherManagerWrapper {
 
     companion object {
@@ -112,7 +112,7 @@ abstract class PandoroViewModel(
         message: Int
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            snackbarHostState.showSnackbar(context.getString(message))
+            snackbarHostState!!.showSnackbar(context.getString(message))
         }
     }
 
@@ -125,7 +125,7 @@ abstract class PandoroViewModel(
         helper: JsonHelper
     ) {
         CoroutineScope(Dispatchers.IO).launch {
-            snackbarHostState.showSnackbar(helper.getString(Requester.RESPONSE_MESSAGE_KEY))
+            snackbarHostState!!.showSnackbar(helper.getString(Requester.RESPONSE_MESSAGE_KEY))
         }
     }
 

@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities.viewmodels
+package com.tecknobit.pandoro.ui.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.MutableState

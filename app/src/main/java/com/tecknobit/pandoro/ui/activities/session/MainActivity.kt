@@ -37,23 +37,24 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.NavigationHelper
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.activities.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.screens.NotesScreen
+import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.showAddNoteSheet
+import com.tecknobit.pandoro.ui.screens.OverviewScreen
 import com.tecknobit.pandoro.ui.screens.ProfileScreen
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showAddGroupButton
 import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.showCreateGroup
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
-import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Profile
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
 
 
 /**
@@ -62,29 +63,25 @@ import com.tecknobit.pandoro.ui.theme.PrimaryLight
  *
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
- * @see SnackbarLauncher
- * @see AndroidListManager
  */
-class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager*/ {
+class MainActivity : ComponentActivity() {
 
     /**
      * **notesScreen** -> the screen to show the notes
      */
-    //private val notesScreen = NotesScreen()
+    private val notesScreen = NotesScreen()
 
     /**
      * **overviewScreen** -> the screen to show the overview
      */
-    //private val overviewScreen = OverviewScreen()
+    private val overviewScreen = OverviewScreen()
 
     /**
      * **profileScreen** -> the screen to show the profile
      */
     private val profileScreen = ProfileScreen()
 
-    private val viewModel = MainActivityViewModel(
-        snackbarHostState = snackbarHostState
-    )
+    private val viewModel = MainActivityViewModel()
 
     /**
      * **projectsScreen** -> the screen to show the projects
@@ -109,7 +106,6 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
         super.onCreate(savedInstanceState)
         val navigationHelper = NavigationHelper()
         setContent {
-            viewModel.snackbarHostState = snackbarHostState
             viewModel.unreadChangelogsNumber = remember { mutableIntStateOf(user.unreadChangelogsNumber) }
             PandoroTheme {
                 Scaffold(
@@ -179,7 +175,7 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
                                     onClick = {
                                         when (activeScreen.value) {
                                             Projects -> showAddProjectDialog.value = true
-                                            //Notes -> showAddNoteSheet.value = true
+                                            Notes -> showAddNoteSheet.value = true
                                             Profile -> showCreateGroup.value = true
                                             else -> {}
                                         }
@@ -196,8 +192,8 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
                 ) {
                     when(activeScreen.value) {
                         Projects -> projectsScreen.ShowScreen()
-                        Notes -> /*notesScreen.ShowScreen()*/ ""
-                        Overview -> /*overviewScreen.ShowScreen()*/ ""
+                        Notes -> notesScreen.ShowScreen()
+                        Overview -> overviewScreen.ShowScreen()
                         Profile -> profileScreen.ShowScreen()
                     }
                 }
@@ -209,92 +205,6 @@ class MainActivity : ComponentActivity()/*, SnackbarLauncher, AndroidListManager
             }
         })
     }
-
-    /*
-    /**
-     * Function to refresh a list of items to display in the UI
-     *
-     * No-any params required
-     */
-    override fun refreshValues() {
-        CoroutineScope(Dispatchers.Default).launch {
-            var response: String
-            while (user.id != null) {
-                if(activeScreen.value == Projects || activeScreen.value == Overview ||
-                    currentGroup.value != null) {
-                    try {
-                        val tmpProjects = mutableStateListOf<Project>()
-                        response = requester!!.execProjectsList()
-                        if(requester!!.successResponse()) {
-                            val jProjects = JSONArray(response)
-                            for (j in 0 until jProjects.length())
-                                tmpProjects.add(Project(jProjects[j] as JSONObject))
-                            if(needToRefresh(projectsList, tmpProjects)) {
-                                projectsList.clear()
-                                projectsList.addAll(tmpProjects)
-                                user.setProjects(projectsList)
-                            }
-                        } else
-                            showSnack(requester!!.errorMessage())
-                    } catch (_: Exception){
-                    }
-                }
-                if(activeScreen.value == Profile || activeScreen.value == Projects) {
-                    try {
-                        val tmpGroups = mutableStateListOf<Group>()
-                        response = requester!!.execGroupsList()
-                        if(requester!!.successResponse()) {
-                            val jGroups = JSONArray(response)
-                            for (j in 0 until jGroups.length())
-                                tmpGroups.add(Group(jGroups[j] as JSONObject))
-                            if(needToRefresh(groups, tmpGroups)) {
-                                groups.clear()
-                                groups.addAll(tmpGroups)
-                                user.setGroups(groups)
-                            }
-                        } else
-                            showSnack(requester!!.errorMessage())
-                    } catch (_: Exception){
-                    }
-                }
-                try {
-                    val tmpChangelogs = mutableStateListOf<Changelog>()
-                    response = requester!!.execChangelogsList()
-                    if(requester!!.successResponse()) {
-                        val jChangelogs = JSONArray(response)
-                        for (j in 0 until jChangelogs.length())
-                            tmpChangelogs.add(Changelog(jChangelogs[j] as JSONObject))
-                        if(needToRefresh(changelogs, tmpChangelogs)) {
-                            changelogs.clear()
-                            unreadChangelogsNumber.intValue = 0
-                            changelogs.addAll(tmpChangelogs)
-                            changelogs.forEach { changelog ->
-                                if(!changelog.isRed)
-                                    unreadChangelogsNumber.intValue++
-                            }
-                        }
-                    } else
-                        showSnack(requester!!.errorMessage())
-                } catch (_: Exception){
-                }
-                delay(1000)
-            }
-        }
-    }
-
-    /**
-     * Function to show a message with the [SnackbarHostState]
-     *
-     * @param message: the message to show
-     */
-    override fun showSnack(message: String) {
-        showSnack(
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            message = message
-        )
-    }
-*/
 
     /**
      * Called after {@link #onRestoreInstanceState}, {@link #onRestart}, or {@link #onPause}. This

@@ -54,7 +54,7 @@ import com.tecknobit.pandoro.R.string.target_version
 import com.tecknobit.pandoro.R.string.to_a_group
 import com.tecknobit.pandoro.R.string.version
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
-import com.tecknobit.pandoro.ui.activities.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showEditProjectDialog

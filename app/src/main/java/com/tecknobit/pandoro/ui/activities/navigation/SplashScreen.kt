@@ -14,12 +14,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,11 +46,9 @@ import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
 import com.tecknobit.pandoro.ui.screens.Screen
-import com.tecknobit.pandoro.ui.screens.Screen.Companion.snackbarHostState
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.defTypeface
-import com.tecknobit.pandorocore.helpers.PandoroRequester
 import com.tecknobit.pandorocore.records.users.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -80,11 +76,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
     companion object {
 
         /**
-         * **isRefreshing** -> whether is current allowed refresh the lists
-         */
-        lateinit var isRefreshing: MutableState<Boolean>
-
-        /**
          * **localAuthHelper** -> the instance to manage the auth credentials in local
          */
         lateinit var localAuthHelper: LocalAuthHelper
@@ -93,11 +84,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
          * **user** the current user logged in
          */
         var user = User()
-
-        /**
-         * **requester** -> the stance to manage the requests with the backend
-         */
-        var requester: PandoroRequester? = null
 
         /**
          * **activeScreen** -> the active screen to show
@@ -170,12 +156,10 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         setContent {
             activeScreen = remember { mutableStateOf(Projects) }
             PandoroTheme {
-                snackbarHostState = remember { SnackbarHostState() }
                 context = LocalContext.current
                 reviewManager = ReviewManagerFactory.create(context)
                 Coil.imageLoader(context)
                 Coil.setImageLoader(newImageLoader())
-                isRefreshing = rememberSaveable { mutableStateOf(false) }
                 localAuthHelper = ConnectActivity().LocalAuthHelper()
                 localAuthHelper.initUserCredentials()
                 setLocale()

@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
@@ -40,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
  * The **PandoroDialog** class is useful to create the custom Pandoro's dialogs
  *
  * @author N7ghtm4r3 - Tecknobit
- * @see SnackbarLauncher
  */
 open class PandoroDialog {
 
