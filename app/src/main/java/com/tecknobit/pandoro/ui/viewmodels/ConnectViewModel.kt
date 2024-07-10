@@ -23,24 +23,59 @@ import com.tecknobit.pandorocore.helpers.InputsValidator.InputStatus.WRONG_PASSW
 import com.tecknobit.pandorocore.helpers.PandoroRequester
 import com.tecknobit.pandorocore.records.users.User.LANGUAGE_KEY
 
+/**
+ * The **ConnectViewModel** class is the support class used by the [ConnectActivity]
+ * to execute the authentication requests to the backend
+ *
+ * @param snackbarHostState: the host to launch the snackbar messages
+ *
+ * @author N7ghtm4r3 - Tecknobit
+ * @see PandoroViewModel
+ * @see ViewModel
+ * @see FetcherManagerWrapper
+ */
 class ConnectViewModel(
     snackbarHostState: SnackbarHostState
 ): PandoroViewModel(
     snackbarHostState = snackbarHostState
 ) {
 
+    /**
+     * **serverAddress** -> the value of the server address
+     */
     lateinit var serverAddress: MutableState<String>
 
+    /**
+     * **serverSecret** -> the value of the server secret
+     */
     lateinit var serverSecret: MutableState<String>
 
+    /**
+     * **name** -> the name of the user
+     */
     lateinit var name: MutableState<String>
 
+    /**
+     * **surname** -> the surname of the user
+     */
     lateinit var surname: MutableState<String>
 
+    /**
+     * **email** -> the email of the user
+     */
     lateinit var email: MutableState<String>
 
+    /**
+     * **password** -> the password of the user
+     */
     lateinit var password: MutableState<String>
 
+    /**
+     * Function to execute the sign up authentication request, if successful the [localAuthHelper] will
+     * be initialized with the data received by the request
+     *
+     * No-any params required
+     */
     fun signUp() {
         if (isServerAddressValid(serverAddress.value)) {
             if(isServerSecretValid(serverSecret.value)) {
@@ -64,6 +99,12 @@ class ConnectViewModel(
             showSnack(you_must_insert_a_correct_server_address)
     }
 
+    /**
+     * Function to execute the sign in authentication request, if successful the [localAuthHelper] will
+     * be initialized with the data received by the request
+     *
+     * No-any params required
+     */
     fun signIn() {
         if (isServerAddressValid(serverAddress.value)) {
             checkCredentials(

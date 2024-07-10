@@ -13,6 +13,7 @@ import com.tecknobit.pandoro.R.string.insert_a_correct_version
 import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.localAuthHelper
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.notes
@@ -35,21 +36,47 @@ import com.tecknobit.pandorocore.records.Project
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * The **MainActivityViewModel** class is the support class used by the [MainActivity]
+ * to execute the different requests to refresh the user data to the backend
+ *
+ * @param snackbarHostState: the host to launch the snackbar messages
+ *
+ * @author N7ghtm4r3 - Tecknobit
+ * @see PandoroViewModel
+ * @see ViewModel
+ * @see FetcherManagerWrapper
+ */
 class MainActivityViewModel(
     override var snackbarHostState: SnackbarHostState? = null
 ) : PandoroViewModel(
     snackbarHostState = snackbarHostState
 ) {
 
+    /**
+     * **_projects** -> list of the projects of the user
+     */
     private val _projects = MutableStateFlow<MutableList<Project>>(mutableListOf())
     val projects: StateFlow<MutableList<Project>> = _projects
 
+    /**
+     * **_groups** -> list of the groups of the user
+     */
     private val _groups = MutableStateFlow<MutableList<Group>>(mutableListOf())
 
+    /**
+     * **_changelogs** -> list of the changelogs of the user
+     */
     private val _changelogs = MutableStateFlow<MutableList<Changelog>>(mutableListOf())
 
+    /**
+     * **_notes** -> list of the notes of the user
+     */
     private val _notes = MutableStateFlow<MutableList<Note>>(mutableListOf())
 
+    /**
+     * **_isServerOffline** -> whether the server is currently offline
+     */
     private val _isServerOffline = MutableStateFlow(false)
     val isServerOffline = _isServerOffline
 
@@ -64,18 +91,41 @@ class MainActivityViewModel(
      */
     lateinit var unreadChangelogsNumber: MutableIntState
 
+    /**
+     * **name** -> the name of the project
+     */
     lateinit var name: MutableState<String>
 
+    /**
+     * **description** -> the description of the project
+     */
     lateinit var description: MutableState<String>
 
+    /**
+     * **shortDescription** -> the short description of the project
+     */
     lateinit var shortDescription: MutableState<String>
 
+    /**
+     * **version** -> the current version of the project
+     */
     lateinit var version: MutableState<String>
 
+    /**
+     * **projectRepository** -> the project repository of the project
+     */
     lateinit var projectRepository: MutableState<String>
 
+    /**
+     * **projectGroups** -> the list of groups where the project is shared
+     */
     lateinit var projectGroups: MutableList<Group>
 
+    /**
+     * Function to execute the request to refresh the [_projects], [_groups], [_notes] and [_changelogs] lists
+     *
+     * No-any params required
+     */
     fun refreshValues() {
         execRefreshingRoutine(
             currentContext = MainActivity::class.java,
@@ -127,13 +177,22 @@ class MainActivityViewModel(
                                 unreadChangelogsNumber.intValue++
                         }
                     },
-                    onFailure = { context.startActivity(Intent(context, ConnectActivity::class.java)) },
+                    onFailure = {
+                        localAuthHelper.logout()
+                        context.startActivity(Intent(context, ConnectActivity::class.java))
+                    },
                     onConnectionError = { _isServerOffline.value = true }
                 )
             }
         )
     }
-    
+
+    /**
+     * Function to work ([addProject] or [editProject]) a project
+     *
+     * @param project: the project to work on
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     fun workWithProject(
         project: Project?,
         onSuccess: () -> Unit
@@ -171,6 +230,12 @@ class MainActivityViewModel(
             showSnack(insert_a_correct_name)
     }
 
+    /**
+     * Function to execute the request to add a new project
+     *
+     * @param groupIds: the list of group identifiers where the project is shared
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     private fun addProject(
         groupIds: List<String>,
         onSuccess: () -> Unit
@@ -191,6 +256,13 @@ class MainActivityViewModel(
         )
     }
 
+    /**
+     * Function to execute the request to edit an existing project
+     *
+     * @param project: the existing project to edit
+     * @param groupIds: the list of group identifiers where the project is shared
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     private fun editProject(
         project: Project,
         groupIds: List<String>,
@@ -213,6 +285,12 @@ class MainActivityViewModel(
         )
     }
 
+    /**
+     * Function to execute the request to delete an existing project
+     *
+     * @param project: the existing project to delete
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     fun deleteProject(
         project: Project,
         onSuccess: () -> Unit

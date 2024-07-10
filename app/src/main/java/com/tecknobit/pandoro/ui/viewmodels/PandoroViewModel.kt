@@ -2,8 +2,10 @@ package com.tecknobit.pandoro.ui.viewmodels
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.ViewModel
+import com.tecknobit.apimanager.annotations.Structure
 import com.tecknobit.apimanager.formatters.JsonHelper
 import com.tecknobit.equinox.FetcherManager
+import com.tecknobit.equinox.FetcherManager.FetcherManagerWrapper
 import com.tecknobit.equinox.Requester
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandorocore.helpers.PandoroRequester
@@ -11,9 +13,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * The **PandoroViewModel** class is the support class used by the related activities to communicate
+ * with the backend and to execute the refreshing routines to update the UI data
+ *
+ * @param snackbarHostState: the host to launch the snackbar messages
+ *
+ * @author N7ghtm4r3 - Tecknobit
+ * @see ViewModel
+ * @see FetcherManagerWrapper
+ */
+@Structure
 abstract class PandoroViewModel(
     open var snackbarHostState: SnackbarHostState?
-): ViewModel(), FetcherManager.FetcherManagerWrapper {
+): ViewModel(), FetcherManagerWrapper {
 
     companion object {
 

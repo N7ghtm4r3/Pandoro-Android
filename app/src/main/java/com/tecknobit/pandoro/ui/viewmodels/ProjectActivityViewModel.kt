@@ -15,6 +15,18 @@ import com.tecknobit.pandorocore.records.ProjectUpdate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * The **ProjectActivityViewModel** class is the support class used by the [ProjectActivity]
+ * to refresh the project displayed and to manage it
+ *
+ * @param initialProject: the initial value of the project displayed
+ * @param snackbarHostState: the host to launch the snackbar messages
+ *
+ * @author N7ghtm4r3 - Tecknobit
+ * @see PandoroViewModel
+ * @see ViewModel
+ * @see FetcherManagerWrapper
+ */
 class ProjectActivityViewModel (
     initialProject: Project,
     snackbarHostState: SnackbarHostState
@@ -22,18 +34,39 @@ class ProjectActivityViewModel (
     snackbarHostState = snackbarHostState
 ) {
 
+    /**
+     * **isRefreshing** -> whether the [refreshProject] has been already invoked
+     */
     private var isRefreshing: Boolean = false
 
+    /**
+     * **_project** -> the project currently displayed
+     */
     private val _project = MutableStateFlow(initialProject)
     val project: StateFlow<Project> = _project
 
+    /**
+     * **targetVersion** -> the version of the update to schedule
+     */
     lateinit var targetVersion: MutableState<String>
 
+    /**
+     * Function to restart the current [refreshRoutine] after other requests has been executed,
+     * the [isRefreshing] instance will be set as **true** to deny the restart of the routine after executing
+     * the other requests
+     *
+     * No-any params required
+     */
     override fun restartRefresher() {
         if(isRefreshing)
             super.restartRefresher()
     }
 
+    /**
+     * Function to execute the request to refresh the [_project] item
+     *
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     fun refreshProject(
         onSuccess: () -> Unit
     ) {
@@ -59,6 +92,14 @@ class ProjectActivityViewModel (
         )
     }
 
+    /**
+     * Function to execute the request to add a new change note to an update
+     *
+     * @param update: the update where add the change note
+     * @param contentNote: the content of the note
+     * @param onSuccess: the action to execute whether the request has been successful
+     * @param onFailure: the action to execute whether the request has been failed
+     */
     fun addChangeNote(
         update: ProjectUpdate,
         contentNote: MutableState<String>,
@@ -78,6 +119,13 @@ class ProjectActivityViewModel (
         )
     }
 
+    /**
+     * Function to execute the request to mark as to do or mark as done a change note
+     *
+     * @param markedAsDone: whether the change note is currently marked as done
+     * @param update: the update where add the change note
+     * @param changeNote: the change note to manage
+     */
     fun manageChangeNote(
         markedAsDone: MutableState<Boolean>,
         update: ProjectUpdate,
@@ -104,6 +152,13 @@ class ProjectActivityViewModel (
         )
     }
 
+    /**
+     * Function to execute the request to schedule a new update
+     *
+     * @param project: the project where attach the update
+     * @param notes: list of the change notes for that update
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     fun scheduleUpdate(
         project: Project,
         notes: List<String>,
@@ -134,6 +189,11 @@ class ProjectActivityViewModel (
             showSnack(insert_a_correct_target_version)
     }
 
+    /**
+     * Function to execute the request to start a scheduled update
+     *
+     * @param update: the update to start
+     */
     fun startUpdate(
         update: ProjectUpdate
     ) {
@@ -149,6 +209,12 @@ class ProjectActivityViewModel (
         )
     }
 
+    /**
+     * Function to execute the request to delete a change note of an update
+     *
+     * @param update: the update owner of the change note
+     * @param changeNote: the change note to delete
+     */
     fun deleteChangeNote(
         update: ProjectUpdate,
         changeNote: Note
@@ -166,6 +232,12 @@ class ProjectActivityViewModel (
         )
     }
 
+    /**
+     * Function to execute the request to publish an update
+     *
+     * @param update: the update to publish
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     fun publishUpdate(
         update: ProjectUpdate,
         onSuccess: () -> Unit
@@ -182,6 +254,12 @@ class ProjectActivityViewModel (
         )
     }
 
+    /**
+     * Function to execute the request to delete an update
+     *
+     * @param update: the update to delete
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     fun deleteUpdate(
         update: ProjectUpdate,
         onSuccess: () -> Unit

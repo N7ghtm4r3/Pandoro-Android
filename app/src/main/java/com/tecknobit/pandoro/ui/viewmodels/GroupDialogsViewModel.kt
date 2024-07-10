@@ -12,16 +12,39 @@ import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isGroupNameVa
 import com.tecknobit.pandorocore.records.Group
 import com.tecknobit.pandorocore.records.users.GroupMember
 
+/**
+ * The **GroupDialogsViewModel** class is the support class used by the [GroupDialogsViewModel]
+ * to manage a group
+ *
+ * @param snackbarHostState: the host to launch the snackbar messages
+ *
+ * @author N7ghtm4r3 - Tecknobit
+ * @see PandoroViewModel
+ * @see ViewModel
+ * @see FetcherManagerWrapper
+ */
 class GroupDialogsViewModel(
     override var snackbarHostState: SnackbarHostState?
 ): PandoroViewModel(
     snackbarHostState = snackbarHostState
 ) {
 
+    /**
+     * **name** -> the name of the group
+     */
     lateinit var name: MutableState<String>
 
+    /**
+     * **description** -> the description of the group
+     */
     lateinit var description: MutableState<String>
 
+    /**
+     * Function to execute the request to create a new group
+     *
+     * @param members: the list of the members to add to the group
+     * @param showCreateGroup: whether show the dialog for the creation of the group
+     */
     fun createGroup(
         members: List<String>,
         showCreateGroup: MutableState<Boolean>
@@ -55,6 +78,13 @@ class GroupDialogsViewModel(
             showSnack(you_must_insert_a_correct_group_name)
     }
 
+    /**
+     * Function to execute the request to remove a member from a group
+     *
+     * @param show: whether show the dialog for the member removal
+     * @param group: the group from remove that member
+     * @param member: the member to remove
+     */
     fun removeMember(
         show: MutableState<Boolean>,
         group: Group,
@@ -72,6 +102,13 @@ class GroupDialogsViewModel(
         )
     }
 
+    /**
+     * Function to execute the request to leave from a group
+     *
+     * @param group: the group from leave
+     * @param nextAdmin: the next admin choose by the admin is leaving
+     * @param onSuccess: the action to execute whether the request has been successful
+     */
     fun leaveFromGroup(
         group: Group,
         nextAdmin: GroupMember?,
@@ -89,6 +126,12 @@ class GroupDialogsViewModel(
         )
     }
 
+    /**
+     * Function to execute the request to delete a group
+     *
+     * @param show: whether show the dialog for the group deletion
+     * @param group: the group to delete
+     */
     fun deleteGroup(
         show: MutableState<Boolean>,
         group: Group
