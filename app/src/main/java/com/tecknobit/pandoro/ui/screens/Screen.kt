@@ -105,12 +105,12 @@ abstract class Screen {
         /**
          * **currentProject** the current project currently displayed
          */
-        var currentProject = mutableStateOf<Project?>(null)
+        var currentProject: Project? = null
 
         /**
          * **currentGroup** the current group currently displayed
          */
-        var currentGroup = mutableStateOf<Group?>(null)
+        var currentGroup: Group? = null
 
     }
 
@@ -276,7 +276,7 @@ abstract class Screen {
      * @param project: the project to show
      */
     fun navToProject(project: Project) {
-        currentProject.value = project
+        currentProject = project
         navTo(ProjectActivity::class.java)
     }
 
@@ -286,7 +286,7 @@ abstract class Screen {
      * @param group: the group to show
      */
     fun navToGroup(group: Group) {
-        currentGroup.value = group
+        currentGroup = group
         navTo(GroupActivity::class.java)
     }
 

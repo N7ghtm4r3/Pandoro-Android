@@ -1,5 +1,6 @@
 package com.tecknobit.pandoro.ui.viewmodels
 
+import android.content.Intent
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
@@ -9,7 +10,9 @@ import com.tecknobit.pandoro.R.string.insert_a_correct_name
 import com.tecknobit.pandoro.R.string.insert_a_correct_repository_url
 import com.tecknobit.pandoro.R.string.insert_a_correct_short_description
 import com.tecknobit.pandoro.R.string.insert_a_correct_version
+import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
 import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.notes
@@ -47,6 +50,9 @@ class MainActivityViewModel(
 
     private val _notes = MutableStateFlow<MutableList<Note>>(mutableListOf())
 
+    private val _isServerOffline = MutableStateFlow(false)
+    val isServerOffline = _isServerOffline
+
     init {
         groups = _groups
         changelogs = _changelogs
@@ -75,7 +81,7 @@ class MainActivityViewModel(
             currentContext = MainActivity::class.java,
             routine = {
                 if(activeScreen.value == Projects || activeScreen.value == Overview
-                    || currentGroup.value != null) {
+                    || currentGroup != null) {
                     requester.sendRequest(
                         request = { requester.getProjectsList() },
                         onSuccess = { response ->
@@ -111,6 +117,7 @@ class MainActivityViewModel(
                 requester.sendRequest(
                     request = { requester.getChangelogsList() },
                     onSuccess = { response ->
+                        _isServerOffline.value = false
                         _changelogs.value = Changelog.getInstances(
                             response.getJSONArray(RESPONSE_MESSAGE_KEY)
                         )
@@ -120,11 +127,8 @@ class MainActivityViewModel(
                                 unreadChangelogsNumber.intValue++
                         }
                     },
-                    onFailure = { showSnack(it) },
-                    onConnectionError = {
-                        // TODO: MANAGE HERE WRONG CREDENTIALS OR SERVER OFFLINE
-                        showSnack(it)
-                    }
+                    onFailure = { context.startActivity(Intent(context, ConnectActivity::class.java)) },
+                    onConnectionError = { _isServerOffline.value = true }
                 )
             }
         )

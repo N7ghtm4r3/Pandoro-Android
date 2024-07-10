@@ -77,9 +77,11 @@ import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
  * @author N7ghtm4r3 - Tecknobit
  * @see PandoroDialog
  */
-// TODO: TO COMMENT
 class GroupDialogs : PandoroDialog() {
 
+    /**
+     * *viewModel* -> the support view model to manage the requests to the backend
+     */
     private val viewModel = GroupDialogsViewModel(
         snackbarHostState = snackbarHostState
     )
@@ -274,17 +276,20 @@ class GroupDialogs : PandoroDialog() {
      * Function to create a Pandoro's custom dialog to leave from a [Group]
      *
      * @param show: whether show the dialog
+     * @param onDismissRequest: the action to execute when the alert dialog has been dismissed
      * @param group: the group from leave
      */
     @Composable
     fun LeaveGroup(
         show: MutableState<Boolean>,
-        group: Group,
+        onDismissRequest: () -> Unit,
+        group: Group
     ) {
         val showAdminChoseDialog = remember { mutableStateOf(false) }
         val members = group.members
         PandoroAlertDialog(
             show = show,
+            onDismissRequest = onDismissRequest,
             title = R.string.leave_group,
             extraTitle = group.name,
             text = R.string.leave_group_text,
@@ -303,14 +308,25 @@ class GroupDialogs : PandoroDialog() {
                                 break
                             }
                         }
-                        if(hasOtherAdmins)
-                            leaveFromGroup(show, group)
-                        else
+                        if(hasOtherAdmins) {
+                            leaveFromGroup(
+                                onDismissRequest = onDismissRequest,
+                                group = group
+                            )
+                        } else
                             showAdminChoseDialog.value = true
-                    } else
-                        leaveFromGroup(show, group)
-                } else
-                    leaveFromGroup(show, group)
+                    } else {
+                        leaveFromGroup(
+                            onDismissRequest = onDismissRequest,
+                            group = group
+                        )
+                    }
+                } else {
+                    leaveFromGroup(
+                        onDismissRequest = onDismissRequest,
+                        group = group
+                    )
+                }
             }
         )
         if(showAdminChoseDialog.value) {
@@ -388,7 +404,7 @@ class GroupDialogs : PandoroDialog() {
                 dismissButton = {
                     TextButton(
                         onClick = {
-                            show.value = false
+                            onDismissRequest.invoke()
                             showAdminChoseDialog.value = false
                         },
                         content = {
@@ -401,7 +417,11 @@ class GroupDialogs : PandoroDialog() {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            leaveFromGroup(show, group, nextAdmin)
+                            leaveFromGroup(
+                                onDismissRequest = onDismissRequest,
+                                group = group,
+                                nextAdmin = nextAdmin
+                            )
                             showAdminChoseDialog.value = false
                         },
                         content = {
@@ -418,12 +438,12 @@ class GroupDialogs : PandoroDialog() {
     /**
      * Function to execute the request to leave from a [Group]
      *
-     * @param show: whether show the dialog
+     * @param onDismissRequest: the action to execute when the alert dialog has been dismissed
      * @param group: the group from leave
      * @param nextAdmin: the next member chosen as next admin
      */
     private fun leaveFromGroup(
-        show: MutableState<Boolean>,
+        onDismissRequest: () -> Unit,
         group: Group,
         nextAdmin: GroupMember? = null
     ) {
@@ -431,15 +451,14 @@ class GroupDialogs : PandoroDialog() {
             group = group,
             nextAdmin = nextAdmin,
             onSuccess = {
-                // TODO: TO FIX BACK NAVIGATION 
-                currentGroup.value = null
-                if(currentProject.value != null)
+                if(currentProject != null)
                     ContextCompat.startActivity(context, Intent(context, ProjectActivity::class.java), null)
                 else {
                     activeScreen.value = Profile
                     ContextCompat.startActivity(context, Intent(context, MainActivity::class.java), null)
                 }
-                show.value = false
+                onDismissRequest.invoke()
+                currentGroup = null
             }
         )
     }

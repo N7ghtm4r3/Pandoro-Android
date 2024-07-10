@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecknobit.pandoro.R.string.current_projects
@@ -59,10 +60,11 @@ import com.tecknobit.pandorocore.ui.populateFrequentProjects
 /**
  * The **ProjectsScreen** class is useful to show the projects of the user
  *
+ * @param viewModel: the support view model to manage the requests to the backend
+ *
  * @author N7ghtm4r3 - Tecknobit
  * @see Screen
  */
-// TODO: TO COMMENT
 class ProjectsScreen(
     val viewModel: MainActivityViewModel
 ): Screen() {
@@ -124,7 +126,9 @@ class ProjectsScreen(
                 else {
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(1),
-                        contentPadding = PaddingValues(end = 1.dp),
+                        contentPadding = PaddingValues(
+                            end = 1.dp
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -134,16 +138,20 @@ class ProjectsScreen(
                                 project.id
                             }
                         ) { project ->
-                            ProjectCard(project = project)
+                            ProjectCard(
+                                project = project
+                            )
                         }
                     }
                 }
             }
             Column (
                 modifier = Modifier
-                    .weight(1.6f)
+                    .weight(1.5f)
                     .fillMaxSize()
-                    .padding(top = 10.dp)
+                    .padding(
+                        top = 10.dp
+                    )
             ) {
                 val filterQuery = remember { mutableStateOf("") }
                 val currentProjects = filterProjects(
@@ -161,8 +169,11 @@ class ProjectsScreen(
                     NoProjectsFound()
                 else {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(1),
-                        contentPadding = PaddingValues(bottom = 1.dp),
+                        columns = GridCells
+                            .Fixed(1),
+                        contentPadding = PaddingValues(
+                            bottom = 1.dp
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -172,7 +183,9 @@ class ProjectsScreen(
                                 project.id
                             }
                         ) { project ->
-                            ProjectCard(project = project)
+                            ProjectCard(
+                                project = project
+                            )
                         }
                     }
                 }
@@ -235,15 +248,17 @@ class ProjectsScreen(
      * @param project: the project to create the card
      */
     @Composable
-    private fun ProjectCard(project: Project) {
+    private fun ProjectCard(
+        project: Project
+    ) {
         var showOptions by remember { mutableStateOf(false) }
         PandoroCard(
-            modifier = Modifier.size(
-                width = 200.dp,
-                height = 120.dp
-            ),
+            modifier = Modifier
+                .size(
+                    width = 225.dp,
+                    height = 120.dp
+                ),
             onClick = {
-                // TODO: FIX THE BACK FROM GROUPACTIVITY NAVIGATION STOPS REFRESHER 
                 navToProject(
                     project = project
                 )
@@ -309,7 +324,9 @@ class ProjectsScreen(
                                 Text(
                                     text = project.name,
                                     fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -320,7 +337,8 @@ class ProjectsScreen(
                             horizontalAlignment = Alignment.End
                         ) {
                             IconButton(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier
+                                    .size(24.dp),
                                 onClick = { showOptions = !showOptions }
                             ) {
                                 Icon(
@@ -331,13 +349,20 @@ class ProjectsScreen(
                         }
                     }
                     Text(
-                        modifier = Modifier.padding(top = 5.dp),
-                        text = project.shortDescription
+                        modifier = Modifier
+                            .padding(
+                                top = 5.dp
+                            ),
+                        text = project.shortDescription,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 5.dp),
+                            .padding(
+                                top = 5.dp
+                            ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
@@ -357,7 +382,8 @@ class ProjectsScreen(
                                 horizontalAlignment = Alignment.End
                             ) {
                                 Icon(
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier
+                                        .size(24.dp),
                                     imageVector = Icons.Default.Group,
                                     contentDescription = null
                                 )

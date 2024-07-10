@@ -70,10 +70,11 @@ import com.tecknobit.pandorocore.records.Project
 /**
  * The **ProjectDialogs** class is useful to create the projects dialogs
  *
+ * @param viewModel: the support view model to manage the requests to the backend
+ *
  * @author N7ghtm4r3 - Tecknobit
  * @see PandoroDialog
  */
-// TODO: TO COMMENT
 class ProjectDialogs(
     val viewModel: MainActivityViewModel
 ) : PandoroDialog() {

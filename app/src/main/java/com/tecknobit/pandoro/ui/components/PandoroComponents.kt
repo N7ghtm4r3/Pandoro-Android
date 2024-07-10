@@ -247,7 +247,7 @@ fun PandoroAlertDialog(
             text = text,
             dismissButton = {
                 TextButton(
-                    onClick = { show.value = false },
+                    onClick = onDismissRequest,
                     content = {
                         Text(
                             text = stringResource(R.string.dismiss)

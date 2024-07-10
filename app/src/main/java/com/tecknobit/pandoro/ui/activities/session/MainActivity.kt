@@ -5,17 +5,24 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -24,6 +31,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -64,7 +73,6 @@ import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  */
-// TODO: TO COMMENT
 class MainActivity : ComponentActivity() {
 
     /**
@@ -82,6 +90,9 @@ class MainActivity : ComponentActivity() {
      */
     private val profileScreen = ProfileScreen()
 
+    /**
+     * *viewModel* -> the support view model to manage the requests to the backend
+     */
     private val viewModel = MainActivityViewModel()
 
     /**
@@ -109,96 +120,110 @@ class MainActivity : ComponentActivity() {
         setContent {
             viewModel.unreadChangelogsNumber = remember { mutableIntStateOf(user.unreadChangelogsNumber) }
             PandoroTheme {
-                Scaffold(
-                    topBar = {
-                        if (activeScreen.value != Profile) {
-                            TopAppBar(
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = PrimaryLight,
-                                    titleContentColor = Color.White,
-                                    actionIconContentColor = Color.White
-                                ),
-                                title = {
-                                    Text(
-                                        text = stringResource(
-                                            activeScreen.value
-                                                .getStringResourceTitle(activeScreen.value)
+                val isServerOffline = viewModel.isServerOffline.collectAsState().value
+                AnimatedVisibility(
+                    visible = isServerOffline,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    ServerOfflineUI()
+                }
+                AnimatedVisibility(
+                    visible = !isServerOffline,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    Scaffold(
+                        topBar = {
+                            if (activeScreen.value != Profile) {
+                                TopAppBar(
+                                    colors = TopAppBarDefaults.topAppBarColors(
+                                        containerColor = PrimaryLight,
+                                        titleContentColor = Color.White,
+                                        actionIconContentColor = Color.White
+                                    ),
+                                    title = {
+                                        Text(
+                                            text = stringResource(
+                                                activeScreen.value
+                                                    .getStringResourceTitle(activeScreen.value)
+                                            )
                                         )
-                                    )
-                                },
-                                actions = {
-                                    Box {
-                                        Image(
-                                            painter = rememberAsyncImagePainter(
-                                                ImageRequest.Builder(context)
-                                                    .data(user.profilePic)
-                                                    .error(R.drawable.logo)
-                                                    .crossfade(500)
-                                                    .build()
-                                            ),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(45.dp)
-                                                .clickable { activeScreen.value = Profile }
-                                                .clip(CircleShape)
-                                        )
-                                        if (viewModel.unreadChangelogsNumber.intValue > 0) {
-                                            Badge(
+                                    },
+                                    actions = {
+                                        Box {
+                                            Image(
+                                                painter = rememberAsyncImagePainter(
+                                                    ImageRequest.Builder(context)
+                                                        .data(user.profilePic)
+                                                        .error(R.drawable.logo)
+                                                        .crossfade(500)
+                                                        .build()
+                                                ),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
                                                 modifier = Modifier
-                                                    .align(Alignment.BottomEnd)
-                                                    .border(
-                                                        border = BorderStroke(
-                                                            width = 0.5.dp,
-                                                            color = PrimaryLight
-                                                        ),
-                                                        shape = CircleShape
+                                                    .size(45.dp)
+                                                    .clickable { activeScreen.value = Profile }
+                                                    .clip(CircleShape)
+                                            )
+                                            if (viewModel.unreadChangelogsNumber.intValue > 0) {
+                                                Badge(
+                                                    modifier = Modifier
+                                                        .align(Alignment.BottomEnd)
+                                                        .border(
+                                                            border = BorderStroke(
+                                                                width = 0.5.dp,
+                                                                color = PrimaryLight
+                                                            ),
+                                                            shape = CircleShape
+                                                        )
+                                                ) {
+                                                    Text(
+                                                        text = "${viewModel.unreadChangelogsNumber.intValue}",
                                                     )
-                                            ) {
-                                                Text(
-                                                    text = "${viewModel.unreadChangelogsNumber.intValue}",
-                                                )
+                                                }
                                             }
                                         }
+                                        Spacer(modifier = Modifier.width(12.dp))
                                     }
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                }
-                            )
-                        }
-                    },
-                    bottomBar = navigationHelper.getNavigationBar(),
-                    floatingActionButton = {
-                        if (activeScreen.value != Overview) {
-                            if (activeScreen.value != Profile ||
-                                (activeScreen.value == Profile && showAddGroupButton.value)
-                            ) {
-                                FloatingActionButton(
-                                    onClick = {
-                                        when (activeScreen.value) {
-                                            Projects -> {
-                                                viewModel.suspendRefresher()
-                                                showAddProjectDialog.value = true
-                                            }
-                                            Notes -> showAddNoteSheet.value = true
-                                            Profile -> showCreateGroup.value = true
-                                            else -> {}
-                                        }
-                                    }
+                                )
+                            }
+                        },
+                        bottomBar = navigationHelper.getNavigationBar(),
+                        floatingActionButton = {
+                            if (activeScreen.value != Overview) {
+                                if (activeScreen.value != Profile ||
+                                    (activeScreen.value == Profile && showAddGroupButton.value)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = null
-                                    )
+                                    FloatingActionButton(
+                                        onClick = {
+                                            when (activeScreen.value) {
+                                                Projects -> {
+                                                    viewModel.suspendRefresher()
+                                                    showAddProjectDialog.value = true
+                                                }
+                                                Notes -> showAddNoteSheet.value = true
+                                                Profile -> showCreateGroup.value = true
+                                                else -> {}
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = null
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
-                ) {
-                    when(activeScreen.value) {
-                        Projects -> projectsScreen.ShowScreen()
-                        Notes -> notesScreen.ShowScreen()
-                        Overview -> overviewScreen.ShowScreen()
-                        Profile -> profileScreen.ShowScreen()
+                    ) {
+                        when(activeScreen.value) {
+                            Projects -> projectsScreen.ShowScreen()
+                            Notes -> notesScreen.ShowScreen()
+                            Overview -> overviewScreen.ShowScreen()
+                            Profile -> profileScreen.ShowScreen()
+                        }
                     }
                 }
             }
@@ -208,6 +233,32 @@ class MainActivity : ComponentActivity() {
                 finishAffinity()
             }
         })
+    }
+
+    /**
+     * Function to display the layout if the server is currently offline
+     *
+     * No-any params required
+     */
+    @Composable
+    private fun ServerOfflineUI() {
+        Column (
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(150.dp),
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                tint = Color.Black
+            )
+            Text(
+                text = stringResource(R.string.server_currently_offline),
+            )
+        }
     }
 
     /**

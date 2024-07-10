@@ -22,10 +22,17 @@ class ProjectActivityViewModel (
     snackbarHostState = snackbarHostState
 ) {
 
+    private var isRefreshing: Boolean = false
+
     private val _project = MutableStateFlow(initialProject)
     val project: StateFlow<Project> = _project
 
     lateinit var targetVersion: MutableState<String>
+
+    override fun restartRefresher() {
+        if(isRefreshing)
+            super.restartRefresher()
+    }
 
     fun refreshProject(
         onSuccess: () -> Unit
@@ -33,6 +40,7 @@ class ProjectActivityViewModel (
         execRefreshingRoutine(
             currentContext = ProjectActivity::class.java,
             routine = {
+                isRefreshing = true
                 requester.sendRequest(
                     request = {
                         requester.getProject(

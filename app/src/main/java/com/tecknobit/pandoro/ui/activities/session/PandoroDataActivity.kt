@@ -54,6 +54,7 @@ import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.viewmodels.PandoroViewModel
 import com.tecknobit.pandorocore.records.Group
 import com.tecknobit.pandorocore.records.Project
 import com.tecknobit.pandorocore.records.structures.PandoroItem
@@ -216,6 +217,7 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
      */
     @Composable
     protected fun <T> ShowItemsList(
+        viewModel: PandoroViewModel,
         show: MutableState<Boolean>,
         headerTitle: Int,
         extraIcon: ExtraIcon? = null,
@@ -258,10 +260,11 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                                     height = 65.dp
                                 ),
                             onClick = {
+                                viewModel.suspendRefresher()
                                 if(item is Group)
-                                    currentGroup.value = item
+                                    currentGroup = item
                                 else
-                                    currentProject.value = item as Project
+                                    currentProject = item as Project
                                 ContextCompat.startActivity(context, Intent(context, clazz), null)
                             }
                         ) {

@@ -121,7 +121,6 @@ import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
-import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
@@ -155,7 +154,6 @@ import me.saket.swipe.SwipeableActionsBox
  * @see ComponentActivity
  * @see PandoroDataActivity
  */
-// TODO: TO COMMENT
 class ProjectActivity : PandoroDataActivity() {
 
     /**
@@ -173,8 +171,11 @@ class ProjectActivity : PandoroDataActivity() {
      */
     private lateinit var showDeleteDialog: MutableState<Boolean>
 
+    /**
+     * *viewModel* -> the support view model to manage the requests to the backend
+     */
     private val viewModel = ProjectActivityViewModel(
-        initialProject = currentProject.value!!,
+        initialProject = currentProject!!,
         snackbarHostState = snackbarHostState
     )
 
@@ -224,7 +225,7 @@ class ProjectActivity : PandoroDataActivity() {
                             navigationIcon = {
                                 IconButton(
                                     onClick = {
-                                        currentProject.value = null
+                                        currentProject = null
                                         onBackPressedDispatcher.onBackPressed()
                                     }
                                 ) {
@@ -801,6 +802,7 @@ class ProjectActivity : PandoroDataActivity() {
                         }
                         item {
                             ShowItemsList(
+                                viewModel = viewModel,
                                 show = showGroupsSection,
                                 headerTitle = R.string.groups,
                                 itemsList = project.groups,
@@ -1131,6 +1133,7 @@ class ProjectActivity : PandoroDataActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.setActiveContext(this::class.java)
+        viewModel.restartRefresher()
     }
 
 }

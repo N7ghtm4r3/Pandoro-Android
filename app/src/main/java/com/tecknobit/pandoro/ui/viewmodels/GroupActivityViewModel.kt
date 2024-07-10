@@ -16,8 +16,15 @@ class GroupActivityViewModel(
     snackbarHostState = snackbarHostState
 ) {
 
+    private var isRefreshing: Boolean = false
+
     private val _group = MutableStateFlow(initialGroup)
     val group: StateFlow<Group> = _group
+
+    override fun restartRefresher() {
+        if(isRefreshing)
+            super.restartRefresher()
+    }
 
     fun refreshGroup(
         onSuccess: () -> Unit
@@ -25,6 +32,7 @@ class GroupActivityViewModel(
         execRefreshingRoutine(
             currentContext = GroupActivity::class.java,
             routine = {
+                isRefreshing = true
                 requester.sendRequest(
                     request = {
                         requester.getGroup(
