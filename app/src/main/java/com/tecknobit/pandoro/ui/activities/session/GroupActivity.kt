@@ -106,6 +106,9 @@ class GroupActivity : PandoroDataActivity() {
      */
     private var isMaintainer: Boolean = false
 
+    /**
+     * **projectsScreen** -> the screen to show the projects
+     */
     private val viewModel = GroupActivityViewModel(
         initialGroup = currentGroup!!,
         snackbarHostState = snackbarHostState

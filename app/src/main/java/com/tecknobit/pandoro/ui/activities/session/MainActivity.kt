@@ -64,6 +64,7 @@ import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
 /**
@@ -118,7 +119,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val navigationHelper = NavigationHelper()
         setContent {
-            viewModel.unreadChangelogsNumber = remember { mutableIntStateOf(user.unreadChangelogsNumber) }
+            viewModel.unreadChangelogsNumber = remember { MutableStateFlow(user.unreadChangelogsNumber) }
             PandoroTheme {
                 val isServerOffline = viewModel.isServerOffline.collectAsState().value
                 AnimatedVisibility(
@@ -167,7 +168,7 @@ class MainActivity : ComponentActivity() {
                                                     .clickable { activeScreen.value = Profile }
                                                     .clip(CircleShape)
                                             )
-                                            if (viewModel.unreadChangelogsNumber.intValue > 0) {
+                                            if (viewModel.unreadChangelogsNumber.value > 0) {
                                                 Badge(
                                                     modifier = Modifier
                                                         .align(Alignment.BottomEnd)
@@ -180,7 +181,7 @@ class MainActivity : ComponentActivity() {
                                                         )
                                                 ) {
                                                     Text(
-                                                        text = "${viewModel.unreadChangelogsNumber.intValue}",
+                                                        text = "${viewModel.unreadChangelogsNumber.value}",
                                                     )
                                                 }
                                             }
@@ -295,6 +296,44 @@ class MainActivity : ComponentActivity() {
         viewModel.refreshValues()
     }
 
+    /**
+     * Called as part of the activity lifecycle when the user no longer actively interacts with the
+     * activity, but it is still visible on screen. The counterpart to {@link #onResume}.
+     *
+     * <p>When activity B is launched in front of activity A, this callback will
+     * be invoked on A.  B will not be created until A's {@link #onPause} returns,
+     * so be sure to not do anything lengthy here.
+     *
+     * <p>This callback is mostly used for saving any persistent state the
+     * activity is editing, to present a "edit in place" model to the user and
+     * making sure nothing is lost if there are not enough resources to start
+     * the new activity without first killing this one.  This is also a good
+     * place to stop things that consume a noticeable amount of CPU in order to
+     * make the switch to the next activity as fast as possible.
+     *
+     * <p>On platform versions prior to {@link android.os.Build.VERSION_CODES#Q} this is also a good
+     * place to try to close exclusive-access devices or to release access to singleton resources.
+     * Starting with {@link android.os.Build.VERSION_CODES#Q} there can be multiple resumed
+     * activities in the system at the same time, so {@link #onTopResumedActivityChanged(boolean)}
+     * should be used for that purpose instead.
+     *
+     * <p>If an activity is launched on top, after receiving this call you will usually receive a
+     * following call to {@link #onStop} (after the next activity has been resumed and displayed
+     * above). However in some cases there will be a direct call back to {@link #onResume} without
+     * going through the stopped state. An activity can also rest in paused state in some cases when
+     * in multi-window mode, still visible to user.
+     *
+     * <p><em>Derived classes must call through to the super class's
+     * implementation of this method.  If they do not, an exception will be
+     * thrown.</em></p>
+     *
+     *
+     * Will be invoked the **[FetcherManager.suspendRefresher]** with the current context
+     *
+     * @see #onResume
+     * @see #onSaveInstanceState
+     * @see #onStop
+     */
     override fun onPause() {
         super.onPause()
         viewModel.suspendRefresher()

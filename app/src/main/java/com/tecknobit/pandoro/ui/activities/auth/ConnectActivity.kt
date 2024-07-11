@@ -111,9 +111,16 @@ class ConnectActivity : ComponentActivity() {
     /**
      * **snackbarHostState** the host to launch the snackbars
      */
-    private lateinit var snackbarHostState: SnackbarHostState
+    private val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
 
-    private lateinit var viewModel: ConnectViewModel
+    /**
+     * **projectsScreen** -> the screen to show the projects
+     */
+    private val viewModel = ConnectViewModel(
+        snackbarHostState = snackbarHostState
+    )
 
     /**
      * On create method
@@ -130,10 +137,6 @@ class ConnectActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             scope = rememberCoroutineScope()
-            snackbarHostState = remember { SnackbarHostState() }
-            viewModel = ConnectViewModel(
-                snackbarHostState = snackbarHostState
-            )
             PandoroTheme {
                 var screenType by remember { mutableStateOf(SignIn) }
                 val title = createTitle(screenType)

@@ -149,6 +149,9 @@ class ProfileScreen: Screen() {
          */
         lateinit var groups: StateFlow<List<Group>>
 
+        /**
+         * **changelogs** -> the list of the changelogs
+         */
         lateinit var changelogs: StateFlow<List<Changelog>>
     }
 
