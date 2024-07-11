@@ -15,7 +15,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons.Default
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -27,30 +27,32 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tecknobit.pandoro.R.string
+import com.tecknobit.pandoro.R.string.current_projects
 import com.tecknobit.pandoro.R.string.delete_project
 import com.tecknobit.pandoro.R.string.delete_text_dialog
+import com.tecknobit.pandoro.R.string.frequent_projects
 import com.tecknobit.pandoro.R.string.no_projects_found
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
+import com.tecknobit.pandoro.R.string.search
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroTextField
+import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
 import com.tecknobit.pandoro.ui.theme.ErrorLight
+import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
 import com.tecknobit.pandorocore.records.Project
 import com.tecknobit.pandorocore.ui.filterProjects
 import com.tecknobit.pandorocore.ui.populateFrequentProjects
@@ -58,17 +60,16 @@ import com.tecknobit.pandorocore.ui.populateFrequentProjects
 /**
  * The **ProjectsScreen** class is useful to show the projects of the user
  *
+ * @param viewModel: the support view model to manage the requests to the backend
+ *
  * @author N7ghtm4r3 - Tecknobit
  * @see Screen
  */
-class ProjectsScreen: Screen() {
+class ProjectsScreen(
+    val viewModel: MainActivityViewModel
+): Screen() {
 
     companion object {
-
-        /**
-         * **projectsList** -> the list of the projects
-         */
-        val projectsList: SnapshotStateList<Project> = mutableStateListOf()
 
         /**
          * **showAddProjectDialog** -> the flag to show the dialog to create a new project
@@ -79,6 +80,11 @@ class ProjectsScreen: Screen() {
          * **showEditProjectDialog** -> the flag to show the dialog to edit an existing project
          */
         lateinit var showEditProjectDialog: MutableState<Boolean>
+
+        /**
+         * **projectDialogs** the instance to manage the dialogs of the projects
+         */
+        lateinit var projectDialogs: ProjectDialogs
 
     }
 
@@ -92,6 +98,11 @@ class ProjectsScreen: Screen() {
         showAddProjectDialog = rememberSaveable { mutableStateOf(false) }
         showEditProjectDialog = rememberSaveable { mutableStateOf(false) }
         SetScreen {
+            viewModel.snackbarHostState = snackbarHostState
+            val projectsList = viewModel.projects.collectAsState()
+            projectDialogs = ProjectDialogs(
+                viewModel = viewModel
+            )
             projectDialogs.AddNewProject()
             Column(
                 modifier = Modifier
@@ -99,23 +110,25 @@ class ProjectsScreen: Screen() {
                     .fillMaxSize()
             ) {
                 Text(
-                    text = stringResource(string.frequent_projects),
+                    text = stringResource(frequent_projects),
                     fontSize = 20.sp
                 )
-                var filterFrequentQuery by remember { mutableStateOf("") }
-                val frequentProjects = filterProjects(filterFrequentQuery,
-                    populateFrequentProjects(projectsList)).toMutableStateList()
+                val filterFrequentQuery = remember { mutableStateOf("") }
+                val frequentProjects = filterProjects(
+                    query = filterFrequentQuery.value,
+                    list = populateFrequentProjects(projectsList.value)
+                ).toMutableStateList()
                 SearchField(
-                    query = filterFrequentQuery,
-                    onValueChange = { filterFrequentQuery = it },
-                    onClear = { filterFrequentQuery = "" }
+                    query = filterFrequentQuery
                 )
                 if (frequentProjects.isEmpty())
                     NoProjectsFound()
                 else {
                     LazyHorizontalGrid(
                         rows = GridCells.Fixed(1),
-                        contentPadding = PaddingValues(end = 1.dp),
+                        contentPadding = PaddingValues(
+                            end = 1.dp
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -125,34 +138,42 @@ class ProjectsScreen: Screen() {
                                 project.id
                             }
                         ) { project ->
-                            ProjectCard(project = project)
+                            ProjectCard(
+                                project = project
+                            )
                         }
                     }
                 }
             }
             Column (
                 modifier = Modifier
-                    .weight(1.6f)
+                    .weight(1.5f)
                     .fillMaxSize()
-                    .padding(top = 10.dp)
+                    .padding(
+                        top = 10.dp
+                    )
             ) {
-                var filterQuery by remember { mutableStateOf("") }
-                val currentProjects = filterProjects(filterQuery, projectsList).toMutableStateList()
+                val filterQuery = remember { mutableStateOf("") }
+                val currentProjects = filterProjects(
+                    filterQuery.value,
+                    projectsList.value
+                ).toMutableStateList()
                 Text(
-                    text = stringResource(string.current_projects),
+                    text = stringResource(current_projects),
                     fontSize = 20.sp
                 )
                 SearchField(
-                    query = filterQuery,
-                    onValueChange = { filterQuery = it },
-                    onClear = { filterQuery = "" }
+                    query = filterQuery
                 )
                 if (currentProjects.isEmpty())
                     NoProjectsFound()
                 else {
                     LazyVerticalGrid(
-                        columns = GridCells.Fixed(1),
-                        contentPadding = PaddingValues(bottom = 1.dp),
+                        columns = GridCells
+                            .Fixed(1),
+                        contentPadding = PaddingValues(
+                            bottom = 1.dp
+                        ),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -162,7 +183,9 @@ class ProjectsScreen: Screen() {
                                 project.id
                             }
                         ) { project ->
-                            ProjectCard(project = project)
+                            ProjectCard(
+                                project = project
+                            )
                         }
                     }
                 }
@@ -174,14 +197,10 @@ class ProjectsScreen: Screen() {
      * Function to create the search field to filter the projects list
      *
      * @param query: the query to filter the projects list
-     * @param onValueChange: the action to execute when the query value change
-     * @param onClear: the action to execute to clear the query value
      */
     @Composable
     private fun SearchField(
-        query: String,
-        onValueChange: (String) -> Unit,
-        onClear: () -> Unit
+        query: MutableState<String>
     ) {
         PandoroTextField(
             modifier = Modifier
@@ -193,15 +212,20 @@ class ProjectsScreen: Screen() {
                     width = 250.dp,
                     height = 55.dp
                 ),
-            label = stringResource(string.search),
-            onValueChange = onValueChange,
+            label = stringResource(search),
             value = query,
             trailingIcon = {
                 Icon(
-                    modifier = if (query.isNotEmpty()) {
-                        Modifier.clickable { onClear.invoke() }
-                    } else Modifier,
-                    imageVector = if (query.isEmpty()) Default.Search else Default.Clear,
+                    modifier = Modifier
+                        .clickable(
+                            enabled = query.value.isNotEmpty()
+                        ) {
+                            query.value = ""
+                        },
+                    imageVector = if (query.value.isEmpty())
+                        Icons.Default.Search
+                    else
+                        Icons.Default.Clear,
                     contentDescription = null,
                 )
             }
@@ -224,14 +248,21 @@ class ProjectsScreen: Screen() {
      * @param project: the project to create the card
      */
     @Composable
-    private fun ProjectCard(project: Project) {
+    private fun ProjectCard(
+        project: Project
+    ) {
         var showOptions by remember { mutableStateOf(false) }
         PandoroCard(
-            modifier = Modifier.size(
-                width = 200.dp,
-                height = 120.dp
-            ),
-            onClick = { navToProject(project = project) },
+            modifier = Modifier
+                .size(
+                    width = 225.dp,
+                    height = 120.dp
+                ),
+            onClick = {
+                navToProject(
+                    project = project
+                )
+            },
             content = {
                 Column(
                     modifier = Modifier
@@ -239,7 +270,8 @@ class ProjectsScreen: Screen() {
                         .padding(15.dp)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
@@ -253,10 +285,13 @@ class ProjectsScreen: Screen() {
                                 Row {
                                     IconButton(
                                         modifier = Modifier.size(24.dp),
-                                        onClick = { showEditProjectDialog.value = true }
+                                        onClick = {
+                                            viewModel.suspendRefresher()
+                                            showEditProjectDialog.value = true
+                                        }
                                     ) {
                                         Icon(
-                                            imageVector = Default.Edit,
+                                            imageVector = Icons.Default.Edit,
                                             contentDescription = null
                                         )
                                     }
@@ -266,7 +301,7 @@ class ProjectsScreen: Screen() {
                                         onClick = { showDeleteDialog.value = true }
                                     ) {
                                         Icon(
-                                            imageVector = Default.Delete,
+                                            imageVector = Icons.Default.Delete,
                                             contentDescription = null,
                                             tint = ErrorLight
                                         )
@@ -277,17 +312,21 @@ class ProjectsScreen: Screen() {
                                     title = delete_project,
                                     text = delete_text_dialog,
                                     requestLogic = {
-                                        showDeleteDialog.value = false
-                                        requester!!.execDeleteProject(project.id)
-                                        if(!requester!!.successResponse())
-                                            showSnack(requester!!.errorMessage())
+                                        viewModel.deleteProject(
+                                            project = project,
+                                            onSuccess = {
+                                                showDeleteDialog.value = false
+                                            }
+                                        )
                                     }
                                 )
                             } else {
                                 Text(
                                     text = project.name,
                                     fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
                         }
@@ -298,24 +337,32 @@ class ProjectsScreen: Screen() {
                             horizontalAlignment = Alignment.End
                         ) {
                             IconButton(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier
+                                    .size(24.dp),
                                 onClick = { showOptions = !showOptions }
                             ) {
                                 Icon(
-                                    imageVector = Default.MoreVert,
+                                    imageVector = Icons.Default.MoreVert,
                                     contentDescription = null
                                 )
                             }
                         }
                     }
                     Text(
-                        modifier = Modifier.padding(top = 5.dp),
-                        text = project.shortDescription
+                        modifier = Modifier
+                            .padding(
+                                top = 5.dp
+                            ),
+                        text = project.shortDescription,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 5.dp),
+                            .padding(
+                                top = 5.dp
+                            ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
@@ -335,8 +382,9 @@ class ProjectsScreen: Screen() {
                                 horizontalAlignment = Alignment.End
                             ) {
                                 Icon(
-                                    modifier = Modifier.size(24.dp),
-                                    imageVector = Default.Group,
+                                    modifier = Modifier
+                                        .size(24.dp),
+                                    imageVector = Icons.Default.Group,
                                     contentDescription = null
                                 )
                             }

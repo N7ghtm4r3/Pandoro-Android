@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities
+package com.tecknobit.pandoro.ui.activities.session
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -43,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -64,28 +65,22 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_members_list
 import com.tecknobit.pandoro.helpers.SpaceContent
-import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.groupDialogs
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.groupDialogs
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.localAuthHelper
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
-import com.tecknobit.pandorocore.helpers.checkMembersValidity
+import com.tecknobit.pandoro.ui.viewmodels.GroupActivityViewModel
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.checkMembersValidity
 import com.tecknobit.pandorocore.records.Group
 import com.tecknobit.pandorocore.records.users.GroupMember
 import com.tecknobit.pandorocore.records.users.GroupMember.InvitationStatus.PENDING
 import com.tecknobit.pandorocore.records.users.GroupMember.Role.ADMIN
-import com.tecknobit.pandorocore.records.users.GroupMember.Role.values
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * The **GroupActivity** class is useful to create the activity to show the [Group] details
@@ -93,14 +88,13 @@ import kotlinx.coroutines.launch
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  * @see PandoroDataActivity
- * @see AndroidSingleItemManager
  */
-class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
+class GroupActivity : PandoroDataActivity() {
 
     /**
      * **group** the group to show its details
      */
-    lateinit var group: MutableState<Group>
+    lateinit var group: Group
 
     /**
      * **isAdmin** whether the user is an admin
@@ -111,6 +105,14 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
      * **isMaintainer** whether the user is a maintainer
      */
     private var isMaintainer: Boolean = false
+
+    /**
+     * **projectsScreen** -> the screen to show the projects
+     */
+    private val viewModel = GroupActivityViewModel(
+        initialGroup = currentGroup!!,
+        snackbarHostState = snackbarHostState
+    )
 
     /**
      * On create method
@@ -127,11 +129,14 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            group = remember { mutableStateOf(currentGroup.value!!) }
-            val authorId = group.value.author.id
-            isAdmin = group.value.isUserAdmin(user)
-            isMaintainer = group.value.isUserMaintainer(user)
-            refreshItem()
+            isAdmin = currentGroup!!.isUserAdmin(user)
+            isMaintainer = currentGroup!!.isUserMaintainer(user)
+            viewModel.refreshGroup {
+                isAdmin = group.isUserAdmin(user)
+                isMaintainer = group.isUserMaintainer(user)
+            }
+            group = viewModel.group.collectAsState().value
+            val authorId = group.author.id
             PandoroTheme {
                 Scaffold(
                     topBar = {
@@ -162,10 +167,10 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                     ) {
                                         Text(
                                             modifier = Modifier.alignBy(LastBaseline),
-                                            text = group.value.name
+                                            text = group.name
                                         )
                                     }
-                                    val author = group.value.author
+                                    val author = group.author
                                     if (author != null) {
                                         Text(
                                             text = getString(string.author) + " ${author.completeName}",
@@ -177,7 +182,10 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             actions = {
                                 val leaveGroup = remember { mutableStateOf(false) }
                                 IconButton(
-                                    onClick = { leaveGroup.value = true }
+                                    onClick = {
+                                        viewModel.suspendRefresher()
+                                        leaveGroup.value = true
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.ExitToApp,
@@ -187,7 +195,11 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                 }
                                 groupDialogs.LeaveGroup(
                                     show = leaveGroup,
-                                    group = group.value
+                                    group = group,
+                                    onDismissRequest = {
+                                        leaveGroup.value = false
+                                        viewModel.restartRefresher()
+                                    }
                                 )
                             },
                         )
@@ -197,16 +209,24 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             val addMembers = remember { mutableStateOf(false) }
                             val members = mutableStateListOf("")
                             FloatingActionButton(
-                                onClick = { addMembers.value = true }
+                                onClick = {
+                                    viewModel.suspendRefresher()
+                                    addMembers.value = true
+                                }
                             ) {
                                 Icon(
                                     imageVector = Default.PersonAdd,
                                     contentDescription = null
                                 )
                             }
+                            val onDismissRequest = {
+                                viewModel.restartRefresher()
+                                addMembers.value = false
+                            }
                             pandoroModalSheet.PandoroModalSheet(
                                 show = addMembers,
                                 title = string.add_new_members,
+                                onDismissRequest = onDismissRequest,
                                 content = {
                                     groupDialogs.CreateMembersSection(
                                         members = members
@@ -219,14 +239,13 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                         shape = RoundedCornerShape(10.dp),
                                         onClick = {
                                             if(checkMembersValidity(members)) {
-                                                requester!!.execAddMembers(
-                                                    groupId = group.value.id,
-                                                    members = members.toList()
+                                                viewModel.addMembers(
+                                                    members = members,
+                                                    onSuccess = onDismissRequest,
+                                                    onFailure = {
+                                                        pandoroModalSheet.showSnack(it)
+                                                    }
                                                 )
-                                                if(requester!!.successResponse())
-                                                    addMembers.value = false
-                                                else
-                                                    pandoroModalSheet.showSnack(requester!!.errorMessage())
                                             } else
                                                 pandoroModalSheet.showSnack(you_must_insert_a_correct_members_list)
                                         },
@@ -248,7 +267,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                     ShowData {
                         item {
                             ShowDescription(
-                                description = group.value.description
+                                description = group.description
                             )
                         }
                         item {
@@ -265,7 +284,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             )
                         if (showMembersSection.value) {
                             items(
-                                items = group.value.members,
+                                items = group.members,
                                 key = { member ->
                                     member.id
                                 }
@@ -279,7 +298,10 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                         modifier = if (((isAdmin || isMaintainer) && isNotTheAuthor)) {
                                             if ((isAdmin || !member.isAdmin) && !isLoggedUser
                                                 && !isMemberPending) {
-                                                modifier.clickable { changeRole.value = true }
+                                                modifier.clickable {
+                                                    viewModel.suspendRefresher()
+                                                    changeRole.value = true
+                                                }
                                             } else
                                                 modifier
                                         } else
@@ -307,24 +329,27 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                             )
                                         },
                                         supportingContent = {
-                                            Text(
-                                                text = if(isMemberPending)
-                                                    PENDING.toString()
-                                                else
-                                                    member.role.toString(),
-                                                color =
-                                                if (member.isAdmin) ErrorLight
-                                                else {
-                                                    if(isMemberPending)
-                                                        YELLOW_COLOR
+                                            Column {
+                                                Text(
+                                                    text = if(isMemberPending)
+                                                        PENDING.toString()
                                                     else
-                                                        PrimaryLight
-                                                }
-                                            )
-                                            ChangeMemberRole(
-                                                expanded = changeRole,
-                                                member = member
-                                            )
+                                                        member.role.toString(),
+                                                    color =
+                                                    if (member.isAdmin)
+                                                        ErrorLight
+                                                    else {
+                                                        if(isMemberPending)
+                                                            YELLOW_COLOR
+                                                        else
+                                                            PrimaryLight
+                                                    }
+                                                )
+                                                ChangeMemberRole(
+                                                    expanded = changeRole,
+                                                    member = member
+                                                )
+                                            }
                                         },
                                         trailingContent = {
                                             if (((isAdmin || isMaintainer) && isNotTheAuthor)) {
@@ -340,7 +365,7 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                     }
                                                     groupDialogs.RemoveMember(
                                                         show = removeUser,
-                                                        group = group.value,
+                                                        group = group,
                                                         member = member
                                                     )
                                                 }
@@ -355,15 +380,23 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             if (isAdmin && user.projects.isNotEmpty()) {
                                 val editProjects = remember { mutableStateOf(false) }
                                 extraIcon = ExtraIcon(
-                                    action = { editProjects.value = true },
+                                    action = {
+                                        editProjects.value = true
+                                        viewModel.suspendRefresher()
+                                    },
                                     icon = Default.Edit
                                 )
+                                val onDismissRequest = {
+                                    editProjects.value = false
+                                    viewModel.restartRefresher()
+                                }
                                 pandoroModalSheet.PandoroModalSheet(
                                     show = editProjects,
+                                    onDismissRequest = onDismissRequest,
                                     title = string.edit_the_groups_projects,
                                     content = {
                                         val projects = mutableStateListOf<String>()
-                                        group.value.projects.forEach { project ->
+                                        group.projects.forEach { project ->
                                             projects.add(project.id)
                                         }
                                         LazyVerticalGrid(columns = GridCells.Fixed(3)) {
@@ -404,14 +437,10 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                 .fillMaxWidth(),
                                             shape = RoundedCornerShape(10.dp),
                                             onClick = {
-                                                requester!!.execEditProjects(
-                                                    groupId = group.value.id,
-                                                    projects = projects.toList()
+                                                viewModel.editProjects(
+                                                    projects = projects,
+                                                    onSuccess = onDismissRequest
                                                 )
-                                                if(requester!!.successResponse())
-                                                    editProjects.value = false
-                                                else
-                                                    showSnack(requester!!.errorMessage())
                                             },
                                             content = {
                                                 Text(
@@ -426,10 +455,11 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                 )
                             }
                             ShowItemsList(
+                                viewModel = viewModel,
                                 show = showProjectsSection,
                                 headerTitle = string.projects,
                                 extraIcon = extraIcon,
-                                itemsList = group.value.projects,
+                                itemsList = group.projects,
                                 clazz = ProjectActivity::class.java,
                                 adminPrivileges = isAdmin
                             )
@@ -451,27 +481,31 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
         expanded: MutableState<Boolean>,
         member: GroupMember
     ) {
+        val onDismissRequest = {
+            expanded.value = false
+            viewModel.restartRefresher()
+        }
         DropdownMenu(
             expanded = expanded.value,
-            onDismissRequest = { expanded.value = false }
+            onDismissRequest = onDismissRequest
         ) {
-            values().forEach { role ->
+            GroupMember.Role.entries.forEach { role ->
                 DropdownMenuItem(
                     text = {
                         Text(
                             text = role.toString(),
-                            color = if (role == ADMIN) ErrorLight else PrimaryLight
+                            color = if (role == ADMIN)
+                                ErrorLight
+                            else
+                                PrimaryLight
                         )
                     },
                     onClick = {
-                        requester!!.execChangeMemberRole(
-                            groupId = group.value.id,
-                            memberId = member.id,
+                        viewModel.changeMemberRole(
+                            member = member,
                             role = role
                         )
-                        if(!requester!!.successResponse())
-                            showSnack(requester!!.errorMessage())
-                        expanded.value = false
+                        onDismissRequest.invoke()
                     }
                 )
             }
@@ -479,28 +513,37 @@ class GroupActivity : PandoroDataActivity(), AndroidSingleItemManager {
     }
 
     /**
-     * Function to refresh an item to display in the UI
+     * Called after {@link #onRestoreInstanceState}, {@link #onRestart}, or {@link #onPause}. This
+     * is usually a hint for your activity to start interacting with the user, which is a good
+     * indicator that the activity became active and ready to receive input. This sometimes could
+     * also be a transit state toward another resting state. For instance, an activity may be
+     * relaunched to {@link #onPause} due to configuration changes and the activity was visible,
+     * but wasn’t the top-most activity of an activity task. {@link #onResume} is guaranteed to be
+     * called before {@link #onPause} in this case which honors the activity lifecycle policy and
+     * the activity eventually rests in {@link #onPause}.
      *
-     * No-any params required
+     * <p>On platform versions prior to {@link android.os.Build.VERSION_CODES#Q} this is also a good
+     * place to try to open exclusive-access devices or to get access to singleton resources.
+     * Starting  with {@link android.os.Build.VERSION_CODES#Q} there can be multiple resumed
+     * activities in the system simultaneously, so {@link #onTopResumedActivityChanged(boolean)}
+     * should be used for that purpose instead.
+     *
+     * <p><em>Derived classes must call through to the super class's
+     * implementation of this method.  If they do not, an exception will be
+     * thrown.</em></p>
+     *
+     * Will be set the **[FetcherManager.activeContext]** with the current context
+     *
+     * @see #onRestoreInstanceState
+     * @see #onRestart
+     * @see #onPostResume
+     * @see #onPause
+     * @see #onTopResumedActivityChanged(boolean)
      */
-    override fun refreshItem() {
-        CoroutineScope(Dispatchers.Default).launch {
-            while (user.id != null && currentGroup.value != null) {
-                try {
-                    val response = requester!!.execGetSingleGroup(currentGroup.value!!.id)
-                    if(requester!!.successResponse()) {
-                        val tmpGroup = Group(response)
-                        if(needToRefresh(group.value, tmpGroup)) {
-                            group.value = tmpGroup
-                            isAdmin = group.value.isUserAdmin(user)
-                            isMaintainer = group.value.isUserMaintainer(user)
-                        }
-                    }
-                } catch (_ : Exception){
-                }
-                delay(1000)
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        viewModel.setActiveContext(this::class.java)
+        viewModel.restartRefresher()
     }
 
 }

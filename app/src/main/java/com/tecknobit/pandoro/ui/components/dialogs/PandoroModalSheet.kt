@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -23,7 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.theme.DwarfWhiteColor
+import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -132,9 +134,10 @@ class PandoroModalSheet : SnackbarLauncher {
                                 ),
                             text = title,
                             textAlign = TextAlign.Center,
-                            fontSize = 20.sp
+                            fontSize = 20.sp,
+                            color = PrimaryLight
                         )
-                        Divider(thickness = 1.dp)
+                        HorizontalDivider(thickness = 1.dp)
                         Column(
                             content = content
                         )

@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities
+package com.tecknobit.pandoro.ui.activities.session
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -48,12 +48,13 @@ import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SnackbarLauncher
 import com.tecknobit.pandoro.helpers.SpaceContent
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentGroup
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.viewmodels.PandoroViewModel
 import com.tecknobit.pandorocore.records.Group
 import com.tecknobit.pandorocore.records.Project
 import com.tecknobit.pandorocore.records.structures.PandoroItem
@@ -76,10 +77,11 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
     protected lateinit var coroutine: CoroutineScope
 
     /**
-     * **snackbarHostState** the host to launch the snackbars
+     * *snackbarHostState* -> the host to launch the snackbar messages
      */
-    protected lateinit var snackbarHostState: SnackbarHostState
-
+    protected val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
 
     /**
      * Function to show the data
@@ -92,14 +94,17 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         content: LazyListScope.() -> Unit
     ) {
         LazyColumn(
-            modifier = Modifier.padding(
-                top = 168.dp,
-                bottom = 16.dp,
-                end = 16.dp,
-                start = 16.dp
-            ),
+            modifier = Modifier
+                .padding(
+                    top = 168.dp,
+                    bottom = 16.dp,
+                    end = 16.dp,
+                    start = 16.dp
+                ),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(bottom = 10.dp),
+            contentPadding = PaddingValues(
+                bottom = 10.dp
+            ),
             content = content
         )
     }
@@ -120,7 +125,8 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         showArrow: Boolean = true
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -133,7 +139,10 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                     onClick = { show.value = !show.value }
                 ) {
                     Icon(
-                        imageVector = if (show.value) Default.ArrowDropUp else Default.ArrowDropDown,
+                        imageVector = if (show.value)
+                            Default.ArrowDropUp
+                        else
+                            Default.ArrowDropDown,
                         contentDescription = null
                     )
                 }
@@ -157,7 +166,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
      * @param description: the description to show
      */
     @Composable
-    protected open fun ShowDescription(description: String) {
+    protected open fun ShowDescription(
+        description: String
+    ) {
         val showDescription = remember { mutableStateOf(false) }
         val showDescriptionSection = remember { mutableStateOf(true) }
         pandoroModalSheet.PandoroModalSheet(
@@ -166,7 +177,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         ) {
             Text(
                 modifier = Modifier
-                    .padding(top = 16.dp)
+                    .padding(
+                        top = 16.dp
+                    )
                     .verticalScroll(rememberScrollState()),
                 text = description,
                 textAlign = TextAlign.Justify,
@@ -179,7 +192,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
         if (showDescriptionSection.value) {
             Text(
                 modifier = Modifier
-                    .padding(top = 5.dp)
+                    .padding(
+                        top = 5.dp
+                    )
                     .clickable { showDescription.value = true },
                 text = description,
                 textAlign = TextAlign.Justify,
@@ -202,6 +217,7 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
      */
     @Composable
     protected fun <T> ShowItemsList(
+        viewModel: PandoroViewModel,
         show: MutableState<Boolean>,
         headerTitle: Int,
         extraIcon: ExtraIcon? = null,
@@ -238,15 +254,17 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                         }
                     ) { item ->
                         PandoroCard(
-                            modifier = Modifier.size(
-                                width = 130.dp,
-                                height = 65.dp
-                            ),
+                            modifier = Modifier
+                                .size(
+                                    width = 130.dp,
+                                    height = 65.dp
+                                ),
                             onClick = {
+                                viewModel.suspendRefresher()
                                 if(item is Group)
-                                    currentGroup.value = item
+                                    currentGroup = item
                                 else
-                                    currentProject.value = item as Project
+                                    currentProject = item as Project
                                 ContextCompat.startActivity(context, Intent(context, clazz), null)
                             }
                         ) {
@@ -270,7 +288,9 @@ abstract class PandoroDataActivity : ComponentActivity(), SnackbarLauncher {
                                         .fillMaxHeight(),
                                     horizontalAlignment = Alignment.End
                                 ) {
-                                    ColoredBorder(color = PrimaryLight)
+                                    ColoredBorder(
+                                        color = PrimaryLight
+                                    )
                                 }
                             }
                         }

@@ -137,4 +137,5 @@
     <string name="total_change_notes">Change notes totali:</string>
     <string name="language">Lingua</string>
     <string name="change_language">Cambia lingua</string>
+    <string name="server_currently_offline">Il server è attualmente offline</string>
 </resources>

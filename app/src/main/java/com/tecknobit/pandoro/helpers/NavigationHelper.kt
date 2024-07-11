@@ -1,11 +1,11 @@
 package com.tecknobit.pandoro.helpers
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Notes
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Notes
+import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.filled.TableChart
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material.icons.outlined.Notes
 import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -18,7 +18,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
 import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Overview
@@ -55,13 +55,13 @@ class NavigationHelper {
             val items = listOf(
                 NavigationItem(
                     title = Projects,
-                    selectedIcon = Icons.Filled.List,
-                    unselectedIcon = Icons.Outlined.List
+                    selectedIcon = Icons.AutoMirrored.Filled.List,
+                    unselectedIcon = Icons.AutoMirrored.Outlined.List
                 ),
                 NavigationItem(
                     title = Notes,
-                    selectedIcon = Icons.Filled.Notes,
-                    unselectedIcon = Icons.Outlined.Notes
+                    selectedIcon = Icons.AutoMirrored.Filled.Notes,
+                    unselectedIcon = Icons.AutoMirrored.Outlined.Notes
                 ),
                 NavigationItem(
                     title = Overview,

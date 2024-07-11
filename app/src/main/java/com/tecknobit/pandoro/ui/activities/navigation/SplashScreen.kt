@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities
+package com.tecknobit.pandoro.ui.activities.navigation
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,11 +40,11 @@ import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.tecknobit.pandoro.R
-import com.tecknobit.pandoro.helpers.AndroidRequester
-import com.tecknobit.pandoro.ui.activities.ConnectActivity.LocalAuthHelper
+import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity
+import com.tecknobit.pandoro.ui.activities.auth.ConnectActivity.LocalAuthHelper
+import com.tecknobit.pandoro.ui.activities.session.MainActivity
 import com.tecknobit.pandoro.ui.components.dialogs.GroupDialogs
 import com.tecknobit.pandoro.ui.components.dialogs.PandoroModalSheet
-import com.tecknobit.pandoro.ui.components.dialogs.ProjectDialogs
 import com.tecknobit.pandoro.ui.screens.Screen
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
@@ -77,11 +76,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
     companion object {
 
         /**
-         * **isRefreshing** -> whether is current allowed refresh the lists
-         */
-        lateinit var isRefreshing: MutableState<Boolean>
-
-        /**
          * **localAuthHelper** -> the instance to manage the auth credentials in local
          */
         lateinit var localAuthHelper: LocalAuthHelper
@@ -92,11 +86,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
         var user = User()
 
         /**
-         * **requester** -> the stance to manage the requests with the backend
-         */
-        var requester: AndroidRequester? = null
-
-        /**
          * **activeScreen** -> the active screen to show
          */
         lateinit var activeScreen: MutableState<Screen.ScreenType>
@@ -105,11 +94,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
          * **groupDialogs** the instance to manage the dialogs of the groups
          */
         val groupDialogs = GroupDialogs()
-
-        /**
-         * **projectDialogs** the instance to manage the dialogs of the projects
-         */
-        val projectDialogs = ProjectDialogs()
 
         /**
          * **pandoroModalSheet** the instance to manage the modal bottom sheets
@@ -176,7 +160,6 @@ class SplashScreen : ComponentActivity(), ImageLoaderFactory {
                 reviewManager = ReviewManagerFactory.create(context)
                 Coil.imageLoader(context)
                 Coil.setImageLoader(newImageLoader())
-                isRefreshing = rememberSaveable { mutableStateOf(false) }
                 localAuthHelper = ConnectActivity().LocalAuthHelper()
                 localAuthHelper.initUserCredentials()
                 setLocale()

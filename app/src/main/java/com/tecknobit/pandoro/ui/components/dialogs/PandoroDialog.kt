@@ -21,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
@@ -40,9 +39,8 @@ import kotlinx.coroutines.CoroutineScope
  * The **PandoroDialog** class is useful to create the custom Pandoro's dialogs
  *
  * @author N7ghtm4r3 - Tecknobit
- * @see SnackbarLauncher
  */
-open class PandoroDialog : SnackbarLauncher {
+open class PandoroDialog {
 
     /**
      * **scope** the coroutine to launch the snackbars
@@ -50,14 +48,17 @@ open class PandoroDialog : SnackbarLauncher {
     private lateinit var scope: CoroutineScope
 
     /**
-     * **snackbarHostState** the host to launch the snackbars
+     * *snackbarHostState* -> the host to launch the snackbar messages
      */
-    private lateinit var snackbarHostState: SnackbarHostState
+    protected val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
 
     /**
      * Function to create a Pandoro's custom dialog
      *
      * @param show: whether show the dialog
+     * @param onDismissRequest: the action to execute when the dialog has been dismissed
      * @param title: the title of the dialog
      * @param customWeight: the custom weight of the dialog
      * @param confirmText: the text to confirm an action
@@ -68,6 +69,7 @@ open class PandoroDialog : SnackbarLauncher {
     @Composable
     fun CreatePandoroDialog(
         show: MutableState<Boolean>,
+        onDismissRequest: () -> Unit = { show.value = false },
         title: String,
         customWeight: Float = 2f,
         confirmText: String,
@@ -77,9 +79,8 @@ open class PandoroDialog : SnackbarLauncher {
         if (show.value) {
             PandoroTheme {
                 scope = rememberCoroutineScope()
-                snackbarHostState = remember { SnackbarHostState() }
                 Dialog(
-                    onDismissRequest = { show.value = false },
+                    onDismissRequest = onDismissRequest,
                     properties = DialogProperties(
                         usePlatformDefaultWidth = false
                     )
@@ -106,7 +107,7 @@ open class PandoroDialog : SnackbarLauncher {
                                         modifier = Modifier
                                             .size(50.dp)
                                             .weight(1f),
-                                        onClick = { show.value = false }
+                                        onClick = onDismissRequest
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
@@ -148,19 +149,6 @@ open class PandoroDialog : SnackbarLauncher {
                 }
             }
         }
-    }
-
-    /**
-     * Function to show a message with the [SnackbarHostState]
-     *
-     * @param message: the message to show
-     */
-    override fun showSnack(message: String) {
-        showSnack(
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            message = message
-        )
     }
 
 }

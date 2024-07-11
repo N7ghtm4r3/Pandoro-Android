@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities
+package com.tecknobit.pandoro.ui.activities.session
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -22,8 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.Icons.Default
 import androidx.compose.material.icons.Icons.Filled
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Delete
@@ -40,18 +40,18 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.RichTooltipBox
-import androidx.compose.material3.RichTooltipState
+import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,6 +76,7 @@ import co.yml.charts.ui.barchart.models.BarChartData
 import co.yml.charts.ui.barchart.models.BarData
 import co.yml.charts.ui.barchart.models.BarStyle
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
+import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.drawable.github
 import com.tecknobit.pandoro.R.drawable.gitlab
 import com.tecknobit.pandoro.R.string
@@ -94,7 +95,6 @@ import com.tecknobit.pandoro.R.string.delete_update
 import com.tecknobit.pandoro.R.string.delete_update_text
 import com.tecknobit.pandoro.R.string.development_duration
 import com.tecknobit.pandoro.R.string.dismiss
-import com.tecknobit.pandoro.R.string.groups
 import com.tecknobit.pandoro.R.string.insert_a_correct_content
 import com.tecknobit.pandoro.R.string.last_update
 import com.tecknobit.pandoro.R.string.marked_as_done_by
@@ -114,16 +114,14 @@ import com.tecknobit.pandoro.helpers.ColoredBorder
 import com.tecknobit.pandoro.helpers.SpaceContent
 import com.tecknobit.pandoro.helpers.copyContent
 import com.tecknobit.pandoro.helpers.copyNote
-import com.tecknobit.pandoro.helpers.refreshers.AndroidSingleItemManager
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.projectDialogs
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.reviewManager
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.openLink
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.reviewManager
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroAlertDialog
 import com.tecknobit.pandoro.ui.components.PandoroCard
 import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectDialogs
 import com.tecknobit.pandoro.ui.screens.Screen.Companion.currentProject
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
@@ -133,8 +131,9 @@ import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
 import com.tecknobit.pandoro.ui.theme.YELLOW_COLOR
 import com.tecknobit.pandoro.ui.theme.defTypeface
-import com.tecknobit.pandorocore.helpers.areAllChangeNotesDone
-import com.tecknobit.pandorocore.helpers.isContentNoteValid
+import com.tecknobit.pandoro.ui.viewmodels.ProjectActivityViewModel
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.areAllChangeNotesDone
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
 import com.tecknobit.pandorocore.records.Note
 import com.tecknobit.pandorocore.records.Project
 import com.tecknobit.pandorocore.records.Project.RepositoryPlatform.Github
@@ -143,9 +142,6 @@ import com.tecknobit.pandorocore.records.ProjectUpdate.Status.IN_DEVELOPMENT
 import com.tecknobit.pandorocore.records.ProjectUpdate.Status.PUBLISHED
 import com.tecknobit.pandorocore.records.ProjectUpdate.Status.SCHEDULED
 import com.tecknobit.pandorocore.ui.formatNotesAsMarkdown
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
@@ -157,19 +153,13 @@ import me.saket.swipe.SwipeableActionsBox
  * @author N7ghtm4r3 - Tecknobit
  * @see ComponentActivity
  * @see PandoroDataActivity
- * @see AndroidSingleItemManager
  */
-class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
+class ProjectActivity : PandoroDataActivity() {
 
     /**
      * **project** the project to show its details
      */
-    private lateinit var project: MutableState<Project>
-
-    /**
-     * **publishUpdates** list of the published updates
-     */
-    private var publishUpdates = mutableStateListOf<ProjectUpdate>()
+    private lateinit var project: Project
 
     /**
      * **hasGroup** -> whether the projects has group
@@ -182,6 +172,14 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
     private lateinit var showDeleteDialog: MutableState<Boolean>
 
     /**
+     * *viewModel* -> the support view model to manage the requests to the backend
+     */
+    private val viewModel = ProjectActivityViewModel(
+        initialProject = currentProject!!,
+        snackbarHostState = snackbarHostState
+    )
+
+    /**
      * On create method
      *
      * @param savedInstanceState If the activity is being re-initialized after
@@ -191,23 +189,27 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
      * If your ComponentActivity is annotated with {@link ContentView}, this will
      * call {@link #setContentView(int)} for you.
      */
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            project = remember { mutableStateOf(currentProject.value!!) }
-            hasGroup = project.value.hasGroups()
-            if(publishUpdates.isEmpty())
-                publishUpdates.addAll(project.value.publishedUpdates)
-            refreshItem()
+            viewModel.refreshProject {
+                hasGroup = project.hasGroups()
+            }
+            project = viewModel.project.collectAsState().value
             showDeleteDialog = remember { mutableStateOf(false) }
             val showScheduleUpdate = remember { mutableStateOf(false) }
             coroutine = rememberCoroutineScope()
-            snackbarHostState = remember { SnackbarHostState() }
             projectDialogs.ScheduleUpdate(
-                project = project.value,
-                show = showScheduleUpdate
+                project = project,
+                show = showScheduleUpdate,
+                viewModel = viewModel,
+                dismissDialog = {
+                    showScheduleUpdate.value = false
+                    viewModel.snackbarHostState = snackbarHostState
+                    viewModel.restartRefresher()
+                }
             )
             PandoroTheme {
                 Scaffold(
@@ -223,12 +225,12 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             navigationIcon = {
                                 IconButton(
                                     onClick = {
-                                        currentProject.value = null
+                                        currentProject = null
                                         onBackPressedDispatcher.onBackPressed()
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Default.ArrowBack,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                         contentDescription = null
                                     )
                                 }
@@ -243,16 +245,16 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                     ) {
                                         Text(
                                             modifier = Modifier.alignBy(LastBaseline),
-                                            text = project.value.name
+                                            text = project.name
                                         )
                                         Text(
                                             modifier = Modifier.alignBy(LastBaseline),
-                                            text = "v. ${project.value.version}",
+                                            text = "v. ${project.version}",
                                             fontSize = 14.sp
                                         )
                                     }
-                                    val author = project.value.author
-                                    if(author != null && project.value.hasGroups()) {
+                                    val author = project.author
+                                    if(author != null && project.hasGroups()) {
                                         Text(
                                             text = getString(string.author) + " ${author.completeName}",
                                             fontSize = 16.sp
@@ -261,7 +263,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                 }
                             },
                             actions = {
-                                val platform = project.value.repositoryPlatform
+                                val platform = project.repositoryPlatform
                                 if (platform != null) {
                                     val isGitHub = platform == Github
                                     var modifier = Modifier.size(
@@ -278,7 +280,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                     }
                                     IconButton(
                                         modifier = modifier,
-                                        onClick = { openLink(project.value.projectRepo) }
+                                        onClick = { openLink(project.projectRepo) }
                                     ) {
                                         Image(
                                             painter = painterResource(
@@ -296,7 +298,10 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                     },
                     floatingActionButton = {
                         FloatingActionButton(
-                            onClick = { showScheduleUpdate.value = true }
+                            onClick = {
+                                viewModel.suspendRefresher()
+                                showScheduleUpdate.value = true
+                            }
                         ) {
                             Icon(
                                 imageVector = Default.Add,
@@ -316,14 +321,19 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             extraTitle = currentUpdate!!.targetVersion,
                             text = delete_update_text,
                             requestLogic = {
-                                deleteUpdate(currentUpdate!!)
+                                viewModel.deleteUpdate(
+                                    update = currentUpdate!!,
+                                    onSuccess = {
+                                        showDeleteDialog.value = false
+                                    }
+                                )
                             }
                         )
                     }
                     ShowData {
                         item {
                             ShowDescription(
-                                description = project.value.description
+                                description = project.description
                             )
                         }
                         item {
@@ -333,13 +343,13 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                             )
                             Text(
                                 modifier = Modifier.padding(top = 5.dp),
-                                text = getString(last_update) + " ${project.value.lastUpdateDate}"
+                                text = getString(last_update) + " ${project.lastUpdateDate}"
                             )
                             SpaceContent()
                         }
                         if (showUpdatesSection.value) {
                             items(
-                                items = project.value.updates,
+                                items = project.updates,
                                 key = { update ->
                                     update.id
                                 }
@@ -419,19 +429,19 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                                                     contentNote.value
                                                                                 )
                                                                             ) {
-                                                                                requester!!.execAddChangeNote(
-                                                                                    project.value.id,
-                                                                                    update.id,
-                                                                                    contentNote.value
+                                                                                viewModel.addChangeNote(
+                                                                                    update = update,
+                                                                                    contentNote = contentNote,
+                                                                                    onSuccess = {
+                                                                                        addNote = false
+                                                                                        contentNote.value = ""
+                                                                                    },
+                                                                                    onFailure = {
+                                                                                        pandoroModalSheet.showSnack(
+                                                                                            it
+                                                                                        )
+                                                                                    }
                                                                                 )
-                                                                                if(requester!!.successResponse()) {
-                                                                                    addNote = false
-                                                                                    contentNote.value = ""
-                                                                                } else {
-                                                                                    pandoroModalSheet.showSnack(
-                                                                                        requester!!.errorMessage()
-                                                                                    )
-                                                                                }
                                                                             } else {
                                                                                 pandoroModalSheet.showSnack(
                                                                                     insert_a_correct_content
@@ -479,9 +489,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                     note.id
                                                 }
                                             ) { note ->
-                                                val markedAsDone = remember {
-                                                    mutableStateOf(note.isMarkedAsDone)
-                                                }
+                                                val markedAsDone = mutableStateOf(note.isMarkedAsDone)
                                                 if (isInDevelopment) {
                                                     SwipeableActionsBox(
                                                         swipeThreshold = 50.dp,
@@ -500,23 +508,11 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                                 else
                                                                     GREEN_COLOR,
                                                                 onSwipe = {
-                                                                    if (markedAsDone.value) {
-                                                                        requester!!.execMarkChangeNoteAsToDo(
-                                                                            project.value.id,
-                                                                            update.id,
-                                                                            note.id
-                                                                        )
-                                                                    } else {
-                                                                        requester!!.execMarkChangeNoteAsDone(
-                                                                            project.value.id,
-                                                                            update.id,
-                                                                            note.id
-                                                                        )
-                                                                    }
-                                                                    if(requester!!.successResponse())
-                                                                        markedAsDone.value = !markedAsDone.value
-                                                                    else
-                                                                        showSnack(requester!!.errorMessage())
+                                                                    viewModel.manageChangeNote(
+                                                                        markedAsDone = markedAsDone,
+                                                                        update = update,
+                                                                        changeNote = note
+                                                                    )
                                                                 }
                                                             )
                                                         )
@@ -642,12 +638,9 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                                                     },
                                                                     onClick = {
                                                                         if (isScheduled) {
-                                                                            requester!!.execStartUpdate(
-                                                                                project.value.id,
-                                                                                update.id
+                                                                            viewModel.startUpdate(
+                                                                                update = update
                                                                             )
-                                                                            if(!requester!!.successResponse())
-                                                                                showSnack(requester!!.errorMessage())
                                                                             showOptions.value = false
                                                                         } else
                                                                             publishUpdate.value = true
@@ -809,13 +802,14 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                         }
                         item {
                             ShowItemsList(
+                                viewModel = viewModel,
                                 show = showGroupsSection,
-                                headerTitle = groups,
-                                itemsList = project.value.groups,
+                                headerTitle = R.string.groups,
+                                itemsList = project.groups,
                                 clazz = GroupActivity::class.java
                             )
                         }
-                        if (publishUpdates.isNotEmpty()) {
+                        if (project.publishedUpdates.isNotEmpty()) {
                             item {
                                 CreateHeader(
                                     headerTitle = stats,
@@ -824,9 +818,9 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                                 Text(
                                     modifier = Modifier.padding(top = 5.dp),
                                     text = getString(total_development_days)
-                                            + " ${project.value.totalDevelopmentDays}"
+                                            + " ${project.totalDevelopmentDays}"
                                 )
-                                val avgDevelopmentTime = project.value.averageDevelopmentTime
+                                val avgDevelopmentTime = project.averageDevelopmentTime
                                 val temporal =
                                     if (avgDevelopmentTime > 0)
                                         days
@@ -853,19 +847,6 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
     }
 
     /**
-     * Function to delete an update
-     *
-     * @param update: the update to delete
-     */
-    private fun deleteUpdate(update: ProjectUpdate) {
-        requester!!.execDeleteUpdate(project.value.id, update.id)
-        if(requester!!.successResponse())
-            showDeleteDialog.value = false
-        else
-            showSnack(requester!!.errorMessage())
-    }
-
-    /**
      * Function to create a card for a change note
      *
      * @param note: the note to show
@@ -883,64 +864,71 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
         isScheduled: Boolean,
         isInDevelopment: Boolean
     ) {
-        val tooltipState = remember { RichTooltipState() }
-        RichTooltipBox(
-            tooltipState = tooltipState,
-            colors = TooltipDefaults.richTooltipColors(
-                containerColor = IceGrayColor
-            ),
-            title = { Text(text = getString(note_info)) },
-            text = {
-                val author = note.author
-                val authorIsNotNull = author != null
-                Column(
-                    verticalArrangement = spacedBy(5.dp)
-                ) {
-                    if (authorIsNotNull && hasGroup) {
-                        Text(
-                            text = getString(string.author) + " ${author.completeName}"
-                        )
-                    }
-                    Text(
-                        text = stringResource(creation_date) + " ${note.creationDate}",
-                    )
-                    if (markedAsDone.value) {
-                        if (authorIsNotNull && hasGroup) {
+        val tooltipState = rememberTooltipState(
+            isPersistent = true
+        )
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider(),
+            tooltip = {
+                RichTooltip(
+                    colors = TooltipDefaults.richTooltipColors(
+                        containerColor = IceGrayColor
+                    ),
+                    title = { Text(text = getString(note_info)) },
+                    text = {
+                        val author = note.author
+                        val authorIsNotNull = author != null
+                        Column(
+                            verticalArrangement = spacedBy(5.dp)
+                        ) {
+                            if (authorIsNotNull && hasGroup) {
+                                Text(
+                                    text = getString(string.author) + " ${author.completeName}"
+                                )
+                            }
                             Text(
-                                text = stringResource(marked_as_done_by) + " ${author.completeName}"
+                                text = stringResource(creation_date) + " ${note.creationDate}",
                             )
-                        }
-                        Text(
-                            text = stringResource(date_of_mark) + " ${note.markedAsDoneDate}",
-                        )
-                    }
-                }
-            },
-            action = {
-                Row (
-                    verticalAlignment = CenterVertically
-                ) {
-                    TextButton(
-                        onClick = { coroutine.launch { tooltipState.dismiss() } }
-                    ) {
-                        Text(
-                            text = getString(dismiss)
-                        )
-                    }
-                    TextButton(
-                        onClick = {
-                            coroutine.launch {
-                                copyNote(note)
-                                tooltipState.dismiss()
+                            if (markedAsDone.value) {
+                                if (authorIsNotNull && hasGroup) {
+                                    Text(
+                                        text = stringResource(marked_as_done_by) + " ${note.markedAsDoneBy.completeName}"
+                                    )
+                                }
+                                Text(
+                                    text = stringResource(date_of_mark) + " ${note.markedAsDoneDate}",
+                                )
                             }
                         }
-                    ) {
-                        Text(
-                            text = stringResource(copy_note)
-                        )
-                    }
-                }
+                    },
+                    action = {
+                        Row (
+                            verticalAlignment = CenterVertically
+                        ) {
+                            TextButton(
+                                onClick = { coroutine.launch { tooltipState.dismiss() } }
+                            ) {
+                                Text(
+                                    text = getString(dismiss)
+                                )
+                            }
+                            TextButton(
+                                onClick = {
+                                    coroutine.launch {
+                                        copyNote(note)
+                                        tooltipState.dismiss()
+                                    }
+                                }
+                            ) {
+                                Text(
+                                    text = stringResource(copy_note)
+                                )
+                            }
+                        }
+                    },
+                )
             },
+            state = tooltipState,
             content = {}
         )
         PandoroCard(
@@ -974,9 +962,10 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
                     ) {
                         IconButton(
                             onClick = {
-                                requester!!.execDeleteChangeNote(project.value.id, update.id, note.id)
-                                if(!requester!!.successResponse())
-                                    showSnack(requester!!.errorMessage())
+                                viewModel.deleteChangeNote(
+                                    update = update,
+                                    changeNote = note
+                                )
                             }
                         ) {
                             Icon(
@@ -1030,21 +1019,22 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
         update: ProjectUpdate,
         check: MutableState<Boolean>
     ) {
-        requester!!.execPublishUpdate(project.value.id, update.id)
-        if(requester!!.successResponse()) {
-            val request = reviewManager.requestReviewFlow()
-            showOptions.value = false
-            request.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val flow = reviewManager.launchReviewFlow(this, task.result)
-                    flow.addOnCompleteListener {
+        viewModel.publishUpdate(
+            update = update,
+            onSuccess = {
+                val request = reviewManager.requestReviewFlow()
+                showOptions.value = false
+                request.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val flow = reviewManager.launchReviewFlow(this, task.result)
+                        flow.addOnCompleteListener {
+                            check.value = false
+                        }
+                    } else
                         check.value = false
-                    }
-                } else
-                    check.value = false
+                }
             }
-        } else
-            showSnack(requester!!.errorMessage())
+        )
     }
 
     /**
@@ -1055,7 +1045,7 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
     @Composable
     private fun ShowStats() {
         val barData = arrayListOf<BarData>()
-        publishUpdates.forEachIndexed { index, update ->
+        project.publishedUpdates.forEachIndexed { index, update ->
             val y = update.developmentDuration.toFloat()
             barData.add(
                 BarData(
@@ -1113,29 +1103,37 @@ class ProjectActivity : PandoroDataActivity(), AndroidSingleItemManager {
     }
 
     /**
-     * Function to refresh an item to display in the UI
+     * Called after {@link #onRestoreInstanceState}, {@link #onRestart}, or {@link #onPause}. This
+     * is usually a hint for your activity to start interacting with the user, which is a good
+     * indicator that the activity became active and ready to receive input. This sometimes could
+     * also be a transit state toward another resting state. For instance, an activity may be
+     * relaunched to {@link #onPause} due to configuration changes and the activity was visible,
+     * but wasn’t the top-most activity of an activity task. {@link #onResume} is guaranteed to be
+     * called before {@link #onPause} in this case which honors the activity lifecycle policy and
+     * the activity eventually rests in {@link #onPause}.
      *
-     * No-any params required
+     * <p>On platform versions prior to {@link android.os.Build.VERSION_CODES#Q} this is also a good
+     * place to try to open exclusive-access devices or to get access to singleton resources.
+     * Starting  with {@link android.os.Build.VERSION_CODES#Q} there can be multiple resumed
+     * activities in the system simultaneously, so {@link #onTopResumedActivityChanged(boolean)}
+     * should be used for that purpose instead.
+     *
+     * <p><em>Derived classes must call through to the super class's
+     * implementation of this method.  If they do not, an exception will be
+     * thrown.</em></p>
+     *
+     * Will be set the **[FetcherManager.activeContext]** with the current context
+     *
+     * @see #onRestoreInstanceState
+     * @see #onRestart
+     * @see #onPostResume
+     * @see #onPause
+     * @see #onTopResumedActivityChanged(boolean)
      */
-    override fun refreshItem() {
-        CoroutineScope(Dispatchers.Default).launch {
-            while (user.id != null && currentProject.value != null) {
-                try {
-                    val response = requester!!.execGetSingleProject(currentProject.value!!.id)
-                    if(requester!!.successResponse()) {
-                        val tmpProject = Project(response)
-                        if(needToRefresh(project.value, tmpProject)) {
-                            project.value = tmpProject
-                            hasGroup = project.value.hasGroups()
-                            publishUpdates.clear()
-                            publishUpdates.addAll(project.value.publishedUpdates)
-                        }
-                    }
-                } catch (_ : Exception){
-                }
-                delay(1000)
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        viewModel.setActiveContext(this::class.java)
+        viewModel.restartRefresher()
     }
 
 }

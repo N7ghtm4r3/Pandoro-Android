@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,27 +31,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.tecknobit.apimanager.annotations.Structure
+import com.tecknobit.equinox.inputs.InputValidator.isEmailValid
+import com.tecknobit.equinox.inputs.InputValidator.isPasswordValid
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string.confirm
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
+import com.tecknobit.pandoro.ui.activities.session.GroupActivity
+import com.tecknobit.pandoro.ui.activities.session.ProjectActivity
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
+import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
 import com.tecknobit.pandorocore.records.Group
 import com.tecknobit.pandorocore.records.Project
-import com.tecknobit.pandoro.ui.activities.GroupActivity
-import com.tecknobit.pandoro.ui.activities.ProjectActivity
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.components.PandoroOutlinedTextField
-import com.tecknobit.pandorocore.helpers.*
 import kotlinx.coroutines.CoroutineScope
 
 /**
  * The **Screen** class is useful to give the base behaviour of the other screens of the
  * Pandoro's application
  * @author N7ghtm4r3 - Tecknobit
- * @see SnackbarLauncher
  */
 @Structure
-abstract class Screen: SnackbarLauncher {
+abstract class Screen {
 
     /**
      * **ScreenType** the list of available screen types
@@ -103,19 +103,14 @@ abstract class Screen: SnackbarLauncher {
         lateinit var scope: CoroutineScope
 
         /**
-         * **snackbarHostState** the host to launch the snackbars
-         */
-        lateinit var snackbarHostState: SnackbarHostState
-
-        /**
          * **currentProject** the current project currently displayed
          */
-        var currentProject = mutableStateOf<Project?>(null)
+        var currentProject: Project? = null
 
         /**
          * **currentGroup** the current group currently displayed
          */
-        var currentGroup = mutableStateOf<Group?>(null)
+        var currentGroup: Group? = null
 
     }
 
@@ -123,6 +118,13 @@ abstract class Screen: SnackbarLauncher {
      * **sheetInputValue** the value fetched from the bottom modal sheet
      */
     protected var sheetInputValue = mutableStateOf("")
+
+    /**
+     * *snackbarHostState* -> the host to launch the snackbar messages
+     */
+    protected val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
 
     /**
      * Function to show the content screen
@@ -168,7 +170,6 @@ abstract class Screen: SnackbarLauncher {
         scrollEnabled: Boolean
     ) {
         scope = rememberCoroutineScope()
-        snackbarHostState = remember { SnackbarHostState() }
         var modifier = Modifier
             .fillMaxSize()
             .padding(
@@ -178,7 +179,8 @@ abstract class Screen: SnackbarLauncher {
                 start = 16.dp
             )
         if (scrollEnabled)
-            modifier = modifier.verticalScroll(rememberScrollState())
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
         Scaffold(
             snackbarHost = { CreateSnackbarHost(hostState = snackbarHostState) }
         ) {
@@ -249,19 +251,6 @@ abstract class Screen: SnackbarLauncher {
     }
 
     /**
-     * Function to show a message with the [SnackbarHostState]
-     *
-     * @param message: the message to show
-     */
-    override fun showSnack(message: String) {
-        showSnack(
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            message = message
-        )
-    }
-
-    /**
      * Function to show the empty section when a list is empty
      *
      * No any params required
@@ -287,7 +276,7 @@ abstract class Screen: SnackbarLauncher {
      * @param project: the project to show
      */
     fun navToProject(project: Project) {
-        currentProject.value = project
+        currentProject = project
         navTo(ProjectActivity::class.java)
     }
 
@@ -297,7 +286,7 @@ abstract class Screen: SnackbarLauncher {
      * @param group: the group to show
      */
     fun navToGroup(group: Group) {
-        currentGroup.value = group
+        currentGroup = group
         navTo(GroupActivity::class.java)
     }
 
@@ -306,7 +295,9 @@ abstract class Screen: SnackbarLauncher {
      *
      * @param clazz: the class to display
      */
-    private fun <T> navTo(clazz: Class<T>) {
+    private fun <T> navTo(
+        clazz: Class<T>
+    ) {
         startActivity(context, Intent(context, clazz), null)
     }
 

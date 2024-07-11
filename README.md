@@ -1,5 +1,5 @@
 # Pandoro-Android
-**v1.0.3**
+**v1.0.4**
 
 This project, based on Java and the Spring Boot framework, is an open source management software useful in managing your personal projects and group projects.
 Create, develop and publish your projects with **Pandoro**!
@@ -22,9 +22,9 @@ steps:
 - Mobile
   - <a href="https://github.com/N7ghtm4r3/Pandoro-Android#readme">Android</a>
   - iOS -> planned
-- <a href="https://github.com/N7ghtm4r3/Pandoro-Desktop/releases/tag/1.0.3">Pandoro desktop version</a>
+- <a href="https://github.com/N7ghtm4r3/Pandoro-Desktop/releases/tag/1.0.4">Pandoro desktop version</a>
 - <a href="https://github.com/Rhythmss/pandoro-webapp">Pandoro webapp version</a>
-- <a href="https://github.com/N7ghtm4r3/Pandoro/releases/tag/1.0.3">Backend service "out-of-the-box"</a>
+- <a href="https://github.com/N7ghtm4r3/Pandoro/releases/tag/1.0.4">Backend service "out-of-the-box"</a>
 
 ## Usages
 
@@ -58,7 +58,7 @@ repositories {
 }
 
 dependencies {
-  implementation 'com.tecknobit.pandorocore:Pandoro-core:1.0.3'
+  implementation 'com.tecknobit.pandorocore:Pandoro-core:1.0.4'
 }
 ```
 
@@ -71,7 +71,7 @@ repositories {
 }
 
 dependencies {
-  implementation("com.tecknobit.pandorocore:Pandoro-core:1.0.3")
+  implementation("com.tecknobit.pandorocore:Pandoro-core:1.0.4")
 }
 ```
 
@@ -84,7 +84,7 @@ dependencies {
 <dependency>
   <groupId>com.tecknobit.pandorocore</groupId>
   <artifactId>Pandoro-core</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
 </dependency>
 ```
 

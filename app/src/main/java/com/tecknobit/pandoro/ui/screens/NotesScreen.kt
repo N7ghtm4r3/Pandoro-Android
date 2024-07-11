@@ -11,21 +11,19 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.Icons.Default
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.twotone.Done
 import androidx.compose.material.icons.twotone.RemoveDone
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration.Companion.LineThrough
 import androidx.compose.ui.unit.dp
+import com.tecknobit.equinox.Requester.Companion.RESPONSE_MESSAGE_KEY
 import com.tecknobit.pandoro.R.string.content
 import com.tecknobit.pandoro.R.string.create
 import com.tecknobit.pandoro.R.string.create_a_new_note
@@ -43,35 +42,26 @@ import com.tecknobit.pandoro.R.string.insert_a_correct_content
 import com.tecknobit.pandoro.R.string.no_any_personal_notes
 import com.tecknobit.pandoro.R.string.note_info
 import com.tecknobit.pandoro.helpers.copyNote
-import com.tecknobit.pandoro.helpers.refreshers.AndroidListManager
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.pandoroModalSheet
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.pandoroModalSheet
 import com.tecknobit.pandoro.ui.components.PandoroCard
-import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Notes
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.GREEN_COLOR
 import com.tecknobit.pandoro.ui.theme.IceGrayColor
-import com.tecknobit.pandorocore.helpers.isContentNoteValid
+import com.tecknobit.pandoro.ui.theme.PrimaryLight
+import com.tecknobit.pandoro.ui.viewmodels.NotesScreenViewModel
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
 import com.tecknobit.pandorocore.records.Note
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
-import org.json.JSONArray
-import org.json.JSONException
-import org.json.JSONObject
 
 /**
  * The **NotesScreen** class is useful to show the notes of the user
  *
  * @author N7ghtm4r3 - Tecknobit
  * @see Screen
- * @see AndroidListManager
  */
-class NotesScreen: Screen(), AndroidListManager {
+class NotesScreen: Screen() {
 
     companion object {
 
@@ -80,12 +70,13 @@ class NotesScreen: Screen(), AndroidListManager {
          */
         lateinit var showAddNoteSheet: MutableState<Boolean>
 
-        /**
-         * **notes** -> the list of the notes
-         */
-        val notes: SnapshotStateList<Note> = mutableStateListOf()
+        lateinit var notes: StateFlow<List<Note>>
 
     }
+
+    private var viewModel = NotesScreenViewModel(
+        snackbarHostState = snackbarHostState
+    )
 
     /**
      * Function to show the content screen
@@ -95,7 +86,7 @@ class NotesScreen: Screen(), AndroidListManager {
     @Composable
     override fun ShowScreen() {
         showAddNoteSheet = remember { mutableStateOf(false) }
-        refreshValues()
+        val myNotes = notes.collectAsState().value
         SetScreen {
             CreateInputModalBottom(
                 show = showAddNoteSheet,
@@ -104,32 +95,39 @@ class NotesScreen: Screen(), AndroidListManager {
                 buttonText = create,
                 requestLogic = {
                     if (isContentNoteValid(sheetInputValue.value)) {
-                        requester!!.execAddNote(sheetInputValue.value)
-                        if(requester!!.successResponse()) {
-                            sheetInputValue.value = ""
-                            showAddNoteSheet.value = false
-                        } else
-                            pandoroModalSheet.showSnack(requester!!.errorMessage())
+                        viewModel.addNote(
+                            content = sheetInputValue.value,
+                            onSuccess = {
+                                sheetInputValue.value = ""
+                                showAddNoteSheet.value = false
+                            },
+                            onFailure = {
+                                pandoroModalSheet.showSnack(it.getString(RESPONSE_MESSAGE_KEY))
+                            }
+                        )
                     } else
                         pandoroModalSheet.showSnack(insert_a_correct_content)
                 },
                 requiredTextArea = true
             )
-            if(notes.isNotEmpty()) {
+            if(myNotes.isNotEmpty()) {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(bottom = 8.dp)
+                    contentPadding = PaddingValues(
+                        bottom = 8.dp
+                    )
                 ) {
                     items(
-                        items = notes,
+                        items = myNotes,
                         key = { note ->
                             note.id
                         }
                     ) { note ->
                         val showInfoNote = remember { mutableStateOf(false) }
-                        var markedAsDone = note.isMarkedAsDone
+                        val markedAsDone = remember { mutableStateOf(note.isMarkedAsDone) }
                         pandoroModalSheet.PandoroModalSheet(
-                            modifier = Modifier.height(200.dp),
+                            modifier = Modifier
+                                .height(200.dp),
                             show = showInfoNote,
                             title = note_info
                         ) {
@@ -141,9 +139,10 @@ class NotesScreen: Screen(), AndroidListManager {
                                         bottom = 10.dp
                                     ),
                                 text = stringResource(creation_date) + " ${note.creationDate}",
+                                color = PrimaryLight
                             )
-                            if(markedAsDone) {
-                                Divider(thickness = 1.dp)
+                            if(markedAsDone.value) {
+                                HorizontalDivider(thickness = 1.dp)
                                 Text(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -152,6 +151,7 @@ class NotesScreen: Screen(), AndroidListManager {
                                             bottom = 10.dp
                                         ),
                                     text = stringResource(date_of_mark) + " ${note.markedAsDoneDate}",
+                                    color = PrimaryLight
                                 )
                             }
                         }
@@ -161,31 +161,27 @@ class NotesScreen: Screen(), AndroidListManager {
                             startActions = listOf(
                                 SwipeAction(
                                     icon = rememberVectorPainter(
-                                        if (markedAsDone)
+                                        if (markedAsDone.value)
                                             Icons.TwoTone.RemoveDone
                                         else
                                             Icons.TwoTone.Done
                                     ),
                                     background =
-                                    if (markedAsDone)
+                                    if (markedAsDone.value)
                                         ErrorLight
                                     else
                                         GREEN_COLOR,
                                     onSwipe = {
-                                        if (markedAsDone)
-                                            requester!!.execMarkNoteAsToDo(note.id)
-                                        else
-                                            requester!!.execMarkNoteAsDone(note.id)
-                                        if(requester!!.successResponse())
-                                            markedAsDone = !markedAsDone
-                                        else
-                                            showSnack(requester!!.errorMessage())
+                                        viewModel.manageNote(
+                                            markAsDone = markedAsDone,
+                                            note = note
+                                        )
                                     }
                                 )
                             ),
                             endActions = listOf(
                                 SwipeAction(
-                                    icon = rememberVectorPainter(Default.ContentCopy),
+                                    icon = rememberVectorPainter(Icons.Default.ContentCopy),
                                     background = IceGrayColor,
                                     onSwipe = { copyNote(note) }
                                 )
@@ -200,7 +196,9 @@ class NotesScreen: Screen(), AndroidListManager {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(20.dp),
+                                            .padding(
+                                                all = 20.dp
+                                            ),
                                         horizontalArrangement = Arrangement.spacedBy(15.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
@@ -212,20 +210,23 @@ class NotesScreen: Screen(), AndroidListManager {
                                                     .fillMaxWidth(),
                                                 text = content,
                                                 textAlign = TextAlign.Justify,
-                                                textDecoration = if (markedAsDone) LineThrough else null
+                                                textDecoration = if (markedAsDone.value)
+                                                    LineThrough
+                                                else
+                                                    null
                                             )
                                             IconButton(
                                                 modifier = Modifier
                                                     .weight(1f)
                                                     .size(24.dp),
                                                 onClick = {
-                                                    requester!!.execDeleteNote(note.id)
-                                                    if (!requester!!.successResponse())
-                                                        showSnack(requester!!.errorMessage())
+                                                    viewModel.deleteNote(
+                                                        note = note
+                                                    )
                                                 }
                                             ) {
                                                 Icon(
-                                                    imageVector = Default.Delete,
+                                                    imageVector = Icons.Default.Delete,
                                                     contentDescription = null,
                                                     tint = ErrorLight
                                                 )
@@ -239,34 +240,6 @@ class NotesScreen: Screen(), AndroidListManager {
                 }
             } else
                 EmptyList(message = no_any_personal_notes)
-        }
-    }
-
-    /**
-     * Function to refresh a list of items to display in the UI
-     *
-     * No-any params required
-     */
-    override fun refreshValues() {
-        CoroutineScope(Dispatchers.Default).launch {
-            var response: String
-            while (user.id != null && activeScreen.value == Notes) {
-                try {
-                    val tmpNotes = mutableStateListOf<Note>()
-                    response = requester!!.execNotesList()
-                    if(requester!!.successResponse()) {
-                        val jNotes = JSONArray(response)
-                        for (j in 0 until jNotes.length())
-                            tmpNotes.add(Note(jNotes[j] as JSONObject))
-                        if(needToRefresh(notes, tmpNotes)) {
-                            notes.clear()
-                            notes.addAll(tmpNotes)
-                        }
-                    } else
-                        showSnack(requester!!.errorMessage())
-                } catch (_: JSONException){
-                }
-            }
         }
     }
 

@@ -20,8 +20,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Divider
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -42,44 +42,42 @@ import com.tecknobit.pandoro.R.string.add
 import com.tecknobit.pandoro.R.string.add_a_new_project
 import com.tecknobit.pandoro.R.string.add_to_a_group
 import com.tecknobit.pandoro.R.string.change_notes
+import com.tecknobit.pandoro.R.string.description
 import com.tecknobit.pandoro.R.string.edit
-import com.tecknobit.pandoro.R.string.insert_a_correct_description
-import com.tecknobit.pandoro.R.string.insert_a_correct_name
-import com.tecknobit.pandoro.R.string.insert_a_correct_repository_url
-import com.tecknobit.pandoro.R.string.insert_a_correct_short_description
-import com.tecknobit.pandoro.R.string.insert_a_correct_target_version
-import com.tecknobit.pandoro.R.string.insert_a_correct_version
+import com.tecknobit.pandoro.R.string.name
 import com.tecknobit.pandoro.R.string.project_repository
 import com.tecknobit.pandoro.R.string.schedule
 import com.tecknobit.pandoro.R.string.schedule_update
 import com.tecknobit.pandoro.R.string.short_description
 import com.tecknobit.pandoro.R.string.target_version
 import com.tecknobit.pandoro.R.string.to_a_group
-import com.tecknobit.pandoro.R.string.you_must_insert_correct_notes
-import com.tecknobit.pandoro.R.string.you_must_insert_one_note_at_least
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.R.string.version
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
 import com.tecknobit.pandoro.ui.components.PandoroTextField
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showAddProjectDialog
 import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.showEditProjectDialog
 import com.tecknobit.pandoro.ui.theme.ErrorLight
-import com.tecknobit.pandorocore.helpers.areNotesValid
-import com.tecknobit.pandorocore.helpers.isContentNoteValid
-import com.tecknobit.pandorocore.helpers.isValidProjectDescription
-import com.tecknobit.pandorocore.helpers.isValidProjectName
-import com.tecknobit.pandorocore.helpers.isValidProjectShortDescription
-import com.tecknobit.pandorocore.helpers.isValidRepository
-import com.tecknobit.pandorocore.helpers.isValidVersion
-import com.tecknobit.pandorocore.records.Group
+import com.tecknobit.pandoro.ui.viewmodels.MainActivityViewModel
+import com.tecknobit.pandoro.ui.viewmodels.ProjectActivityViewModel
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isContentNoteValid
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectDescription
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectName
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidProjectShortDescription
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidRepository
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isValidVersion
 import com.tecknobit.pandorocore.records.Project
 
 /**
  * The **ProjectDialogs** class is useful to create the projects dialogs
  *
+ * @param viewModel: the support view model to manage the requests to the backend
+ *
  * @author N7ghtm4r3 - Tecknobit
  * @see PandoroDialog
  */
-class ProjectDialogs : PandoroDialog() {
+class ProjectDialogs(
+    val viewModel: MainActivityViewModel
+) : PandoroDialog() {
 
     /**
      * Function to create a Pandoro's custom dialog to add a new [Project]
@@ -94,7 +92,8 @@ class ProjectDialogs : PandoroDialog() {
                 title = stringResource(add_a_new_project),
                 confirmText = stringResource(add)
             )
-        }
+        } else
+            viewModel.restartRefresher()
     }
 
     /**
@@ -103,7 +102,9 @@ class ProjectDialogs : PandoroDialog() {
      * @param project: the project to edit
      */
     @Composable
-    fun EditProject(project: Project) {
+    fun EditProject(
+        project: Project
+    ) {
         if(showEditProjectDialog.value) {
             CreateProjectDialog(
                 project = project,
@@ -111,7 +112,8 @@ class ProjectDialogs : PandoroDialog() {
                 title = stringResource(edit) + " " + project.name + " " + stringResource(string.project),
                 confirmText = stringResource(edit)
             )
-        }
+        } else
+            viewModel.restartRefresher()
     }
 
     /**
@@ -130,145 +132,102 @@ class ProjectDialogs : PandoroDialog() {
         title: String,
         confirmText: String
     ) {
-        var name by remember {
+        viewModel.snackbarHostState = snackbarHostState
+        viewModel.name = remember {
             mutableStateOf(if (project == null) "" else project.name)
         }
-        var description by remember {
+        viewModel.description = remember {
             mutableStateOf(if (project == null) "" else project.description)
         }
-        var shortDescription by remember {
+        viewModel.shortDescription = remember {
             mutableStateOf(if (project == null) "" else project.shortDescription)
         }
-        var version by remember {
+        viewModel.version = remember {
             mutableStateOf(if (project == null) "" else project.version)
         }
-        var projectRepository by remember {
+        viewModel.projectRepository = remember {
             mutableStateOf(if (project == null) "" else project.projectRepo)
         }
-        val groups = mutableStateListOf<Group>()
+        viewModel.projectGroups = remember { mutableListOf() }
         if (project != null)
-            groups.addAll(project.groups)
+            viewModel.projectGroups.addAll(project.groups)
         CreatePandoroDialog(
             show = show,
             title = title,
             confirmText = confirmText,
             requestLogic = {
-                if (isValidProjectName(name)) {
-                    if (isValidProjectDescription(description)) {
-                        if (isValidProjectShortDescription(shortDescription)) {
-                            if (isValidVersion(version)) {
-                                if (isValidRepository(projectRepository)) {
-                                    val groupIds = mutableListOf<String>()
-                                    groups.forEach { group ->
-                                        groupIds.add(group.id)
-                                    }
-                                    if(project == null) {
-                                        requester!!.execAddProject(
-                                            name = name,
-                                            projectDescription = description,
-                                            projectShortDescription = shortDescription,
-                                            projectVersion = version,
-                                            groups = groupIds,
-                                            projectRepository = projectRepository
-                                        )
-                                    } else {
-                                        requester!!.execEditProject(
-                                            projectId = project.id,
-                                            name = name,
-                                            projectDescription = description,
-                                            projectShortDescription = shortDescription,
-                                            projectVersion = version,
-                                            groups = groupIds,
-                                            projectRepository = projectRepository
-                                        )
-                                    }
-                                    if(requester!!.successResponse())
-                                        show.value = false
-                                    else
-                                        showSnack(requester!!.errorMessage())
-                                } else
-                                    showSnack(insert_a_correct_repository_url)
-                            } else
-                                showSnack(insert_a_correct_version)
-                        } else
-                            showSnack(insert_a_correct_short_description)
-                    } else
-                        showSnack(insert_a_correct_description)
-                } else
-                    showSnack(insert_a_correct_name)
+                viewModel.workWithProject(
+                    project = project,
+                    onSuccess = { show.value = false }
+                )
             },
             content = {
                 PandoroTextField(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
-                        .height(height = 60.dp),
-                    textFieldModifier = Modifier.fillMaxWidth(),
-                    label = stringResource(string.name),
-                    isError = !isValidProjectName(name),
-                    value = name,
-                    onValueChange = {
-                        name = it
-                    }
+                        .height(60.dp),
+                    textFieldModifier = Modifier
+                        .fillMaxWidth(),
+                    label = stringResource(name),
+                    isError = !isValidProjectName(viewModel.name.value),
+                    value = viewModel.name
                 )
                 PandoroTextField(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
                         .height(height = 60.dp),
-                    textFieldModifier = Modifier.fillMaxWidth(),
-                    label = stringResource(string.description),
-                    isError = !isValidProjectDescription(description),
-                    value = description,
-                    onValueChange = {
-                        description = it
-                    }
+                    textFieldModifier = Modifier
+                        .fillMaxWidth(),
+                    label = stringResource(description),
+                    isError = !isValidProjectDescription(viewModel.description.value),
+                    value = viewModel.description,
                 )
                 PandoroTextField(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
                         .height(height = 60.dp),
-                    textFieldModifier = Modifier.fillMaxWidth(),
+                    textFieldModifier = Modifier
+                        .fillMaxWidth(),
                     label = stringResource(short_description),
-                    isError = !isValidProjectShortDescription(shortDescription),
-                    value = shortDescription,
-                    onValueChange = {
-                        shortDescription = it
-                    }
+                    isError = !isValidProjectShortDescription(viewModel.shortDescription.value),
+                    value = viewModel.shortDescription
                 )
                 PandoroTextField(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
                         .height(height = 60.dp),
-                    textFieldModifier = Modifier.fillMaxWidth(),
-                    label = stringResource(string.version),
-                    isError = !isValidVersion(version),
-                    value = version,
-                    onValueChange = {
-                        version = it
-                    }
+                    textFieldModifier = Modifier
+                        .fillMaxWidth(),
+                    label = stringResource(version),
+                    isError = !isValidVersion(viewModel.version.value),
+                    value = viewModel.version
                 )
                 PandoroTextField(
                     modifier = Modifier
                         .padding(10.dp)
                         .fillMaxWidth()
                         .height(height = 60.dp),
-                    textFieldModifier = Modifier.fillMaxWidth(),
+                    textFieldModifier = Modifier
+                        .fillMaxWidth(),
                     label = stringResource(project_repository),
-                    isError = !isValidRepository(projectRepository),
-                    value = projectRepository,
-                    onValueChange = {
-                        projectRepository = it
-                    }
+                    isError = !isValidRepository(viewModel.projectRepository.value),
+                    value = viewModel.projectRepository
                 )
                 if(user.adminGroups.isNotEmpty()) {
                     Column(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
                     ) {
                         Text(
-                            modifier = Modifier.padding(start = 15.dp, bottom = 10.dp, top = 5.dp),
+                            modifier = Modifier.padding(
+                                start = 15.dp,
+                                bottom = 10.dp,
+                                top = 5.dp
+                            ),
                             text =
                             if (project == null)
                                 stringResource(add_to_a_group)
@@ -278,15 +237,19 @@ class ProjectDialogs : PandoroDialog() {
                             },
                             fontSize = 18.sp
                         )
-                        Divider(thickness = 1.dp)
-                        LazyVerticalGrid(columns = GridCells.Fixed(3)) {
+                        HorizontalDivider(thickness = 1.dp)
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3)
+                        ) {
                             items(
                                 items = user.adminGroups,
                                 key = { group ->
                                     group.id
                                 }
                             ) { group ->
-                                var inserted by remember { mutableStateOf(groups.contains(group)) }
+                                var inserted by remember {
+                                    mutableStateOf(viewModel.projectGroups.contains(group))
+                                }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -295,9 +258,9 @@ class ProjectDialogs : PandoroDialog() {
                                         onCheckedChange = {
                                             inserted = it
                                             if (it)
-                                                groups.add(group)
+                                                viewModel.projectGroups.add(group)
                                             else
-                                                groups.remove(group)
+                                                viewModel.projectGroups.remove(group)
                                         }
                                     )
                                     Spacer(modifier = Modifier.width(3.dp))
@@ -319,41 +282,32 @@ class ProjectDialogs : PandoroDialog() {
      *
      * @param project: the project where schedule the update
      * @param show: whether show the dialog
+     * @param dismissDialog: the action to execute when the dialog has been dismissed
      */
     @OptIn(ExperimentalFoundationApi::class)
     @SuppressLint("UnrememberedMutableState")
     @Composable
     fun ScheduleUpdate(
         project: Project,
-        show: MutableState<Boolean>
+        show: MutableState<Boolean>,
+        dismissDialog: () -> Unit,
+        viewModel: ProjectActivityViewModel
     ) {
         val notes = mutableStateListOf("")
-        var targetVersion by remember { mutableStateOf("") }
+        viewModel.targetVersion = remember { mutableStateOf("") }
+        viewModel.snackbarHostState = snackbarHostState
         CreatePandoroDialog(
             show = show,
+            onDismissRequest = dismissDialog,
             title = stringResource(schedule_update),
             customWeight = 2f,
             confirmText = stringResource(schedule),
             requestLogic = {
-                if (isValidVersion(targetVersion)) {
-                    if (notes.isNotEmpty()) {
-                        if (areNotesValid(notes)) {
-                            requester!!.execScheduleUpdate(
-                                projectId = project.id,
-                                targetVersion = targetVersion,
-                                updateChangeNotes = notes
-                            )
-                            if(requester!!.successResponse()) {
-                                targetVersion = ""
-                                show.value = false
-                            } else
-                                showSnack(requester!!.errorMessage())
-                        } else
-                            showSnack(you_must_insert_correct_notes)
-                    } else
-                        showSnack(you_must_insert_one_note_at_least)
-                } else
-                    showSnack(insert_a_correct_target_version)
+                viewModel.scheduleUpdate(
+                    project = project,
+                    notes = notes,
+                    onSuccess = dismissDialog
+                )
             }
         ) {
             PandoroTextField(
@@ -363,11 +317,8 @@ class ProjectDialogs : PandoroDialog() {
                     .height(height = 60.dp),
                 textFieldModifier = Modifier.fillMaxWidth(),
                 label = stringResource(target_version),
-                value = targetVersion,
-                isError = !isValidVersion(targetVersion),
-                onValueChange = {
-                    targetVersion = it
-                }
+                value = viewModel.targetVersion,
+                isError = !isValidVersion(viewModel.targetVersion.value),
             )
             Text(
                 modifier = Modifier.padding(
@@ -389,9 +340,15 @@ class ProjectDialogs : PandoroDialog() {
                             )
                     ) {
                         FloatingActionButton(
-                            modifier = Modifier.size(40.dp),
+                            modifier = Modifier
+                                .size(40.dp),
                             onClick = { notes.add("") },
-                            content = { Icon(Icons.Filled.Add, null) }
+                            content = {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = null
+                                )
+                            }
                         )
                     }
                 }
@@ -422,7 +379,7 @@ class ProjectDialogs : PandoroDialog() {
                                     notes.add(index, it)
                                 }
                             },
-                            value = content.value
+                            value = content
                         )
                         IconButton(
                             modifier = Modifier.padding(start = 10.dp),

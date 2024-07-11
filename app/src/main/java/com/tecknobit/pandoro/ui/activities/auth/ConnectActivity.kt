@@ -1,4 +1,4 @@
-package com.tecknobit.pandoro.ui.activities
+package com.tecknobit.pandoro.ui.activities.auth
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -41,11 +41,22 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation.Companion.None
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tecknobit.apimanager.formatters.JsonHelper
+import com.tecknobit.equinox.environment.records.EquinoxUser.EMAIL_KEY
+import com.tecknobit.equinox.environment.records.EquinoxUser.NAME_KEY
+import com.tecknobit.equinox.environment.records.EquinoxUser.PASSWORD_KEY
+import com.tecknobit.equinox.environment.records.EquinoxUser.PROFILE_PIC_KEY
+import com.tecknobit.equinox.environment.records.EquinoxUser.SURNAME_KEY
+import com.tecknobit.equinox.environment.records.EquinoxUser.TOKEN_KEY
+import com.tecknobit.equinox.inputs.InputValidator.DEFAULT_LANGUAGE
+import com.tecknobit.equinox.inputs.InputValidator.isEmailValid
+import com.tecknobit.equinox.inputs.InputValidator.isNameValid
+import com.tecknobit.equinox.inputs.InputValidator.isPasswordValid
+import com.tecknobit.equinox.inputs.InputValidator.isServerSecretValid
+import com.tecknobit.equinox.inputs.InputValidator.isSurnameValid
 import com.tecknobit.pandoro.R
 import com.tecknobit.pandoro.R.string
 import com.tecknobit.pandoro.R.string.are_you_new_to_pandoro
@@ -56,52 +67,26 @@ import com.tecknobit.pandoro.R.string.server_secret
 import com.tecknobit.pandoro.R.string.sign_in
 import com.tecknobit.pandoro.R.string.sign_up
 import com.tecknobit.pandoro.R.string.welcome_back
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_email
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_name
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_password
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_server_address
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_server_secret
-import com.tecknobit.pandoro.R.string.you_must_insert_a_correct_surname
-import com.tecknobit.pandoro.helpers.AndroidRequester
-import com.tecknobit.pandoro.helpers.SnackbarLauncher
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.activeScreen
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.context
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.isRefreshing
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.localAuthHelper
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.openLink
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.requester
-import com.tecknobit.pandoro.ui.activities.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.activeScreen
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.context
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.openLink
+import com.tecknobit.pandoro.ui.activities.navigation.SplashScreen.Companion.user
+import com.tecknobit.pandoro.ui.activities.session.MainActivity
+import com.tecknobit.pandoro.ui.components.CreateSnackbarHost
 import com.tecknobit.pandoro.ui.components.PandoroTextField
-import com.tecknobit.pandoro.ui.screens.NotesScreen.Companion.notes
-import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.changelogs
-import com.tecknobit.pandoro.ui.screens.ProfileScreen.Companion.groups
-import com.tecknobit.pandoro.ui.screens.ProjectsScreen.Companion.projectsList
 import com.tecknobit.pandoro.ui.screens.Screen.ScreenType.Projects
 import com.tecknobit.pandoro.ui.theme.BackgroundLight
 import com.tecknobit.pandoro.ui.theme.ErrorLight
 import com.tecknobit.pandoro.ui.theme.PandoroTheme
 import com.tecknobit.pandoro.ui.theme.PrimaryLight
-import com.tecknobit.pandorocore.helpers.DEFAULT_USER_LANGUAGE
-import com.tecknobit.pandorocore.helpers.InputStatus
-import com.tecknobit.pandorocore.helpers.InputStatus.WRONG_EMAIL
-import com.tecknobit.pandorocore.helpers.InputStatus.WRONG_PASSWORD
-import com.tecknobit.pandorocore.helpers.ScreenType
-import com.tecknobit.pandorocore.helpers.ScreenType.SignIn
-import com.tecknobit.pandorocore.helpers.ScreenType.SignUp
-import com.tecknobit.pandorocore.helpers.areCredentialsValid
-import com.tecknobit.pandorocore.helpers.isEmailValid
-import com.tecknobit.pandorocore.helpers.isNameValid
-import com.tecknobit.pandorocore.helpers.isPasswordValid
-import com.tecknobit.pandorocore.helpers.isServerAddressValid
-import com.tecknobit.pandorocore.helpers.isServerSecretValid
-import com.tecknobit.pandorocore.helpers.isSurnameValid
+import com.tecknobit.pandoro.ui.viewmodels.ConnectViewModel
+import com.tecknobit.pandoro.ui.viewmodels.PandoroViewModel.Companion.requester
+import com.tecknobit.pandorocore.helpers.InputsValidator
+import com.tecknobit.pandorocore.helpers.InputsValidator.Companion.isServerAddressValid
+import com.tecknobit.pandorocore.helpers.InputsValidator.ScreenType.SignIn
+import com.tecknobit.pandorocore.helpers.InputsValidator.ScreenType.SignUp
+import com.tecknobit.pandorocore.helpers.PandoroRequester
 import com.tecknobit.pandorocore.records.structures.PandoroItem.IDENTIFIER_KEY
-import com.tecknobit.pandorocore.records.users.PublicUser.EMAIL_KEY
-import com.tecknobit.pandorocore.records.users.PublicUser.NAME_KEY
-import com.tecknobit.pandorocore.records.users.PublicUser.PASSWORD_KEY
-import com.tecknobit.pandorocore.records.users.PublicUser.PROFILE_PIC_KEY
-import com.tecknobit.pandorocore.records.users.PublicUser.SURNAME_KEY
-import com.tecknobit.pandorocore.records.users.PublicUser.TOKEN_KEY
 import com.tecknobit.pandorocore.records.users.User
 import com.tecknobit.pandorocore.records.users.User.LANGUAGE_KEY
 import com.tecknobit.pandorocore.ui.LocalUser
@@ -115,9 +100,8 @@ import org.json.JSONObject
  * @author N7ghtm4r3 - Tecknobit
  *
  * @see ComponentActivity
- * @see SnackbarLauncher
  */
-class ConnectActivity : ComponentActivity(), SnackbarLauncher {
+class ConnectActivity : ComponentActivity() {
 
     /**
      * **scope** the coroutine to launch the snackbars
@@ -127,7 +111,16 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
     /**
      * **snackbarHostState** the host to launch the snackbars
      */
-    private lateinit var snackbarHostState: SnackbarHostState
+    private val snackbarHostState by lazy {
+        SnackbarHostState()
+    }
+
+    /**
+     * **projectsScreen** -> the screen to show the projects
+     */
+    private val viewModel = ConnectViewModel(
+        snackbarHostState = snackbarHostState
+    )
 
     /**
      * On create method
@@ -144,7 +137,6 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
         super.onCreate(savedInstanceState)
         setContent {
             scope = rememberCoroutineScope()
-            snackbarHostState = remember { SnackbarHostState() }
             PandoroTheme {
                 var screenType by remember { mutableStateOf(SignIn) }
                 val title = createTitle(screenType)
@@ -216,7 +208,7 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                             }
                                             Text(
                                                 modifier = Modifier.padding(end = 5.dp),
-                                                text = "v. 1.0.3",
+                                                text = "v. 1.0.4",
                                                 fontSize = 12.sp,
                                                 color = White,
                                             )
@@ -232,12 +224,12 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            var serverAddress by remember { mutableStateOf("") }
-                            var serverSecret by remember { mutableStateOf("") }
-                            var name by remember { mutableStateOf("") }
-                            var surname by remember { mutableStateOf("") }
-                            var email by remember { mutableStateOf("") }
-                            var password by remember { mutableStateOf("") }
+                            viewModel.serverAddress = remember { mutableStateOf("") }
+                            viewModel.serverSecret = remember { mutableStateOf("") }
+                            viewModel.name = remember { mutableStateOf("") }
+                            viewModel.surname = remember { mutableStateOf("") }
+                            viewModel.email = remember { mutableStateOf("") }
+                            viewModel.password = remember { mutableStateOf("") }
                             PandoroTextField(
                                 modifier = Modifier
                                     .padding(10.dp)
@@ -245,11 +237,8 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     .height(60.dp),
                                 textFieldModifier = Modifier.fillMaxWidth(),
                                 label = getString(server_address),
-                                value = serverAddress,
-                                isError = !isServerAddressValid(serverAddress),
-                                onValueChange = {
-                                    serverAddress = it
-                                }
+                                value = viewModel.serverAddress,
+                                isError = !isServerAddressValid(viewModel.serverAddress.value)
                             )
                             if (!isIsSignIn) {
                                 PandoroTextField(
@@ -259,11 +248,8 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                         .height(60.dp),
                                     textFieldModifier = Modifier.fillMaxWidth(),
                                     label = getString(server_secret),
-                                    value = serverSecret,
-                                    isError = !isServerSecretValid(serverSecret),
-                                    onValueChange = {
-                                        serverSecret = it
-                                    }
+                                    value = viewModel.serverSecret,
+                                    isError = !isServerSecretValid(viewModel.serverSecret.value),
                                 )
                                 PandoroTextField(
                                     modifier = Modifier
@@ -272,11 +258,8 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                         .height(60.dp),
                                     textFieldModifier = Modifier.fillMaxWidth(),
                                     label = getString(string.name),
-                                    value = name,
-                                    isError = !isNameValid(name),
-                                    onValueChange = {
-                                        name = it
-                                    }
+                                    value = viewModel.name,
+                                    isError = !isNameValid(viewModel.name.value),
                                 )
                                 PandoroTextField(
                                     modifier = Modifier
@@ -285,11 +268,8 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                         .height(60.dp),
                                     textFieldModifier = Modifier.fillMaxWidth(),
                                     label = getString(string.surname),
-                                    value = surname,
-                                    isError = !isSurnameValid(surname),
-                                    onValueChange = {
-                                        surname = it
-                                    }
+                                    value = viewModel.surname,
+                                    isError = !isSurnameValid(viewModel.surname.value)
                                 )
                             }
                             PandoroTextField(
@@ -299,10 +279,10 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     .height(60.dp),
                                 textFieldModifier = Modifier.fillMaxWidth(),
                                 label = getString(string.email),
-                                value = email,
-                                isError = !isEmailValid(email),
+                                value = viewModel.email,
+                                isError = !isEmailValid(viewModel.email.value),
                                 onValueChange = {
-                                    email = it.replace(" ", "")
+                                    viewModel.email.value = it.replace(" ", "")
                                 }
                             )
                             var isVisible by remember { mutableStateOf(false) }
@@ -316,10 +296,10 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                 else
                                     PasswordVisualTransformation(),
                                 label = getString(string.password),
-                                value = password,
-                                isError = !isPasswordValid(password),
+                                value = viewModel.password,
+                                isError = !isPasswordValid(viewModel.password.value),
                                 onValueChange = {
-                                    password = it.replace(" ", "")
+                                    viewModel.password.value = it.replace(" ", "")
                                 },
                                 trailingIcon = {
                                     IconButton(
@@ -343,40 +323,8 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                 shape = RoundedCornerShape(10.dp),
                                 onClick = {
                                     when (screenType) {
-                                        SignUp -> {
-                                            if (isServerAddressValid(serverAddress)) {
-                                                if(isServerSecretValid(serverSecret)) {
-                                                    if (isNameValid(name)) {
-                                                        if (isSurnameValid(surname)) {
-                                                            checkCredentials(
-                                                                serverAddress = serverAddress,
-                                                                serverSecret = serverSecret,
-                                                                name = name,
-                                                                surname = surname,
-                                                                email = email,
-                                                                password = password
-                                                            )
-                                                        } else
-                                                            showSnack(you_must_insert_a_correct_surname)
-                                                    } else
-                                                        showSnack(you_must_insert_a_correct_name)
-                                                } else {
-                                                    showSnack(you_must_insert_a_correct_server_secret)
-                                                }
-                                            } else
-                                                showSnack(you_must_insert_a_correct_server_address)
-                                        }
-
-                                        SignIn -> {
-                                            if (isServerAddressValid(serverAddress)) {
-                                                checkCredentials(
-                                                    serverAddress = serverAddress,
-                                                    email = email,
-                                                    password = password
-                                                )
-                                            } else
-                                                showSnack(you_must_insert_a_correct_server_address)
-                                        }
+                                        SignUp -> viewModel.signUp()
+                                        SignIn -> viewModel.signIn()
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -396,8 +344,8 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                                     .clickable(true, onClick = {
                                         screenType =
                                             if (screenType == SignUp) {
-                                                name = ""
-                                                surname = ""
+                                                viewModel.name.value = ""
+                                                viewModel.surname.value = ""
                                                 SignIn
                                             } else
                                                 SignUp
@@ -428,7 +376,9 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
      * @param screenType: the type from create the title
      * @return title to show as [String]
      */
-    private fun createTitle(screenType: ScreenType): String {
+    private fun createTitle(
+        screenType: InputsValidator.ScreenType
+    ): String {
         return when (screenType) {
             SignUp -> context.getString(sign_up)
             SignIn -> context.getString(sign_in)
@@ -441,7 +391,9 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
      * @param screenType: the type from create the message
      * @return message to show as [String]
      */
-    private fun createMessage(screenType: ScreenType): String {
+    private fun createMessage(
+        screenType: InputsValidator.ScreenType
+    ): String {
         return when (screenType) {
             SignIn -> context.getString(are_you_new_to_pandoro)
             SignUp -> context.getString(have_an_account)
@@ -454,72 +406,13 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
      * @param screenType: the type from create the title link
      * @return title link to show as [String]
      */
-    private fun createTitleLink(screenType: ScreenType): String {
+    private fun createTitleLink(
+        screenType: InputsValidator.ScreenType
+    ): String {
         return when (screenType) {
             SignUp -> context.getString(sign_in)
             SignIn -> context.getString(sign_up)
         }
-    }
-
-    /**
-     * Function to check the validity of the credentials
-     *
-     * @param serverAddress: the address of the Pandoro's backend
-     * @param serverSecret: the secret of the Pandoro's backend
-     * @param name: the name of the user
-     * @param surname: the surname of the user
-     * @param email: email to check
-     * @param password: password to check
-     */
-    private fun checkCredentials(
-        serverAddress: String,
-        serverSecret: String? = null,
-        name: String = "",
-        surname: String = "",
-        email: String,
-        password: String
-    ) {
-        val language: String?
-        when (areCredentialsValid(email, password)) {
-            InputStatus.OK -> {
-                requester = AndroidRequester(serverAddress, null, null)
-                val response: JsonHelper = if(serverSecret.isNullOrBlank()) {
-                    language = ""
-                    JsonHelper(requester!!.execSignIn(email, password))
-                } else {
-                    language = Locale.current.toLanguageTag().substringBefore("-")
-                    JsonHelper(requester!!.execSignUp(serverSecret, name, surname, email, password,
-                        language))
-                }
-                if(requester!!.successResponse()) {
-                    localAuthHelper.initUserSession(
-                        response,
-                        serverAddress,
-                        name.ifEmpty { response.getString(NAME_KEY) },
-                        surname.ifEmpty { response.getString(SURNAME_KEY) },
-                        email,
-                        password,
-                        language.ifEmpty { response.getString(LANGUAGE_KEY) }
-                    )
-                } else
-                    showSnack(requester!!.errorMessage())
-            }
-            WRONG_PASSWORD -> showSnack(you_must_insert_a_correct_password)
-            WRONG_EMAIL -> showSnack(you_must_insert_a_correct_email)
-        }
-    }
-
-    /**
-     * Function to show a message with the [SnackbarHostState]
-     *
-     * @param message: the message to show
-     */
-    override fun showSnack(message: String) {
-        showSnack(
-            scope = scope,
-            snackbarHostState = snackbarHostState,
-            message = message
-        )
     }
 
     /**
@@ -554,13 +447,15 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
                         .put(SURNAME_KEY, preferences.getString(SURNAME_KEY, null))
                         .put(EMAIL_KEY, preferences.getString(EMAIL_KEY, null))
                         .put(PASSWORD_KEY, preferences.getString(PASSWORD_KEY, null))
-                        .put(LANGUAGE_KEY, preferences.getString(LANGUAGE_KEY, DEFAULT_USER_LANGUAGE))
+                        .put(LANGUAGE_KEY, preferences.getString(LANGUAGE_KEY, DEFAULT_LANGUAGE))
                 )
-                requester = AndroidRequester(host!!, userId, userToken)
-            } else {
-                requester = null
+                requester = PandoroRequester(
+                    host = host!!,
+                    userId = userId,
+                    userToken = userToken
+                )
+            } else
                 user = User()
-            }
         }
 
         /**
@@ -611,11 +506,6 @@ class ConnectActivity : ComponentActivity(), SnackbarLauncher {
          */
         override fun logout() {
             preferences.edit().clear().apply()
-            projectsList.clear()
-            notes.clear()
-            changelogs.clear()
-            groups.clear()
-            isRefreshing.value = false
             context.startActivity(Intent(context, ConnectActivity::class.java))
         }
 

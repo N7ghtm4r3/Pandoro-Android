@@ -20,7 +20,6 @@
     <string name="project_repository">Référentiel du projet</string>
     <string name="add_to_a_group">Ajouter à un groupe</string>
     <string name="edit">Modifier</string>
-    <string name="edit_caps">Modifier</string>
     <string name="project">projet</string>
     <string name="to_a_group">à un groupe</string>
     <string name="creation_date">Date de création:</string>
@@ -138,4 +137,5 @@
     <string name="total_change_notes">Notes sur les changements totaux :</string>
     <string name="language">Langue</string>
     <string name="change_language">Changer de langue</string>
+    <string name="server_currently_offline">Le serveur est actuellement hors ligne</string>
 </resources>
