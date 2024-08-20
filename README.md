@@ -1,7 +1,7 @@
 # Pandoro-Android
 **v1.0.4**
 
-This project, based on Java and the Spring Boot framework, is an open source management software useful in managing your personal projects and group projects.
+This project, based on Java and the Spring Boot framework, is an open source self-hosted management software useful in managing your personal projects and group projects.
 Create, develop and publish your projects with **Pandoro**!
 
 This repository contains the desktop version of **Pandoro**,
